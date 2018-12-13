@@ -15,11 +15,14 @@ MonoBehaviour:
     segmentCount: 100
     minSegmentLength: 2
     maxSegmentLength: 10
-    minEnemyPopulation: 0.3
-    maxEnemyPopulation: 0.5
+    minEnemyPopulation: 0.2
+    maxEnemyPopulation: 0.25
     prefabEnemy: {fileID: 1677183367982454, guid: 9e67caea77b0f2141b5727e5069a6a66,
       type: 2}
     prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,
       type: 2}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 2}
+  HUDControllerSettings:
+    heartFull: {fileID: 21300000, guid: 3c3f705646b81ab4aa25ef38d12b6b7c, type: 3}
+    heartBroken: {fileID: 21300000, guid: fbbb248f5fbf3c34d9686895fd0d66db, type: 3}
