@@ -8,5 +8,8 @@ public class DependencyInstaller : MonoInstaller
         Container.Bind<Outplay.RandomNumberProvider>()
             .AsSingle()
             .WithArguments(1);  // Fixed seed
+
+        Container.Bind<Outplay.RhythMage.DungeonModel>()
+            .AsSingle();
     }
 }
