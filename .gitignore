@@ -1,0 +1,10 @@
+.vs
+Library/
+obj/
+Temp/
+WebGLBuild/
+WindowsBuild/
+*.csproj
+*.log
+*.sln
+*.suo
