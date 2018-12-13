@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Outplay.RhythMage
@@ -9,6 +8,9 @@ namespace Outplay.RhythMage
     {
         [Zenject.Inject]
         DungeonModel m_dungeon;
+
+        [Zenject.Inject]
+        AvatarModel m_avatar;
 
         [Zenject.Inject]
         SoundManager m_sound;
@@ -30,8 +32,14 @@ namespace Outplay.RhythMage
             }
 
             Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
-            //transform.localPosition = new Vector3(currentCell.x, 0, currentCell.y);
-            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0, currentCell.y), 0.125f));
+
+            if (m_dungeon.HasEnemyAtCell(currentCell))
+            {
+                // Take damage
+                m_avatar.TakeDamage();
+            }
+            
+            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
 
             Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
             CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);

@@ -9,6 +9,9 @@ public class DependencyInstaller : MonoInstaller
             .AsSingle()
             .WithArguments(1);  // Fixed seed
 
+        Container.Bind<Outplay.RhythMage.AvatarModel>()
+            .AsSingle();
+
         Container.Bind<Outplay.RhythMage.DungeonModel>()
             .AsSingle();
     }

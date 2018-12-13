@@ -30,6 +30,11 @@ namespace Outplay.RhythMage
             m_enemies.Add(cell, enemy);
         }
 
+        public bool HasEnemyAtCell(Cell cell)
+        {
+            return m_enemies.ContainsKey(cell);
+        }
+
         public Cell GetCellAtIndex(int index)
         {
             return m_floorCells[index];
