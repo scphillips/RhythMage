@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    readonly float bps = 60.0f / 200.0f;
+    readonly float bps = 0.45f;
     float m_elapsed;
 
     public event EventHandler OnBeat;
