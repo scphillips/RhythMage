@@ -11,3 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6007dfc7b3f9b43b2f6e61ab99ab38, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
+  DungeonBuilderSettings:
+    prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,
+      type: 2}
+    prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
+      type: 2}
