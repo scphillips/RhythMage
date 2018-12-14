@@ -14,6 +14,8 @@ namespace Outplay.RhythMage
             public List<AudioClip> LeftHitClips;
             public AudioClip RightSwipeClip;
             public List<AudioClip> RightHitClips;
+
+            public AudioClip HeartLostClip;
         }
 
         [Zenject.Inject]
@@ -29,7 +31,12 @@ namespace Outplay.RhythMage
         GestureHandler m_gestureHandler;
 
         [Zenject.Inject]
+        RandomNumberProvider m_rng;
+
+        [Zenject.Inject]
         SoundManager m_sound;
+
+        public AudioSource audioSource;
         
         int m_currentCellIndex;
 
@@ -90,6 +97,15 @@ namespace Outplay.RhythMage
             var args = (GestureHandler.GestureSwipeEventArgs)e;
             Debug.Log("Swipe: " + args.Direction.ToString());
             Debug.Log("Time off beat: " + m_sound.TimeOffBeat());
+            if (args.Direction == Defs.Direction.Left)
+            {
+                audioSource.PlayOneShot(m_settings.LeftSwipeClip);
+            }
+            else if (args.Direction == Defs.Direction.Right)
+            {
+                audioSource.PlayOneShot(m_settings.RightSwipeClip);
+            }
+
             if (m_sound.TimeOffBeat() < 0.2f)
             {
                 // Valid swipe, test enemy type
@@ -103,6 +119,17 @@ namespace Outplay.RhythMage
                         // Valid combination, destroy the enemy
                         enemy.Die();
                         m_dungeon.RemoveEnemyAtCell(currentCell);
+
+                        if (args.Direction == Defs.Direction.Left)
+                        {
+                            int index = m_rng.Next(m_settings.LeftHitClips.Count);
+                            audioSource.PlayOneShot(m_settings.LeftHitClips[index]);
+                        }
+                        else if (args.Direction == Defs.Direction.Right)
+                        {
+                            int index = m_rng.Next(m_settings.RightHitClips.Count);
+                            audioSource.PlayOneShot(m_settings.RightHitClips[index]);
+                        }
                     }
                 }
             }
@@ -128,6 +155,7 @@ namespace Outplay.RhythMage
             {
                 // Take damage
                 m_avatar.TakeDamage();
+                audioSource.PlayOneShot(m_settings.HeartLostClip);
             }
         }
 
