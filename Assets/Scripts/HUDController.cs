@@ -42,7 +42,9 @@ namespace Outplay.RhythMage
 
             var camera = m_camera.Get();
             LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
+            LeftHand.transform.forward = camera.transform.forward;
             RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.75f, 0.14f, 0.25f));
+            RightHand.transform.forward = camera.transform.forward;
         }
 
         void OnEnemyCountChanged(object sender, EventArgs e)

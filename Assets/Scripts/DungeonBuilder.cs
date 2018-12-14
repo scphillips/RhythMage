@@ -18,6 +18,8 @@ namespace Outplay.RhythMage
 
             public GameObject prefabFloor;
             public GameObject prefabWall;
+
+            public List<Material> wallMaterials;
         }
 
         [Zenject.Inject]
@@ -82,6 +84,8 @@ namespace Outplay.RhythMage
             Cell currentPosition;
             currentPosition.x = 0;
             currentPosition.y = 0;
+            AddCellAtPosition(currentPosition.x, currentPosition.y);
+
             for (int i = 0; i < m_settings.segmentCount; ++i)
             {
                 CoordinateOffset offset;
@@ -111,17 +115,17 @@ namespace Outplay.RhythMage
             // Generate floors, tunnelling through the walls with all overlapping cells
             foreach (var entry in m_floorCells)
             {
-                CreateFloor(new Vector3(entry.x, 0, entry.y));
+                CreateFloor(entry);
                 m_wallCells.Remove(entry);
             }
 
             // Generate walls
             foreach (var entry in m_wallCells)
             {
-                CreateWall(new Vector3(entry.x, 0, entry.y));
+                CreateWall(entry);
             }
 
-            // Spawn Enemies
+            // Find valid locations to spawn enemies
             float range = m_settings.maxEnemyPopulation - m_settings.minEnemyPopulation;
             float enemyPopulation = m_settings.minEnemyPopulation + System.Convert.ToSingle(m_rng.NextDouble()) * range;
             int enemiesToSpawn = System.Convert.ToInt32(m_floorCells.Count * enemyPopulation);
@@ -130,29 +134,42 @@ namespace Outplay.RhythMage
             {
                 enemyLocationChoices.Add(cell);
             }
+
+            // Remove starting tiles from list of location choices
+            for (int i = 0; i < 5; ++i)
+            {
+                var cell = m_dungeon.GetCellAtIndex(i);
+                enemyLocationChoices.Remove(cell);
+            }
             
+            // Spawn Enemies
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
                 var type = (m_rng.Next(2) == 0) ? Enemy.EnemyType.Magic : Enemy.EnemyType.Melee;
                 var enemy = m_enemyFactory.CreateEnemy(enemyLocationChoices[index], type);
+                enemy.transform.SetParent(transform, false);
                 m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], enemy);
                 enemyLocationChoices.RemoveAt(index);
             }
         }
         
-        void CreateFloor(Vector3 position)
+        void CreateFloor(Cell cell)
         {
             var floor = (GameObject)Instantiate(m_settings.prefabFloor);
             floor.transform.SetParent(transform, false);
-            floor.transform.localPosition = new Vector3(position.x, position.y - 0.5f, position.z);
+            floor.transform.localPosition += new Vector3(cell.x, 0, cell.y);
         }
 
-        void CreateWall(Vector3 position)
+        void CreateWall(Cell cell)
         {
             var wall = (GameObject)Instantiate(m_settings.prefabWall);
             wall.transform.SetParent(transform, false);
-            wall.transform.localPosition = position;
+            wall.transform.localPosition += new Vector3(cell.x, 0, cell.y);
+            if (cell.x % 3 == 0 && cell.y % 3 == 0)
+            {
+                wall.GetComponent<MeshRenderer>().material = m_settings.wallMaterials[0];
+            }
         }
     }
 }
