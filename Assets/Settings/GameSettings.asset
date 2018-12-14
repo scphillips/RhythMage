@@ -11,6 +11,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6007dfc7b3f9b43b2f6e61ab99ab38, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
+  AvatarControllerSettings:
+    LeftSwipeClip: {fileID: 8300000, guid: 8b6f49979711bd94bad94059b90e9795, type: 3}
+    LeftHitClips:
+    - {fileID: 8300000, guid: 54590cdb1904a3940ad24de52222190d, type: 3}
+    - {fileID: 8300000, guid: e02d1390ce35f124088c9700ebeb0ab9, type: 3}
+    RightSwipeClip: {fileID: 8300000, guid: 9a6b9a063b202c4479bd3de678696326, type: 3}
+    RightHitClips:
+    - {fileID: 8300000, guid: fc134d20813695d4a98003723a931f47, type: 3}
+    - {fileID: 8300000, guid: d19b37c870dd5f14dbefa118fb406f1c, type: 3}
+    HeartLostClip: {fileID: 0}
   DungeonBuilderSettings:
     segmentCount: 100
     minSegmentLength: 2
@@ -34,5 +44,5 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 27eca4991113c9644829316f8cdbe444, type: 3}
     - {fileID: 21300000, guid: 533e8c1de3571434f892c7c693b06212, type: 3}
   HUDControllerSettings:
-    heartFull: {fileID: 21300000, guid: 3c3f705646b81ab4aa25ef38d12b6b7c, type: 3}
-    heartBroken: {fileID: 21300000, guid: fbbb248f5fbf3c34d9686895fd0d66db, type: 3}
+    heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
+    heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}
