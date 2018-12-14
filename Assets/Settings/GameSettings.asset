@@ -23,6 +23,13 @@ MonoBehaviour:
       type: 2}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 2}
+  EnemySettings:
+    MagicFrames:
+    - {fileID: 21300000, guid: ae48ab8f54b7e9341b7bfa235abd22bc, type: 3}
+    - {fileID: 21300000, guid: a2a1841df085c3b4dac4fc198b9fcf9d, type: 3}
+    MeleeFrames:
+    - {fileID: 21300000, guid: 27eca4991113c9644829316f8cdbe444, type: 3}
+    - {fileID: 21300000, guid: 533e8c1de3571434f892c7c693b06212, type: 3}
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: 3c3f705646b81ab4aa25ef38d12b6b7c, type: 3}
     heartBroken: {fileID: 21300000, guid: fbbb248f5fbf3c34d9686895fd0d66db, type: 3}

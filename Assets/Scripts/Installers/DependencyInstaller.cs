@@ -14,5 +14,8 @@ public class DependencyInstaller : MonoInstaller
 
         Container.Bind<Outplay.RhythMage.DungeonModel>()
             .AsSingle();
+
+        Container.Bind<Outplay.RhythMage.EnemyFactory>()
+            .AsSingle();
     }
 }

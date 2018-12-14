@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -13,6 +13,9 @@ namespace Outplay.RhythMage
         AvatarModel m_avatar;
 
         [Zenject.Inject]
+        GestureHandler m_gestureHandler;
+
+        [Zenject.Inject]
         SoundManager m_sound;
         
         int m_currentCellIndex;
@@ -21,6 +24,8 @@ namespace Outplay.RhythMage
         {
             m_sound.OnBeat += OnBeat;
             m_currentCellIndex = 0;
+
+            m_gestureHandler.OnSwipe += OnSwipe;
         }
 
         void OnBeat(object sender, EventArgs e)
@@ -71,6 +76,10 @@ namespace Outplay.RhythMage
             }
 
             StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
+        }
+
+        void OnSwipe(object sender, EventArgs e)
+        {
         }
 
         IEnumerator MoveTo(Transform transform, Vector3 target, float duration)
