@@ -21,6 +21,9 @@ MonoBehaviour:
       type: 2}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 2}
+    wallMaterials:
+    - {fileID: 2100000, guid: 2a7614aa54bafbf40b32523980c5f453, type: 2}
+    - {fileID: 2100000, guid: ab06d6efe95d18742938b583cd2392be, type: 2}
   EnemySettings:
     prefabEnemy: {fileID: 1677183367982454, guid: 9e67caea77b0f2141b5727e5069a6a66,
       type: 2}

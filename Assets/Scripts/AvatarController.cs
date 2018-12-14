@@ -1,11 +1,24 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Outplay.RhythMage
 {
     public class AvatarController : MonoBehaviour
     {
+        [System.Serializable]
+        public class Settings
+        {
+            public AudioClip LeftSwipeClip;
+            public List<AudioClip> LeftHitClips;
+            public AudioClip RightSwipeClip;
+            public List<AudioClip> RightHitClips;
+        }
+
+        [Zenject.Inject]
+        readonly Settings m_settings;
+
         [Zenject.Inject]
         DungeonModel m_dungeon;
 
@@ -84,8 +97,8 @@ namespace Outplay.RhythMage
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
                     var enemy = m_dungeon.GetEnemyAtCell(currentCell);
-                    if (enemy.GetEnemyType() == Enemy.EnemyType.Magic && args.Direction == Defs.Direction.Left
-                        || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Defs.Direction.Right)
+                    if (enemy.GetEnemyType() == Enemy.EnemyType.Magic && args.Direction == Defs.Direction.Right
+                        || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Defs.Direction.Left)
                     {
                         // Valid combination, destroy the enemy
                         enemy.Die();
