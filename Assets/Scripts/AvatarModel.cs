@@ -6,6 +6,7 @@ namespace Outplay.RhythMage
     {
         public int CurrentHealth;
         public int MaxHealth;
+        public int KillCount;
 
         public class HealthChangedEventArgs : EventArgs
         {
@@ -18,6 +19,7 @@ namespace Outplay.RhythMage
         {
             MaxHealth = 5;
             CurrentHealth = MaxHealth;
+            KillCount = 0;
         }
 
         public void TakeDamage()

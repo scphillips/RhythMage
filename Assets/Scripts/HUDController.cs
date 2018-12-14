@@ -13,6 +13,11 @@ namespace Outplay.RhythMage
         {
             public Sprite heartFull;
             public Sprite heartBroken;
+
+            public Sprite leftHandNormal;
+            public Sprite leftHandAttack;
+            public Sprite rightHandNormal;
+            public Sprite rightHandAttack;
         }
 
         [Zenject.Inject]
@@ -27,18 +32,30 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         DungeonModel m_dungeon;
 
+        [Zenject.Inject]
+        GestureHandler m_gestureHandler;
+
+        [Zenject.Inject]
+        SoundManager m_sound;
+
         public List<GameObject> HealthPanels;
         public TextMeshProUGUI EnemyCounter;
         public GameObject LeftHand;
         public GameObject RightHand;
 
+        float m_cooldown;
+
         void Start()
         {
+            m_cooldown = 0.0f;
+
             UpdateHealthUI();
             UpdateEnemyCountUI();
 
             m_avatar.OnHealthChange += OnHealthChanged;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
+            m_gestureHandler.OnSwipe += OnSwipe;
+            m_sound.OnBeat += OnBeat;
 
             var camera = m_camera.Get();
             LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
@@ -59,7 +76,7 @@ namespace Outplay.RhythMage
 
         void UpdateEnemyCountUI()
         {
-            EnemyCounter.text = "Enemies: " + m_dungeon.GetEnemyCount();
+            EnemyCounter.text = "Kills: " + m_avatar.KillCount;
         }
 
         void UpdateHealthUI()
@@ -74,6 +91,38 @@ namespace Outplay.RhythMage
                 {
                     HealthPanels[i].GetComponent<Image>().sprite = m_settings.heartBroken;
                 }
+            }
+        }
+
+        void OnBeat(object sender, EventArgs e)
+        {
+            LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
+            RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+        }
+
+        void OnSwipe(object sender, EventArgs e)
+        {
+            var args = (GestureHandler.GestureSwipeEventArgs)e;
+            if (args.Direction == Defs.Direction.Left)
+            {
+                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
+                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandAttack;
+            }
+            else if (args.Direction == Defs.Direction.Right)
+            {
+                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
+                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+            }
+            m_cooldown = m_sound.GetBeatLength();
+        }
+
+        void Update()
+        {
+            m_cooldown -= Time.deltaTime;
+            if (m_cooldown <= 0.0f)
+            {
+                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
+                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
             }
         }
     }
