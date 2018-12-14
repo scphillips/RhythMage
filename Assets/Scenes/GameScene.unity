@@ -770,13 +770,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1437980bca7c724dbfad1e70512e37b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_camera: {fileID: 0}
   HealthPanels:
   - {fileID: 935473182}
   - {fileID: 255688236}
   - {fileID: 1752192692}
   - {fileID: 1019681199}
   - {fileID: 422690198}
+  EnemyCounter: {fileID: 2119025168}
   LeftHand: {fileID: 1570239230}
   RightHand: {fileID: 956457932}
 --- !u!114 &801545965
@@ -1402,7 +1402,7 @@ GameObject:
   - component: {fileID: 2119025169}
   - component: {fileID: 2119025168}
   m_Layer: 5
-  m_Name: TextMeshPro Text
+  m_Name: EnemyCounter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
