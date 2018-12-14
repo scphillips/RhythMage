@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Outplay.RhythMage
@@ -9,57 +9,68 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         DungeonModel m_dungeon;
 
-        float m_counter = 0;
+        [Zenject.Inject]
+        AvatarModel m_avatar;
+
+        [Zenject.Inject]
+        SoundManager m_sound;
+        
         int m_currentCellIndex;
 
-        AvatarController()
+        void Start()
         {
+            m_sound.OnBeat += OnBeat;
             m_currentCellIndex = 0;
         }
 
-        void Update()
+        void OnBeat(object sender, EventArgs e)
         {
-            m_counter += Time.deltaTime;
-            if (m_counter >= 0.5f)
+            ++m_currentCellIndex;
+            if (m_currentCellIndex >= m_dungeon.GetCellCount() - 2)
             {
-                m_counter -= 0.5f;
-                m_currentCellIndex = (m_currentCellIndex + 1) % m_dungeon.GetCellCount();
-
-                Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
-                //transform.localPosition = new Vector3(currentCell.x, 0, currentCell.y);
-                StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0, currentCell.y), 0.125f));
-
-                Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
-                CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                Defs.Direction direction = Defs.Direction.Forwards;
-                foreach (var entry in Defs.Facings)
-                {
-                    if (entry.Value == offset)
-                    {
-                        direction = entry.Key;
-                        break;
-                    }
-                }
-
-                float targetAngle = 0.0f;
-                switch (direction)
-                {
-                    case Defs.Direction.Forwards:
-                        targetAngle = 0.0f;
-                        break;
-                    case Defs.Direction.Right:
-                        targetAngle = 90.0f;
-                        break;
-                    case Defs.Direction.Backwards:
-                        targetAngle = 180.0f;
-                        break;
-                    case Defs.Direction.Left:
-                        targetAngle = 270.0f;
-                        break;
-                }
-
-                StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
+                m_currentCellIndex = 0;
             }
+
+            Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
+
+            if (m_dungeon.HasEnemyAtCell(currentCell))
+            {
+                // Take damage
+                m_avatar.TakeDamage();
+            }
+            
+            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
+
+            Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
+            CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+            Defs.Direction direction = Defs.Direction.Forwards;
+            foreach (var entry in Defs.Facings)
+            {
+                if (entry.Value == offset)
+                {
+                    direction = entry.Key;
+                    break;
+                }
+            }
+
+            float targetAngle = 0.0f;
+            switch (direction)
+            {
+                case Defs.Direction.Forwards:
+                    targetAngle = 0.0f;
+                    break;
+                case Defs.Direction.Right:
+                    targetAngle = 90.0f;
+                    break;
+                case Defs.Direction.Backwards:
+                    targetAngle = 180.0f;
+                    break;
+                case Defs.Direction.Left:
+                    targetAngle = 270.0f;
+                    break;
+            }
+
+            StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
         }
 
         IEnumerator MoveTo(Transform transform, Vector3 target, float duration)

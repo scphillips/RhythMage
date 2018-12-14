@@ -6,10 +6,12 @@ namespace Outplay.RhythMage
 {
     public class DungeonModel
     {
+        Dictionary<Cell, Enemy> m_enemies;
         List<Cell> m_floorCells;
 
         public DungeonModel()
         {
+            m_enemies = new Dictionary<Cell, Enemy>();
             m_floorCells = new List<Cell>();
         }
 
@@ -21,6 +23,16 @@ namespace Outplay.RhythMage
         public void AddToPath(Cell cell)
         {
             m_floorCells.Add(cell);
+        }
+
+        public void AddEnemyAtCell(Cell cell, Enemy enemy)
+        {
+            m_enemies.Add(cell, enemy);
+        }
+
+        public bool HasEnemyAtCell(Cell cell)
+        {
+            return m_enemies.ContainsKey(cell);
         }
 
         public Cell GetCellAtIndex(int index)

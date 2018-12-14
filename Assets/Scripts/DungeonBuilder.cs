@@ -13,6 +13,10 @@ namespace Outplay.RhythMage
             public int minSegmentLength;
             public int maxSegmentLength;
 
+            public float minEnemyPopulation;
+            public float maxEnemyPopulation;
+
+            public GameObject prefabEnemy;
             public GameObject prefabFloor;
             public GameObject prefabWall;
         }
@@ -22,6 +26,12 @@ namespace Outplay.RhythMage
 
         [Zenject.Inject]
         RandomNumberProvider m_rng;
+
+        [Zenject.Inject]
+        public CameraProvider m_camera;
+
+        [Zenject.Inject]
+        SoundManager m_sound;
 
         [Zenject.Inject]
         DungeonModel m_dungeon;
@@ -113,6 +123,28 @@ namespace Outplay.RhythMage
             foreach (var entry in m_wallCells)
             {
                 CreateWall(new Vector3(entry.x, 0, entry.y));
+            }
+
+            // Spawn Enemies
+            float range = m_settings.maxEnemyPopulation - m_settings.minEnemyPopulation;
+            float enemyPopulation = m_settings.minEnemyPopulation + System.Convert.ToSingle(m_rng.NextDouble()) * range;
+            int enemiesToSpawn = System.Convert.ToInt32(m_floorCells.Count * enemyPopulation);
+            List<Cell> enemyLocationChoices = new List<Cell>();
+            foreach (var cell in m_floorCells)
+            {
+                enemyLocationChoices.Add(cell);
+            }
+            
+            for (int i = 0; i < enemiesToSpawn; ++i)
+            {
+                int index = m_rng.Next(enemyLocationChoices.Count);
+                var enemy = (GameObject)Instantiate(m_settings.prefabEnemy);
+                var behavior = enemy.GetComponent<Enemy>();
+                behavior.Camera = m_camera;
+                behavior.SoundMgr = m_sound;
+                behavior.SetPosition(enemyLocationChoices[index]);
+                m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], behavior);
+                enemyLocationChoices.RemoveAt(index);
             }
         }
         
