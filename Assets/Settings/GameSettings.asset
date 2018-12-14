@@ -47,3 +47,7 @@ MonoBehaviour:
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}
+    leftHandNormal: {fileID: 21300000, guid: 249d7287f8674b140b0687aa6e7b32b5, type: 3}
+    leftHandAttack: {fileID: 21300000, guid: 2b066246f93a1334f93d0a6525b0518d, type: 3}
+    rightHandNormal: {fileID: 21300000, guid: 4e2de4fc3cc312a48980cc00a6dc1533, type: 3}
+    rightHandAttack: {fileID: 21300000, guid: 1f977bd6f9c9ce946a6961ea395c9110, type: 3}
