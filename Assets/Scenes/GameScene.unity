@@ -483,7 +483,7 @@ Transform:
   - {fileID: 1570239231}
   - {fileID: 956457933}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &438815650
 MonoBehaviour:
@@ -673,6 +673,8 @@ GameObject:
   - component: {fileID: 801545961}
   - component: {fileID: 801545960}
   - component: {fileID: 801545964}
+  - component: {fileID: 801545966}
+  - component: {fileID: 801545965}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -749,7 +751,7 @@ RectTransform:
   m_Children:
   - {fileID: 260449089}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -767,12 +769,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1437980bca7c724dbfad1e70512e37b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_camera: {fileID: 0}
   HealthPanels:
   - {fileID: 935473182}
   - {fileID: 255688236}
   - {fileID: 1752192692}
   - {fileID: 1019681199}
   - {fileID: 422690198}
+  LeftHand: {fileID: 1570239230}
+  RightHand: {fileID: 956457932}
+--- !u!114 &801545965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 801545959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0166d8ff8d905b048b2448179e1f5d11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _components:
+  - {fileID: 801545966}
+  _identifier: 
+  _useSceneContext: 0
+  _context: {fileID: 0}
+  _bindType: 0
+--- !u!114 &801545966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 801545959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 950bd929ef267df49bfc99196f500896, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MinThreshold: 20
 --- !u!1 &935473182
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,7 +886,7 @@ GameObject:
   - component: {fileID: 956457933}
   - component: {fileID: 956457934}
   m_Layer: 0
-  m_Name: Hand_Melee
+  m_Name: HandRight_Melee
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1087,7 +1121,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1570239230
 GameObject:
@@ -1099,7 +1133,7 @@ GameObject:
   - component: {fileID: 1570239231}
   - component: {fileID: 1570239232}
   m_Layer: 0
-  m_Name: Hand_Magic
+  m_Name: HandLeft_Magic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
     readonly float bps = 0.45f;
+    readonly float halfBPS = 0.45f * 0.5f;
     float m_elapsed;
 
     public event EventHandler OnBeat;
@@ -13,6 +12,11 @@ public class SoundManager : MonoBehaviour
     public SoundManager()
     {
         m_elapsed = 0.0f;
+    }
+
+    public float TimeOffBeat()
+    {
+        return halfBPS - Math.Abs(halfBPS - m_elapsed);
     }
 
     void Update()

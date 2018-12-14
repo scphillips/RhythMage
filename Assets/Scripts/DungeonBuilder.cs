@@ -16,7 +16,6 @@ namespace Outplay.RhythMage
             public float minEnemyPopulation;
             public float maxEnemyPopulation;
 
-            public GameObject prefabEnemy;
             public GameObject prefabFloor;
             public GameObject prefabWall;
         }
@@ -28,13 +27,10 @@ namespace Outplay.RhythMage
         RandomNumberProvider m_rng;
 
         [Zenject.Inject]
-        public CameraProvider m_camera;
-
-        [Zenject.Inject]
-        SoundManager m_sound;
-
-        [Zenject.Inject]
         DungeonModel m_dungeon;
+
+        [Zenject.Inject]
+        EnemyFactory m_enemyFactory;
 
         HashSet<Cell> m_floorCells = new HashSet<Cell>();
         HashSet<Cell> m_wallCells = new HashSet<Cell>();
@@ -138,12 +134,9 @@ namespace Outplay.RhythMage
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
-                var enemy = (GameObject)Instantiate(m_settings.prefabEnemy);
-                var behavior = enemy.GetComponent<Enemy>();
-                behavior.Camera = m_camera;
-                behavior.SoundMgr = m_sound;
-                behavior.SetPosition(enemyLocationChoices[index]);
-                m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], behavior);
+                var type = (m_rng.Next(2) == 0) ? Enemy.EnemyType.Magic : Enemy.EnemyType.Melee;
+                var enemy = m_enemyFactory.CreateEnemy(enemyLocationChoices[index], type);
+                m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], enemy);
                 enemyLocationChoices.RemoveAt(index);
             }
         }

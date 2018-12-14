@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +7,7 @@ namespace Outplay.RhythMage
 {
     public class HUDController : MonoBehaviour
     {
-        [System.Serializable]
+        [Serializable]
         public class Settings
         {
             public Sprite heartFull;
@@ -21,12 +20,21 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         AvatarModel m_avatar;
 
+        [Zenject.Inject]
+        public CameraProvider m_camera;
+
         public List<GameObject> HealthPanels;
+        public GameObject LeftHand;
+        public GameObject RightHand;
 
         void Start()
         {
             UpdateHealthUI();
             m_avatar.OnHealthChange += OnHealthChanged;
+
+            var camera = m_camera.Get();
+            LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
+            RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.75f, 0.14f, 0.25f));
         }
 
         void OnHealthChanged(object sender, EventArgs e)
