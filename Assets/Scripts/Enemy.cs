@@ -70,7 +70,6 @@ namespace Outplay.RhythMage
         {
             transform.SetParent(Camera.transform, true);
             int direction = (m_type == EnemyType.Magic) ? 1 : -1;
-            Vector3 move = Vector3.right * direction;
             StartCoroutine(RotateBy(transform, 360.0f * direction, 0.3f));
             StartCoroutine(ScaleTo(transform, 0.0f, 0.3f));
         }
