@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 
@@ -37,12 +37,6 @@ namespace Outplay.RhythMage
             }
 
             Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
-
-            if (m_dungeon.HasEnemyAtCell(currentCell))
-            {
-                // Take damage
-                m_avatar.TakeDamage();
-            }
             
             StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
 
@@ -80,6 +74,24 @@ namespace Outplay.RhythMage
 
         void OnSwipe(object sender, EventArgs e)
         {
+            var args = (GestureHandler.GestureSwipeEventArgs)e;
+            Debug.Log("Swipe: " + args.Direction.ToString());
+            Debug.Log("Time off beat: " + m_sound.TimeOffBeat());
+            if (m_sound.TimeOffBeat() < 0.2f)
+            {
+                // Valid swipe, test enemy type
+                var currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
+                if (m_dungeon.HasEnemyAtCell(currentCell))
+                {
+                    var enemy = m_dungeon.GetEnemyAtCell(currentCell);
+                    if (enemy.GetEnemyType() == Enemy.EnemyType.Magic && args.Direction == Defs.Direction.Left
+                        || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Defs.Direction.Right)
+                    {
+                        // Valid combination, destroy the enemy
+                        m_dungeon.RemoveEnemyAtCell(currentCell);
+                    }
+                }
+            }
         }
 
         IEnumerator MoveTo(Transform transform, Vector3 target, float duration)
@@ -94,6 +106,14 @@ namespace Outplay.RhythMage
                 float mag = elapsedTime / duration;
                 transform.localPosition = startPosition + offset * mag;
                 yield return null;
+            }
+
+            // Finished moving, check for enemy collisions
+            Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
+            if (m_dungeon.HasEnemyAtCell(currentCell))
+            {
+                // Take damage
+                m_avatar.TakeDamage();
             }
         }
 
