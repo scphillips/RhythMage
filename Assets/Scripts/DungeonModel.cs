@@ -42,6 +42,11 @@ namespace Outplay.RhythMage
             return enemy;
         }
 
+        public bool RemoveEnemyAtCell(Cell cell)
+        {
+            return m_enemies.Remove(cell);
+        }
+
         public Cell GetCellAtIndex(int index)
         {
             return m_floorCells[index];
