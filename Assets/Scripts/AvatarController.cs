@@ -42,11 +42,13 @@ namespace Outplay.RhythMage
         public AudioSource audioSource;
         
         int m_currentCellIndex;
+        public int killCount;
 
         void Start()
         {
             m_sound.OnBeat += OnBeat;
             m_currentCellIndex = 0;
+            killCount = 0;
 
             m_gestureHandler.OnSwipe += OnSwipe;
         }
@@ -54,7 +56,7 @@ namespace Outplay.RhythMage
         void OnBeat(object sender, EventArgs e)
         {
             ++m_currentCellIndex;
-            if (m_currentCellIndex >= m_dungeon.GetCellCount() - 2)
+            if (m_currentCellIndex >= m_dungeon.GetCellCount() - 1)
             {
                 m_currentCellIndex = 0;
             }
@@ -63,36 +65,43 @@ namespace Outplay.RhythMage
             
             StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
 
-            Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
-            CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-            Defs.Direction direction = Defs.Direction.Forwards;
-            foreach (var entry in Defs.Facings)
+            if (m_currentCellIndex < m_dungeon.GetCellCount() - 1)
             {
-                if (entry.Value == offset)
+                Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
+                CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+                Defs.Direction direction = Defs.Direction.Forwards;
+                foreach (var entry in Defs.Facings)
                 {
-                    direction = entry.Key;
-                    break;
+                    if (entry.Value == offset)
+                    {
+                        direction = entry.Key;
+                        break;
+                    }
                 }
-            }
 
-            float targetAngle = 0.0f;
-            switch (direction)
+                float targetAngle = 0.0f;
+                switch (direction)
+                {
+                    case Defs.Direction.Forwards:
+                        targetAngle = 0.0f;
+                        break;
+                    case Defs.Direction.Right:
+                        targetAngle = 90.0f;
+                        break;
+                    case Defs.Direction.Backwards:
+                        targetAngle = 180.0f;
+                        break;
+                    case Defs.Direction.Left:
+                        targetAngle = 270.0f;
+                        break;
+                }
+
+                StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
+            }
+            else if (m_currentCellIndex == m_dungeon.GetCellCount() - 1)
             {
-                case Defs.Direction.Forwards:
-                    targetAngle = 0.0f;
-                    break;
-                case Defs.Direction.Right:
-                    targetAngle = 90.0f;
-                    break;
-                case Defs.Direction.Backwards:
-                    targetAngle = 180.0f;
-                    break;
-                case Defs.Direction.Left:
-                    targetAngle = 270.0f;
-                    break;
-            }
 
-            StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
+            }
         }
 
         void OnSwipe(object sender, EventArgs e)
@@ -120,6 +129,7 @@ namespace Outplay.RhythMage
                         || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Defs.Direction.Left)
                     {
                         // Valid combination, destroy the enemy
+                        ++m_avatar.KillCount;
                         enemy.Die();
                         m_dungeon.RemoveEnemyAtCell(currentCell);
 

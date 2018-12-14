@@ -14,6 +14,11 @@ public class SoundManager : MonoBehaviour
         m_elapsed = 0.0f;
     }
 
+    public float GetBeatLength()
+    {
+        return bps;
+    }
+
     public float TimeOffBeat()
     {
         return halfBPS - Math.Abs(halfBPS - m_elapsed);
