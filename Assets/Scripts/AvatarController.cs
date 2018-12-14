@@ -88,6 +88,7 @@ namespace Outplay.RhythMage
                         || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Defs.Direction.Right)
                     {
                         // Valid combination, destroy the enemy
+                        enemy.Die();
                         m_dungeon.RemoveEnemyAtCell(currentCell);
                     }
                 }

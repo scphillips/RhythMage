@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Outplay.RhythMage
 {
@@ -64,6 +64,44 @@ namespace Outplay.RhythMage
             var frames = (m_type == EnemyType.Magic) ? settings.magicFrames : settings.meleeFrames;
             m_currentFrame = (m_currentFrame + 1) % frames.Count;
             GetComponent<SpriteRenderer>().sprite = frames[m_currentFrame];
+        }
+
+        public void Die()
+        {
+            transform.SetParent(Camera.transform, true);
+            int direction = (m_type == EnemyType.Magic) ? 1 : -1;
+            Vector3 move = Vector3.right * direction;
+            StartCoroutine(RotateBy(transform, 360.0f * direction, 0.3f));
+            StartCoroutine(ScaleTo(transform, 0.0f, 0.3f));
+        }
+
+        IEnumerator RotateBy(Transform transform, float angle, float duration)
+        {
+            float elapsedTime = 0.0f;
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
+                float mag = elapsedTime / duration;
+                float currentRotation = angle * mag;
+                transform.localRotation = Quaternion.Euler(0, 0, currentRotation);
+                yield return null;
+            }
+        }
+
+        IEnumerator ScaleTo(Transform transform, float scale, float duration)
+        {
+            float elapsedTime = 0.0f;
+            float startScale = 1.0f;
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
+                float mag = elapsedTime / duration;
+                float currentScale = startScale + (scale - startScale) * mag;
+                transform.localScale = new Vector3(currentScale, currentScale, currentScale);
+                yield return null;
+            }
         }
     }
 }
