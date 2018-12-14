@@ -26,8 +26,8 @@ MonoBehaviour:
     segmentCount: 50
     minSegmentLength: 2
     maxSegmentLength: 10
-    minEnemyPopulation: 0.2
-    maxEnemyPopulation: 0.25
+    minEnemyPopulation: 0.3
+    maxEnemyPopulation: 0.35
     prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,
       type: 2}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
