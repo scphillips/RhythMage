@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Outplay.RhythMage
 {
@@ -16,6 +17,8 @@ namespace Outplay.RhythMage
             public List<AudioClip> RightHitClips;
 
             public AudioClip HeartLostClip;
+
+            public string gameOverSceneId;
         }
 
         [Zenject.Inject]
@@ -156,6 +159,11 @@ namespace Outplay.RhythMage
                 // Take damage
                 m_avatar.TakeDamage();
                 audioSource.PlayOneShot(m_settings.HeartLostClip);
+
+                if (m_avatar.IsAlive() == false)
+                {
+                    SceneManager.LoadScene(m_settings.gameOverSceneId);
+                }
             }
         }
 
