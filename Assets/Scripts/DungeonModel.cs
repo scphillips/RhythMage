@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ namespace Outplay.RhythMage
     {
         Dictionary<Cell, Enemy> m_enemies;
         List<Cell> m_floorCells;
+
+        public event EventHandler OnEnemyCountChange;
 
         public DungeonModel()
         {
@@ -25,9 +28,15 @@ namespace Outplay.RhythMage
             m_floorCells.Add(cell);
         }
 
+        public int GetEnemyCount()
+        {
+            return m_enemies.Count;
+        }
+
         public void AddEnemyAtCell(Cell cell, Enemy enemy)
         {
             m_enemies.Add(cell, enemy);
+            OnEnemyCountChange(this, null);
         }
 
         public bool HasEnemyAtCell(Cell cell)
@@ -44,7 +53,9 @@ namespace Outplay.RhythMage
 
         public bool RemoveEnemyAtCell(Cell cell)
         {
-            return m_enemies.Remove(cell);
+            bool success = m_enemies.Remove(cell);
+            OnEnemyCountChange(this, null);
+            return success;
         }
 
         public Cell GetCellAtIndex(int index)

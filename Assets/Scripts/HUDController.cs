@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,25 +22,42 @@ namespace Outplay.RhythMage
         AvatarModel m_avatar;
 
         [Zenject.Inject]
-        public CameraProvider m_camera;
+        CameraProvider m_camera;
+
+        [Zenject.Inject]
+        DungeonModel m_dungeon;
 
         public List<GameObject> HealthPanels;
+        public TextMeshProUGUI EnemyCounter;
         public GameObject LeftHand;
         public GameObject RightHand;
 
         void Start()
         {
             UpdateHealthUI();
+            UpdateEnemyCountUI();
+
             m_avatar.OnHealthChange += OnHealthChanged;
+            m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
 
             var camera = m_camera.Get();
             LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
             RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.75f, 0.14f, 0.25f));
         }
 
+        void OnEnemyCountChanged(object sender, EventArgs e)
+        {
+            UpdateEnemyCountUI();
+        }
+
         void OnHealthChanged(object sender, EventArgs e)
         {
             UpdateHealthUI();
+        }
+
+        void UpdateEnemyCountUI()
+        {
+            EnemyCounter.text = "Enemies: " + m_dungeon.GetEnemyCount();
         }
 
         void UpdateHealthUI()
