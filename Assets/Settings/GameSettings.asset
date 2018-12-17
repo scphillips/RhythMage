@@ -22,10 +22,10 @@ MonoBehaviour:
     - {fileID: 8300000, guid: d19b37c870dd5f14dbefa118fb406f1c, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 51cc40e659e417149892c2e022000114, type: 3}
   DungeonBuilderSettings:
-    segmentCount: 50
+    segmentCount: 25
     minSegmentLength: 2
     maxSegmentLength: 10
-    brazierSpacing: 5
+    brazierSpacing: 8
     prefabBrazier: {fileID: 1113930872431330, guid: 7ee445317dc3f0c488d78e748cf2bf91,
       type: 2}
     prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,

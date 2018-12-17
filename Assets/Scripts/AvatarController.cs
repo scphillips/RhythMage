@@ -55,15 +55,17 @@ namespace Outplay.RhythMage
 
         void OnBeat(object sender, EventArgs e)
         {
-            ++m_currentCellIndex;
-            if (m_currentCellIndex >= m_dungeon.GetCellCount() - 1)
-            {
-                m_currentCellIndex = 0;
-            }
+            m_currentCellIndex = (m_currentCellIndex + 1) % m_dungeon.GetCellCount();
 
             Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
-            
-            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
+            if (m_currentCellIndex > 0)
+            {
+                StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), 0.125f));
+            }
+            else
+            {
+                transform.localPosition = new Vector3(currentCell.x, 0.25f, currentCell.y);
+            }
 
             if (m_currentCellIndex < m_dungeon.GetCellCount() - 1)
             {
@@ -97,10 +99,6 @@ namespace Outplay.RhythMage
                 }
 
                 StartCoroutine(RotateTo(transform, targetAngle, 0.125f));
-            }
-            else if (m_currentCellIndex == m_dungeon.GetCellCount() - 1)
-            {
-
             }
         }
 
