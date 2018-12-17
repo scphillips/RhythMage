@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MenuController : MonoBehaviour
+namespace Outplay.RhythMage
 {
-    public string nextScene = "GameScene";
-
-    public void LoadNextScene()
+    public class MenuController : MonoBehaviour
     {
-        SceneManager.LoadScene(nextScene);
+        public string nextScene = "GameScene";
+        
+        public void LoadNextScene()
+        {
+            SceneManager.LoadScene(nextScene);
+        }
     }
 }

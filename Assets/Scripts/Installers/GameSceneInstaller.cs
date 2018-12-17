@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using Zenject;
 
 public class GameSceneInstaller : MonoInstaller
@@ -6,7 +7,8 @@ public class GameSceneInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind<Outplay.RandomNumberProvider>()
-            .AsSingle();
+            .AsSingle()
+            .WithArguments(Environment.TickCount);
 
         Container.Bind<Outplay.RhythMage.AvatarModel>()
             .AsSingle();
