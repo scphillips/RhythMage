@@ -11,7 +11,8 @@ namespace Outplay.RhythMage
             Forwards,
             Right,
             Backwards,
-            Left
+            Left,
+            None
         }
 
         public static Dictionary<Direction, CoordinateOffset> Facings = new Dictionary<Direction, CoordinateOffset>()
@@ -21,5 +22,17 @@ namespace Outplay.RhythMage
             { Direction.Backwards, CoordinateOffset.Create(0, -1) },
             { Direction.Left, CoordinateOffset.Create(-1, 0) }
         };
+
+        public static Direction GetOffsetDirection(ref CoordinateOffset offset)
+        {
+            foreach (var entry in Facings)
+            {
+                if (entry.Value == offset)
+                {
+                    return entry.Key;
+                }
+            }
+            return Direction.None;
+        }
     }
 }
