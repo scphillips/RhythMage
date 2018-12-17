@@ -1,12 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameOverController : MonoBehaviour
+namespace Outplay.RhythMage
 {
-    public string nextScene = "MenuScene";
-
-    public void LoadNextScene()
+    public class GameOverController
     {
-        SceneManager.LoadScene(nextScene);
+        public string nextScene = "MenuScene";
+
+        int m_finalScore;
+
+        GameOverController(int finalScore)
+        {
+            m_finalScore = finalScore;
+        }
+
+        public int GetFinalScore()
+        {
+            return m_finalScore;
+        }
+
+        public void LoadNextScene()
+        {
+            SceneManager.LoadScene(nextScene);
+        }
     }
 }

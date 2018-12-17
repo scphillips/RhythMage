@@ -1,13 +1,12 @@
 using UnityEngine;
 using Zenject;
 
-public class DependencyInstaller : MonoInstaller
+public class GameSceneInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
         Container.Bind<Outplay.RandomNumberProvider>()
-            .AsSingle()/*
-            .WithArguments(1)*/;  // Fixed seed
+            .AsSingle();
 
         Container.Bind<Outplay.RhythMage.AvatarModel>()
             .AsSingle();
@@ -17,5 +16,9 @@ public class DependencyInstaller : MonoInstaller
 
         Container.Bind<Outplay.RhythMage.EnemyFactory>()
             .AsSingle();
+
+        Container.Bind<Outplay.RhythMage.GameStateManager>()
+            .AsSingle()
+            .NonLazy();
     }
 }

@@ -21,7 +21,6 @@ MonoBehaviour:
     - {fileID: 8300000, guid: fc134d20813695d4a98003723a931f47, type: 3}
     - {fileID: 8300000, guid: d19b37c870dd5f14dbefa118fb406f1c, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 51cc40e659e417149892c2e022000114, type: 3}
-    gameOverSceneId: GameOverScene
   DungeonBuilderSettings:
     segmentCount: 50
     minSegmentLength: 2
@@ -49,6 +48,8 @@ MonoBehaviour:
     minEnemyPopulation: 0.2
     maxEnemyPopulation: 0.25
     maxInputTimeOffBeat: 0.1
+  GameStateManagerSettings:
+    gameOverSceneId: GameOverScene
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}

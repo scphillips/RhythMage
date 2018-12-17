@@ -43,12 +43,19 @@ namespace Outplay.RhythMage
         public GameObject LeftHand;
         public GameObject RightHand;
 
+        List<Image> m_healthImages;
+
         float m_cooldown;
 
         void Start()
         {
             m_cooldown = 0.0f;
 
+            m_healthImages = new List<Image>();
+            for (int i = 0; i < HealthPanels.Count; ++i)
+            {
+                m_healthImages.Add(HealthPanels[i].GetComponent<Image>());
+            }
             UpdateHealthUI();
             UpdateEnemyCountUI();
 
@@ -57,9 +64,9 @@ namespace Outplay.RhythMage
             m_gestureHandler.OnSwipe += OnSwipe;
 
             var camera = m_camera.Get();
-            LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
+            LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.125f, 0.25f, 0.25f));
             LeftHand.transform.forward = camera.transform.forward;
-            RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.75f, 0.14f, 0.25f));
+            RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
             RightHand.transform.forward = camera.transform.forward;
         }
 
@@ -84,11 +91,11 @@ namespace Outplay.RhythMage
             {
                 if (i < m_avatar.CurrentHealth)
                 {
-                    HealthPanels[i].GetComponent<Image>().sprite = m_settings.heartFull;
+                    m_healthImages[i].sprite = m_settings.heartFull;
                 }
                 else
                 {
-                    HealthPanels[i].GetComponent<Image>().sprite = m_settings.heartBroken;
+                    m_healthImages[i].sprite = m_settings.heartBroken;
                 }
             }
         }
