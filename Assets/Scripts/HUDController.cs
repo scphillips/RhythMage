@@ -55,7 +55,6 @@ namespace Outplay.RhythMage
             m_avatar.OnHealthChange += OnHealthChanged;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_gestureHandler.OnSwipe += OnSwipe;
-            m_sound.OnBeat += OnBeat;
 
             var camera = m_camera.Get();
             LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.25f, 0.14f, 0.25f));
@@ -92,12 +91,6 @@ namespace Outplay.RhythMage
                     HealthPanels[i].GetComponent<Image>().sprite = m_settings.heartBroken;
                 }
             }
-        }
-
-        void OnBeat(object sender, EventArgs e)
-        {
-            LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
-            RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
         }
 
         void OnSwipe(object sender, EventArgs e)
