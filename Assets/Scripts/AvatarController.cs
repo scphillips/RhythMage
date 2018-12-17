@@ -25,6 +25,9 @@ namespace Outplay.RhythMage
         readonly Settings m_settings;
 
         [Zenject.Inject]
+        readonly GameDifficulty.Settings m_difficultySettings;
+
+        [Zenject.Inject]
         DungeonModel m_dungeon;
 
         [Zenject.Inject]
@@ -107,8 +110,6 @@ namespace Outplay.RhythMage
         void OnSwipe(object sender, EventArgs e)
         {
             var args = (GestureHandler.GestureSwipeEventArgs)e;
-            Debug.Log("Swipe: " + args.Direction.ToString());
-            Debug.Log("Time off beat: " + m_sound.TimeOffBeat());
             if (args.Direction == Defs.Direction.Left)
             {
                 audioSource.PlayOneShot(m_settings.LeftSwipeClip);
@@ -118,7 +119,7 @@ namespace Outplay.RhythMage
                 audioSource.PlayOneShot(m_settings.RightSwipeClip);
             }
 
-            if (m_sound.TimeOffBeat() < 0.2f)
+            if (m_sound.TimeOffBeat() <= m_difficultySettings.maxInputTimeOffBeat)
             {
                 // Valid swipe, test enemy type
                 var currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);

@@ -14,9 +14,6 @@ namespace Outplay.RhythMage
             public int maxSegmentLength;
             public int brazierSpacing;
 
-            public float minEnemyPopulation;
-            public float maxEnemyPopulation;
-
             public GameObject prefabBrazier;
             public GameObject prefabFloor;
             public GameObject prefabWall;
@@ -26,6 +23,9 @@ namespace Outplay.RhythMage
 
         [Zenject.Inject]
         readonly Settings m_settings;
+
+        [Zenject.Inject]
+        readonly GameDifficulty.Settings m_difficultySettings;
 
         [Zenject.Inject]
         RandomNumberProvider m_rng;
@@ -137,8 +137,8 @@ namespace Outplay.RhythMage
             }
 
             // Find valid locations to spawn enemies
-            float range = m_settings.maxEnemyPopulation - m_settings.minEnemyPopulation;
-            float enemyPopulation = m_settings.minEnemyPopulation + System.Convert.ToSingle(m_rng.NextDouble()) * range;
+            float range = m_difficultySettings.maxEnemyPopulation - m_difficultySettings.minEnemyPopulation;
+            float enemyPopulation = m_difficultySettings.minEnemyPopulation + System.Convert.ToSingle(m_rng.NextDouble()) * range;
             int enemiesToSpawn = System.Convert.ToInt32(m_floorCells.Count * enemyPopulation);
             List<Cell> enemyLocationChoices = new List<Cell>();
             foreach (var cell in m_floorCells)
