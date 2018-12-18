@@ -10,6 +10,7 @@ public class GameSettings : ScriptableObjectInstaller<GameSettings>
     public Outplay.RhythMage.GameDifficulty.Settings GameDifficultySettings;
     public Outplay.RhythMage.GameStateManager.Settings GameStateManagerSettings;
     public Outplay.RhythMage.HUDController.Settings HUDControllerSettings;
+    public Outplay.RhythMage.SoundManager.Settings SoundManagerSettings;
 
     public override void InstallBindings()
     {
@@ -19,5 +20,6 @@ public class GameSettings : ScriptableObjectInstaller<GameSettings>
         Container.BindInstance(GameDifficultySettings);
         Container.BindInstance(GameStateManagerSettings);
         Container.BindInstance(HUDControllerSettings);
+        Container.BindInstance(SoundManagerSettings);
     }
 }

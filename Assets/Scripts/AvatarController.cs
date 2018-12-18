@@ -7,7 +7,7 @@ namespace Outplay.RhythMage
 {
     public class AvatarController : MonoBehaviour
     {
-        [System.Serializable]
+        [Serializable]
         public class Settings
         {
             public List<AudioClip> LeftHitClips;

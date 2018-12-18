@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -113,13 +112,18 @@ namespace Outplay.RhythMage
                 enemyLocationChoices.Add(entry.Key);
             }
 
-            // Remove starting tiles from list of location choices
-            for (int i = 0; i < 5; ++i)
+            // Remove start and end tiles from list of location choices
+            for (int i = 0; i < System.Math.Min(5, m_dungeon.GetCellCount()); ++i)
             {
                 var cell = m_dungeon.GetCellAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
-            
+            for (int i = System.Math.Max(0, m_dungeon.GetCellCount() - 5); i < m_dungeon.GetCellCount(); ++i)
+            {
+                var cell = m_dungeon.GetCellAtIndex(i);
+                enemyLocationChoices.Remove(cell);
+            }
+
             // Spawn Enemies
             for (int i = 0; i < enemiesToSpawn; ++i)
             {

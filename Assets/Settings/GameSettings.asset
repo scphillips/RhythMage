@@ -57,3 +57,11 @@ MonoBehaviour:
     leftHandAttack: {fileID: 21300000, guid: 2b066246f93a1334f93d0a6525b0518d, type: 3}
     rightHandNormal: {fileID: 21300000, guid: 4e2de4fc3cc312a48980cc00a6dc1533, type: 3}
     rightHandAttack: {fileID: 21300000, guid: 1f977bd6f9c9ce946a6961ea395c9110, type: 3}
+  SoundManagerSettings:
+    timings:
+    - clip: {fileID: 8300000, guid: 7583a2bfa4dedb141851277621359715, type: 3}
+      bps: 0.486486486486487
+    - clip: {fileID: 8300000, guid: 415d61ab8a01f04468f57cdd5e0027cc, type: 3}
+      bps: 0.45
+    - clip: {fileID: 8300000, guid: a2a6f7f4e6360f7498b96f1851e12cff, type: 3}
+      bps: 0.391304347826087

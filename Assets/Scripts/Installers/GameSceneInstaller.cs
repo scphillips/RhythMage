@@ -22,5 +22,8 @@ public class GameSceneInstaller : MonoInstaller
         Container.Bind<Outplay.RhythMage.GameStateManager>()
             .AsSingle()
             .NonLazy();
+
+        Container.BindInterfacesAndSelfTo<Outplay.RhythMage.SoundManager>()
+            .AsSingle();
     }
 }
