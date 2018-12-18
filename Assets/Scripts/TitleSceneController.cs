@@ -15,7 +15,7 @@ public class TitleSceneController : MonoBehaviour
 
 	void Start()
     {
-        m_opacity = 0;
+        m_opacity = 0.0f;
         m_isEnding = false;
     }
 	
