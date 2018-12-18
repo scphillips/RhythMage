@@ -49,7 +49,21 @@ namespace Outplay.RhythMage
             {
                 CheckForSwipe(Input.mousePosition);
             }
-	    }
+            else if (Input.GetKeyDown("left"))
+            {
+                OnSwipe(this, new GestureSwipeEventArgs
+                {
+                    Direction = Direction.Left
+                });
+            }
+            else if (Input.GetKeyDown("right"))
+            {
+                OnSwipe(this, new GestureSwipeEventArgs
+                {
+                    Direction = Direction.Right
+                });
+            }
+        }
 
         void CheckForSwipe(Vector2 position)
         {

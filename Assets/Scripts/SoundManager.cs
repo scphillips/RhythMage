@@ -62,7 +62,12 @@ namespace Outplay.RhythMage
             int currentBeatIndex = (int)(currentElapsed / m_bps);
             if (currentBeatIndex != m_lastBeatIndex)
             {
-                OnBeat(this, null);
+                // Ensure we don't trigger an additional beat due to rounding error on loop
+                if (currentBeatIndex > m_lastBeatIndex
+                    || (m_lastSeenTime - m_bps * m_lastBeatIndex) > m_halfBPS)
+                {
+                    OnBeat(this, null);
+                }
             }
             m_lastSeenTime = currentElapsed;
             m_lastBeatIndex = currentBeatIndex;
