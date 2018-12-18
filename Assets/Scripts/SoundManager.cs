@@ -51,9 +51,19 @@ namespace Outplay.RhythMage
             return m_bps;
         }
 
+        public float TimeSinceLastBeat()
+        {
+            return m_audioSource.time % m_bps;
+        }
+
+        public float TimeToNextBeat()
+        {
+            return m_bps - TimeSinceLastBeat();
+        }
+
         public float TimeOffBeat()
         {
-            return m_halfBPS - Math.Abs(m_halfBPS - m_lastSeenTime);
+            return m_halfBPS - Math.Abs(m_halfBPS - TimeSinceLastBeat());
         }
 
         public void Tick()

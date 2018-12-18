@@ -112,11 +112,17 @@ namespace Outplay.RhythMage
             {
                 audioSource.PlayOneShot(m_settings.RightSwipeClip);
             }
-
+            
             if (m_sound.TimeOffBeat() <= m_difficultySettings.maxInputTimeOffBeat)
             {
                 // Valid swipe, test enemy type
-                var currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
+                int targetCellIndex = m_currentCellIndex;
+                if (m_sound.TimeToNextBeat() < m_sound.TimeSinceLastBeat())
+                {
+                    ++targetCellIndex;
+                }
+
+                var currentCell = m_dungeon.GetCellAtIndex(targetCellIndex);
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
                     var enemy = m_dungeon.GetEnemyAtCell(currentCell);

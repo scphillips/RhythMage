@@ -47,7 +47,7 @@ MonoBehaviour:
   GameDifficultySettings:
     minEnemyPopulation: 0.2
     maxEnemyPopulation: 0.25
-    maxInputTimeOffBeat: 0.1
+    maxInputTimeOffBeat: 0.05
   GameStateManagerSettings:
     gameOverSceneId: GameOverScene
   HUDControllerSettings:
@@ -60,8 +60,8 @@ MonoBehaviour:
   SoundManagerSettings:
     timings:
     - clip: {fileID: 8300000, guid: 7583a2bfa4dedb141851277621359715, type: 3}
-      bps: 0.486486486486487
+      bps: 0.4864865
     - clip: {fileID: 8300000, guid: 415d61ab8a01f04468f57cdd5e0027cc, type: 3}
       bps: 0.45
     - clip: {fileID: 8300000, guid: a2a6f7f4e6360f7498b96f1851e12cff, type: 3}
-      bps: 0.391304347826087
+      bps: 0.39130434
