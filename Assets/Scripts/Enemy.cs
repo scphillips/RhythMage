@@ -28,7 +28,6 @@ namespace Outplay.RhythMage
         public SoundManager soundManager;
 
         public event EventHandler OnDeathTriggered;
-        public event EventHandler OnDeathComplete;
 
         int m_currentFrame;
         EnemyType m_type;
@@ -96,11 +95,6 @@ namespace Outplay.RhythMage
                 float currentScale = startScale + (scale - startScale) * mag;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);
                 yield return null;
-            }
-
-            if (OnDeathComplete != null)
-            {
-                OnDeathComplete(this, null);
             }
         }
     }

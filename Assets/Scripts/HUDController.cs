@@ -9,6 +9,12 @@ namespace Outplay.RhythMage
 {
     public class HUDController : MonoBehaviour
     {
+        struct EnemyData
+        {
+            public Image notch;
+            public int cellIndex;
+        }
+
         [Serializable]
         public class Settings
         {
@@ -19,7 +25,13 @@ namespace Outplay.RhythMage
             public Sprite leftHandAttack;
             public Sprite rightHandNormal;
             public Sprite rightHandAttack;
+
+            public Image prefabMagicEnemyNotch;
+            public Image prefabMeleeEnemyNotch;
         }
+
+        [Zenject.Inject]
+        readonly GameDifficulty.Settings m_difficultySettings;
 
         [Zenject.Inject]
         readonly Settings m_settings;
@@ -45,17 +57,23 @@ namespace Outplay.RhythMage
         public GameObject rightHand;
 
         public Image damageOverlayImage;
+        public Image incomingEnemyDisplay;
 
-        float m_cooldown;
+        int m_lastSeenCellIndex;
+        Dictionary<Enemy, EnemyData> m_enemyNotchImages;
+        float m_timeToResetAttackGraphics;
 
         void Start()
         {
-            m_cooldown = 0.0f;
+            m_lastSeenCellIndex = 0;
+            m_timeToResetAttackGraphics = 0.0f;
+            m_enemyNotchImages = new Dictionary<Enemy, EnemyData>();
 
             UpdateHealthUI();
             UpdateEnemyCountUI();
 
             m_avatar.OnHealthChange += OnHealthChanged;
+            m_dungeon.OnDungeonReset += OnDungeonReset;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_gestureHandler.OnSwipe += OnSwipe;
 
@@ -64,6 +82,17 @@ namespace Outplay.RhythMage
             leftHand.transform.forward = camera.transform.forward;
             rightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
             rightHand.transform.forward = camera.transform.forward;
+
+            PopulateEnemyList();
+        }
+
+        void OnDungeonReset(object sender, EventArgs e)
+        {
+            foreach (var entry in m_enemyNotchImages)
+            {
+                Destroy(entry.Value.notch.gameObject);
+            }
+            m_enemyNotchImages.Clear();
         }
 
         void OnEnemyCountChanged(object sender, EventArgs e)
@@ -114,16 +143,26 @@ namespace Outplay.RhythMage
                 leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
                 rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
             }
-            m_cooldown = m_sound.GetBeatLength();
+            m_timeToResetAttackGraphics = m_sound.GetBeatLength();
         }
 
         void Update()
         {
-            m_cooldown -= Time.deltaTime;
-            if (m_cooldown <= 0.0f)
+            m_timeToResetAttackGraphics -= Time.deltaTime;
+            if (m_timeToResetAttackGraphics <= 0.0f)
             {
                 leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
                 rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+            }
+
+            int cellIndex = m_avatar.currentCellIndex;
+            foreach (var entry in m_enemyNotchImages)
+            {
+                UpdateEnemyNotch(entry.Key, entry.Value);
+            }
+            if (m_lastSeenCellIndex != cellIndex)
+            {
+                PopulateEnemyList();
             }
         }
 
@@ -140,6 +179,87 @@ namespace Outplay.RhythMage
                 target.color = color;
                 yield return null;
             }
+        }
+
+        void PopulateEnemyList()
+        {
+            int cellIndex = m_avatar.currentCellIndex;
+            Enemy enemy;
+            for (int i = 0; i < 3; ++i)
+            {
+                int currentIndex = cellIndex + i;
+                if (currentIndex >= m_dungeon.GetCellCount())
+                {
+                    break;
+                }
+
+                Cell cell = m_dungeon.GetCellAtIndex(currentIndex);
+                enemy = m_dungeon.GetEnemyAtCell(cell);
+                if (enemy != null && m_enemyNotchImages.ContainsKey(enemy) == false)
+                {
+                    // Add to tracker
+                    EnemyData data;
+                    data.cellIndex = currentIndex;
+                    Image notch = null;
+                    if (enemy.GetEnemyType() == Enemy.EnemyType.Magic)
+                    {
+                        notch = (Image)Instantiate(m_settings.prefabMagicEnemyNotch);
+                    }
+                    else if (enemy.GetEnemyType() == Enemy.EnemyType.Melee)
+                    {
+                        notch = (Image)Instantiate(m_settings.prefabMeleeEnemyNotch);
+                    }
+                    notch.transform.SetParent(incomingEnemyDisplay.transform, false);
+
+                    data.notch = notch;
+                    m_enemyNotchImages.Add(enemy, data);
+                    enemy.OnDeathTriggered += OnEnemyDeath;
+                    UpdateEnemyNotch(enemy, data);
+                }
+            }
+        }
+
+        void UpdateEnemyNotch(Enemy enemy, EnemyData enemyData)
+        {
+            int currentCellIndex = m_avatar.currentCellIndex;
+            int indexOffset = enemyData.cellIndex - currentCellIndex;
+            float delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
+            float timeOffset = indexOffset - delay;
+            float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
+            float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
+            float scale = 1.0f + mag;
+
+            float xCoordinate = timeOffset * 100.0f;
+            enemyData.notch.transform.localPosition = new Vector2(xCoordinate, 0.0f);
+            enemyData.notch.transform.localScale = new Vector2(scale, scale);
+        }
+
+        void OnEnemyDeath(object sender, EventArgs e)
+        {
+            var enemy = (Enemy)sender;
+            EnemyData data;
+            if (m_enemyNotchImages.TryGetValue(enemy, out data))
+            {
+                StartCoroutine(DeathAnimation(data.notch.transform, 0.0f, 0.3f));
+            }
+            m_enemyNotchImages.Remove(enemy);
+        }
+
+        IEnumerator DeathAnimation(Transform transform, float scale, float duration)
+        {
+            float elapsedTime = 0.0f;
+            float startScale = transform.localScale.x;
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
+                float mag = elapsedTime / duration;
+                float currentScale = startScale + (scale - startScale) * mag;
+                transform.localScale = new Vector3(currentScale, currentScale, currentScale);
+                yield return null;
+            }
+
+            Destroy(transform.gameObject);
         }
     }
 }

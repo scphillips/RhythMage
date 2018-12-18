@@ -43,34 +43,31 @@ namespace Outplay.RhythMage
         SoundManager m_sound;
 
         public AudioSource audioSource;
-        
-        int m_currentCellIndex;
-        public int killCount;
 
         void Start()
         {
             m_sound.OnBeat += OnBeat;
-            m_currentCellIndex = 0;
-            killCount = 0;
 
             m_gestureHandler.OnSwipe += OnSwipe;
         }
 
         void OnBeat(object sender, EventArgs e)
         {
-            m_currentCellIndex = (m_currentCellIndex + 1) % m_dungeon.GetCellCount();
+            int cellIndex = m_avatar.currentCellIndex;
+            cellIndex = (cellIndex + 1) % m_dungeon.GetCellCount();
+            m_avatar.currentCellIndex = cellIndex;
 
-            Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
-            if (m_currentCellIndex == 0)
+            Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
+            if (cellIndex == 0)
             {
                 transform.localPosition = new Vector3(currentCell.x, 0.25f, currentCell.y);
                 m_dungeonBuilder.BuildDungeon();
             }
 
             float targetAngle = 0.0f;
-            if (m_currentCellIndex < m_dungeon.GetCellCount() - 1)
+            if (cellIndex < m_dungeon.GetCellCount() - 1)
             {
-                Cell nextCell = m_dungeon.GetCellAtIndex(m_currentCellIndex + 1);
+                Cell nextCell = m_dungeon.GetCellAtIndex(cellIndex + 1);
                 CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
                 Direction direction = Direction.Forwards;
                 foreach (var entry in Defs.Facings)
@@ -98,6 +95,10 @@ namespace Outplay.RhythMage
                         break;
                 }
             }
+            else
+            {
+                targetAngle = transform.localRotation.eulerAngles.z;
+            }
             StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), targetAngle, 0.125f));
         }
 
@@ -116,7 +117,7 @@ namespace Outplay.RhythMage
             if (m_sound.TimeOffBeat() <= m_difficultySettings.maxInputTimeOffBeat)
             {
                 // Valid swipe, test enemy type
-                int targetCellIndex = m_currentCellIndex;
+                int targetCellIndex = m_avatar.currentCellIndex;
                 if (m_sound.TimeToNextBeat() < m_sound.TimeSinceLastBeat())
                 {
                     ++targetCellIndex;
@@ -168,7 +169,7 @@ namespace Outplay.RhythMage
             }
 
             // Finished moving, check for enemy collisions
-            Cell currentCell = m_dungeon.GetCellAtIndex(m_currentCellIndex);
+            Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.currentCellIndex);
             if (m_dungeon.HasEnemyAtCell(currentCell))
             {
                 // Take damage

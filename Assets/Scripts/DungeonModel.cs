@@ -10,6 +10,7 @@ namespace Outplay.RhythMage
         Dictionary<Cell, Enemy> m_enemies;
         List<Cell> m_floorCells;
 
+        public event EventHandler OnDungeonReset;
         public event EventHandler OnEnemyCountChange;
 
         public DungeonModel()
@@ -22,6 +23,7 @@ namespace Outplay.RhythMage
         {
             m_enemies.Clear();
             m_floorCells.Clear();
+            OnDungeonReset(this, null);
         }
 
         public void AddToPath(Cell cell)

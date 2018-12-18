@@ -7,6 +7,7 @@ namespace Outplay.RhythMage
         public readonly int maxHealth;
         public int currentHealth;
         public int killCount;
+        public int currentCellIndex;
 
         public class HealthChangedEventArgs : EventArgs
         {
