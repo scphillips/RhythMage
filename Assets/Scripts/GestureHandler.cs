@@ -53,14 +53,14 @@ namespace Outplay.RhythMage
             {
                 OnSwipe(this, new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Left
+                    Direction = Direction.Right
                 });
             }
             else if (Input.GetKeyDown("right"))
             {
                 OnSwipe(this, new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Right
+                    Direction = Direction.Left
                 });
             }
         }
