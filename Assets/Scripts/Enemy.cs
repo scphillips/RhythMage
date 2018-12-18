@@ -13,6 +13,8 @@ namespace Outplay.RhythMage
             Melee
         }
 
+        public static readonly int enemyTypeCount = Enum.GetValues(typeof(EnemyType)).Length;
+
         [Serializable]
         public class Settings
         {
@@ -22,15 +24,18 @@ namespace Outplay.RhythMage
         }
         
         public Settings settings;
-        public CameraProvider Camera;
-        public SoundManager SoundMgr;
+        public CameraProvider cameraProvider;
+        public SoundManager soundManager;
+
+        public event EventHandler OnDeathTriggered;
+        public event EventHandler OnDeathComplete;
 
         int m_currentFrame;
         EnemyType m_type;
 
         void Start()
         {
-            SoundMgr.OnBeat += OnBeat;
+            soundManager.OnBeat += OnBeat;
         }
 
         public EnemyType GetEnemyType()
@@ -56,7 +61,7 @@ namespace Outplay.RhythMage
 
         void Update()
         {
-            transform.forward = Camera.transform.forward;
+            transform.forward = cameraProvider.transform.forward;
         }
 
         void UpdateAnimation()
@@ -68,27 +73,16 @@ namespace Outplay.RhythMage
 
         public void Die()
         {
-            transform.SetParent(Camera.transform, true);
-            int direction = (m_type == EnemyType.Magic) ? 1 : -1;
-            StartCoroutine(RotateBy(transform, 360.0f * direction, 0.3f));
-            StartCoroutine(ScaleTo(transform, 0.0f, 0.3f));
-        }
-
-        IEnumerator RotateBy(Transform transform, float angle, float duration)
-        {
-            float elapsedTime = 0.0f;
-
-            while (elapsedTime < duration)
+            if (OnDeathTriggered != null)
             {
-                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
-                float mag = elapsedTime / duration;
-                float currentRotation = angle * mag;
-                transform.localRotation = Quaternion.Euler(0, 0, currentRotation);
-                yield return null;
+                OnDeathTriggered(this, null);
             }
+            transform.SetParent(cameraProvider.transform, true);
+            int direction = (m_type == EnemyType.Magic) ? -1 : 1;
+            StartCoroutine(DeathAnimation(transform, 360.0f * direction, 0.0f, 0.3f));
         }
 
-        IEnumerator ScaleTo(Transform transform, float scale, float duration)
+        IEnumerator DeathAnimation(Transform transform, float angle, float scale, float duration)
         {
             float elapsedTime = 0.0f;
             float startScale = 1.0f;
@@ -97,9 +91,16 @@ namespace Outplay.RhythMage
             {
                 elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
+                float currentRotation = angle * mag;
+                transform.localRotation = Quaternion.Euler(0, 0, currentRotation);
                 float currentScale = startScale + (scale - startScale) * mag;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);
                 yield return null;
+            }
+
+            if (OnDeathComplete != null)
+            {
+                OnDeathComplete(this, null);
             }
         }
     }

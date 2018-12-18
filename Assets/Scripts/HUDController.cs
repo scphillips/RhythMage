@@ -82,14 +82,14 @@ namespace Outplay.RhythMage
 
         void UpdateEnemyCountUI()
         {
-            EnemyCounter.text = "Kills: " + m_avatar.KillCount;
+            EnemyCounter.text = "Kills: " + m_avatar.killCount;
         }
 
         void UpdateHealthUI()
         {
             for (int i = 0; i < HealthPanels.Count; ++i)
             {
-                if (i < m_avatar.CurrentHealth)
+                if (i < m_avatar.currentHealth)
                 {
                     m_healthImages[i].sprite = m_settings.heartFull;
                 }
@@ -103,12 +103,12 @@ namespace Outplay.RhythMage
         void OnSwipe(object sender, EventArgs e)
         {
             var args = (GestureHandler.GestureSwipeEventArgs)e;
-            if (args.Direction == Defs.Direction.Left)
+            if (args.Direction == Direction.Left)
             {
                 LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
                 RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandAttack;
             }
-            else if (args.Direction == Defs.Direction.Right)
+            else if (args.Direction == Direction.Right)
             {
                 LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
                 RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;

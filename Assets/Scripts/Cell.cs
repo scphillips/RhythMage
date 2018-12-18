@@ -7,6 +7,17 @@ namespace Outplay
         public int x;
         public int y;
 
+        public static Cell zero
+        {
+            get
+            {
+                Cell entry;
+                entry.x = 0;
+                entry.y = 0;
+                return entry;
+            }
+        }
+
         public Cell(int x, int y)
         {
             this.x = x;

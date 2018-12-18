@@ -43,6 +43,11 @@
             Get().NextBytes(buffer);
         }
 
+        public virtual float NextSingle()
+        {
+            return System.Convert.ToSingle(Get().NextDouble());
+        }
+
         public virtual double NextDouble()
         {
             return Get().NextDouble();

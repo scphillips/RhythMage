@@ -22,7 +22,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: d19b37c870dd5f14dbefa118fb406f1c, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 51cc40e659e417149892c2e022000114, type: 3}
   DungeonBuilderSettings:
-    segmentCount: 25
+    segmentCount: 20
     minSegmentLength: 2
     maxSegmentLength: 10
     brazierSpacing: 8

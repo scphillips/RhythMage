@@ -4,9 +4,9 @@ namespace Outplay.RhythMage
 {
     public class AvatarModel
     {
-        public int CurrentHealth;
-        public int MaxHealth;
-        public int KillCount;
+        public readonly int maxHealth;
+        public int currentHealth;
+        public int killCount;
 
         public class HealthChangedEventArgs : EventArgs
         {
@@ -17,14 +17,14 @@ namespace Outplay.RhythMage
 
         public AvatarModel()
         {
-            MaxHealth = 5;
-            CurrentHealth = MaxHealth;
-            KillCount = 0;
+            maxHealth = 5;
+            currentHealth = maxHealth;
+            killCount = 0;
         }
 
         public void TakeDamage()
         {
-            --CurrentHealth;
+            --currentHealth;
             HealthChangedEventArgs args = new HealthChangedEventArgs();
             args.HealthMod = -1;
             OnHealthChange(this, args);
@@ -32,7 +32,7 @@ namespace Outplay.RhythMage
 
         public bool IsAlive()
         {
-            return (CurrentHealth > 0);
+            return (currentHealth > 0);
         }
     }
 }

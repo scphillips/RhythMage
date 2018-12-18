@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,17 +18,17 @@ namespace Outplay.RhythMage
 
         public Enemy CreateEnemy(Cell cell, Enemy.EnemyType type)
         {
-            var enemy = (GameObject)GameObject.Instantiate(m_settings.prefabEnemy);
+            GameObject entity = GameObject.Instantiate(m_settings.prefabEnemy);
+            var enemy = entity.GetComponent<Enemy>();
 
-            var behavior = enemy.GetComponent<Enemy>();
-            behavior.Camera = m_camera;
-            behavior.settings = m_settings;
-            behavior.SoundMgr = m_sound;
+            enemy.cameraProvider = m_camera;
+            enemy.settings = m_settings;
+            enemy.soundManager = m_sound;
 
-            behavior.SetPosition(cell);
-            behavior.SetEnemyType(type);
+            enemy.SetPosition(cell);
+            enemy.SetEnemyType(type);
 
-            return behavior;
+            return enemy;
         }
     }
 }

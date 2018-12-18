@@ -14,7 +14,7 @@ namespace Outplay.RhythMage
 
         public class GestureSwipeEventArgs : EventArgs
         {
-            public Defs.Direction Direction { get; set; }
+            public Direction Direction { get; set; }
         }
 
         public event EventHandler OnSwipe;
@@ -60,7 +60,7 @@ namespace Outplay.RhythMage
                 // Swipe detected
                 var args = new GestureSwipeEventArgs
                 {
-                    Direction = (offset.x < 0) ? Defs.Direction.Left : Defs.Direction.Right
+                    Direction = (offset.x < 0) ? Direction.Left : Direction.Right
                 };
                 OnSwipe(this, args);
                 m_canSwipe = false;

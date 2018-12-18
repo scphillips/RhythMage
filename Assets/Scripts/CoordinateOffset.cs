@@ -45,5 +45,12 @@ namespace Outplay.RhythMage
         {
             return !(lhs == rhs);
         }
+
+        public static Cell operator +(Cell lhs, CoordinateOffset rhs)
+        {
+            Cell result = lhs;
+            rhs.Apply(ref result);
+            return result;
+        }
     }
 }

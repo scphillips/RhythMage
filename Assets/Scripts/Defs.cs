@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace Outplay.RhythMage
 {
+    public enum Direction
+    {
+        Forwards,
+        Right,
+        Backwards,
+        Left,
+        None
+    }
+
     public class Defs
     {
-        public enum Direction
-        {
-            Forwards,
-            Right,
-            Backwards,
-            Left,
-            None
-        }
-
         public static Dictionary<Direction, CoordinateOffset> Facings = new Dictionary<Direction, CoordinateOffset>()
         {
             { Direction.Forwards, CoordinateOffset.Create(0, 1) },

@@ -35,7 +35,7 @@ namespace Outplay.RhythMage
             {
                 m_sceneLoader.LoadScene(m_settings.gameOverSceneId, LoadSceneMode.Single, (container) =>
                 {
-                    container.BindInstance(m_avatar.KillCount).WhenInjectedInto<GameOverSceneInstaller>();
+                    container.BindInstance(m_avatar.killCount).WhenInjectedInto<GameOverSceneInstaller>();
                 });
             }
         }

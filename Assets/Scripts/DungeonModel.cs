@@ -18,9 +18,10 @@ namespace Outplay.RhythMage
             m_floorCells = new List<Cell>();
         }
 
-        public void SetPath(List<Cell> path)
+        public void Reset()
         {
-            m_floorCells = path;
+            m_enemies.Clear();
+            m_floorCells.Clear();
         }
 
         public void AddToPath(Cell cell)
