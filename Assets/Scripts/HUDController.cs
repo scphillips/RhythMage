@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -38,12 +39,12 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         SoundManager m_sound;
 
-        public List<GameObject> HealthPanels;
-        public TextMeshProUGUI EnemyCounter;
-        public GameObject LeftHand;
-        public GameObject RightHand;
+        public List<Image> healthImages;
+        public TextMeshProUGUI enemyCounter;
+        public GameObject leftHand;
+        public GameObject rightHand;
 
-        List<Image> m_healthImages;
+        public Image damageOverlayImage;
 
         float m_cooldown;
 
@@ -51,11 +52,6 @@ namespace Outplay.RhythMage
         {
             m_cooldown = 0.0f;
 
-            m_healthImages = new List<Image>();
-            for (int i = 0; i < HealthPanels.Count; ++i)
-            {
-                m_healthImages.Add(HealthPanels[i].GetComponent<Image>());
-            }
             UpdateHealthUI();
             UpdateEnemyCountUI();
 
@@ -64,10 +60,10 @@ namespace Outplay.RhythMage
             m_gestureHandler.OnSwipe += OnSwipe;
 
             var camera = m_camera.Get();
-            LeftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.125f, 0.25f, 0.25f));
-            LeftHand.transform.forward = camera.transform.forward;
-            RightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
-            RightHand.transform.forward = camera.transform.forward;
+            leftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.125f, 0.25f, 0.25f));
+            leftHand.transform.forward = camera.transform.forward;
+            rightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
+            rightHand.transform.forward = camera.transform.forward;
         }
 
         void OnEnemyCountChanged(object sender, EventArgs e)
@@ -77,25 +73,30 @@ namespace Outplay.RhythMage
 
         void OnHealthChanged(object sender, EventArgs e)
         {
+            var args = (AvatarModel.HealthChangedEventArgs)e;
+            if (args.HealthMod < 0)
+            {
+                StartCoroutine(ShowDamageOverlay(damageOverlayImage, 0.4f, 0.25f));
+            }
             UpdateHealthUI();
         }
 
         void UpdateEnemyCountUI()
         {
-            EnemyCounter.text = "Kills: " + m_avatar.killCount;
+            enemyCounter.text = "Kills: " + m_avatar.killCount;
         }
 
         void UpdateHealthUI()
         {
-            for (int i = 0; i < HealthPanels.Count; ++i)
+            for (int i = 0; i < healthImages.Count; ++i)
             {
                 if (i < m_avatar.currentHealth)
                 {
-                    m_healthImages[i].sprite = m_settings.heartFull;
+                    healthImages[i].sprite = m_settings.heartFull;
                 }
                 else
                 {
-                    m_healthImages[i].sprite = m_settings.heartBroken;
+                    healthImages[i].sprite = m_settings.heartBroken;
                 }
             }
         }
@@ -105,13 +106,13 @@ namespace Outplay.RhythMage
             var args = (GestureHandler.GestureSwipeEventArgs)e;
             if (args.Direction == Direction.Left)
             {
-                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
-                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandAttack;
+                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
+                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandAttack;
             }
             else if (args.Direction == Direction.Right)
             {
-                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
-                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
+                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
             }
             m_cooldown = m_sound.GetBeatLength();
         }
@@ -121,8 +122,23 @@ namespace Outplay.RhythMage
             m_cooldown -= Time.deltaTime;
             if (m_cooldown <= 0.0f)
             {
-                LeftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
-                RightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
+                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+            }
+        }
+
+        IEnumerator ShowDamageOverlay(Image target, float opacity, float duration)
+        {
+            var color = target.color;
+
+            float elapsedTime = 0.0f;
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+                float mag = System.Math.Min(1.0f, elapsedTime / duration);
+                color.a = (1.0f - mag) * opacity; // Linear fade out
+                target.color = color;
+                yield return null;
             }
         }
     }
