@@ -10,10 +10,10 @@ namespace Outplay.RhythMage
         [System.Serializable]
         public class Settings
         {
-            public AudioClip LeftSwipeClip;
             public List<AudioClip> LeftHitClips;
-            public AudioClip RightSwipeClip;
+            public AudioClip LeftSwipeClip;
             public List<AudioClip> RightHitClips;
+            public AudioClip RightSwipeClip;
 
             public AudioClip HeartLostClip;
         }

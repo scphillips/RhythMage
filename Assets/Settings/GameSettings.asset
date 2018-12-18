@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   AvatarControllerSettings:
-    LeftSwipeClip: {fileID: 8300000, guid: 8b6f49979711bd94bad94059b90e9795, type: 3}
     LeftHitClips:
-    - {fileID: 8300000, guid: 54590cdb1904a3940ad24de52222190d, type: 3}
-    - {fileID: 8300000, guid: e02d1390ce35f124088c9700ebeb0ab9, type: 3}
-    RightSwipeClip: {fileID: 8300000, guid: 9a6b9a063b202c4479bd3de678696326, type: 3}
+    - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
+    - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
+    LeftSwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
     RightHitClips:
-    - {fileID: 8300000, guid: fc134d20813695d4a98003723a931f47, type: 3}
-    - {fileID: 8300000, guid: d19b37c870dd5f14dbefa118fb406f1c, type: 3}
-    HeartLostClip: {fileID: 8300000, guid: 51cc40e659e417149892c2e022000114, type: 3}
+    - {fileID: 8300000, guid: 8650644619390f849a5f0f7f424a2d28, type: 3}
+    - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
+    RightSwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
+    HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
   DungeonBuilderSettings:
     segmentCount: 20
     minSegmentLength: 2
