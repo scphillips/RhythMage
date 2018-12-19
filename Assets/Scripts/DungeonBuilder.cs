@@ -9,7 +9,6 @@ namespace Outplay.RhythMage
         [System.Serializable]
         public class Settings
         {
-            public int segmentCount;
             public int minSegmentLength;
             public int maxSegmentLength;
             public int brazierSpacing;

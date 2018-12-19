@@ -22,9 +22,8 @@ MonoBehaviour:
     RightSwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
   DungeonBuilderSettings:
-    segmentCount: 20
     minSegmentLength: 2
-    maxSegmentLength: 10
+    maxSegmentLength: 8
     brazierSpacing: 8
     prefabBrazier: {fileID: 1113930872431330, guid: 7ee445317dc3f0c488d78e748cf2bf91,
       type: 2}
