@@ -46,6 +46,11 @@ namespace Outplay.RhythMage
             m_halfBPS = m_bps * 0.5f;
         }
 
+        public float GetTrackLength()
+        {
+            return m_audioSource.clip.length;
+        }
+
         public float GetBeatLength()
         {
             return m_bps;

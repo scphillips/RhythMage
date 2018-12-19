@@ -35,7 +35,10 @@ namespace Outplay.RhythMage
 
         [Zenject.Inject]
         EnemyFactory m_enemyFactory;
-        
+
+        [Zenject.Inject]
+        SoundManager m_sound;
+
         DungeonEntityTracker braziers;
         DungeonEntityTracker enemies;
         DungeonEntityTracker floors;
@@ -61,29 +64,30 @@ namespace Outplay.RhythMage
             }
             m_dungeon.Reset();
 
+            float trackDuration = m_sound.GetTrackLength();
+            int tileCount = (int)(trackDuration / m_sound.GetBeatLength()) + 1;
+
             // First generate path for the floor and block out all surrounding walls
             Direction currentDirection = Direction.Forwards;
             Cell currentPosition = Cell.zero;
             HashSet<Cell> wallCells = new HashSet<Cell>();
             AddPathAtCell(ref currentPosition, wallCells);
 
-            for (int i = 0; i < m_settings.segmentCount; ++i)
+            while (m_dungeon.GetCellCount() < tileCount)
             {
                 CoordinateOffset offset;
                 Defs.Facings.TryGetValue(currentDirection, out offset);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
+                length = System.Math.Min(length, tileCount - m_dungeon.GetCellCount());
                 for (int j = 0; j < length; ++j)
                 {
                     offset.Apply(ref currentPosition);
                     AddPathAtCell(ref currentPosition, wallCells);
                 }
-
-                if (i < m_settings.segmentCount - 1)
-                {
-                    int directionChange = m_rng.Next(2) * 2 - 1;
-                    currentDirection = ChangeDirection(currentDirection, directionChange);
-                }
+                
+                int directionChange = m_rng.Next(2) * 2 - 1;
+                currentDirection = ChangeDirection(currentDirection, directionChange);
             }
             
             // Generate walls
