@@ -11,6 +11,7 @@ namespace Outplay.RhythMage
     {
         struct EnemyData
         {
+            public Enemy enemy;
             public Image notch;
             public int cellIndex;
         }
@@ -58,16 +59,15 @@ namespace Outplay.RhythMage
 
         public Image damageOverlayImage;
         public Image incomingEnemyDisplay;
+        public int incomingEnemyTilesAhead = 2;
 
-        int m_lastSeenCellIndex;
-        Dictionary<Enemy, EnemyData> m_enemyNotchImages;
+        List<EnemyData> m_enemyData;
         float m_timeToResetAttackGraphics;
 
         void Start()
         {
-            m_lastSeenCellIndex = 0;
             m_timeToResetAttackGraphics = 0.0f;
-            m_enemyNotchImages = new Dictionary<Enemy, EnemyData>();
+            m_enemyData = new List<EnemyData>();
 
             UpdateHealthUI();
             UpdateEnemyCountUI();
@@ -76,23 +76,27 @@ namespace Outplay.RhythMage
             m_dungeon.OnDungeonReset += OnDungeonReset;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_gestureHandler.OnSwipe += OnSwipe;
+            m_sound.OnBeat += OnBeat;
 
             var camera = m_camera.Get();
             leftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.125f, 0.25f, 0.25f));
             leftHand.transform.forward = camera.transform.forward;
             rightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
             rightHand.transform.forward = camera.transform.forward;
+        }
 
-            PopulateEnemyList();
+        void OnBeat(object sender, EventArgs e)
+        {
+            PopulateEnemyList(incomingEnemyTilesAhead);
         }
 
         void OnDungeonReset(object sender, EventArgs e)
         {
-            foreach (var entry in m_enemyNotchImages)
+            foreach (var entry in m_enemyData)
             {
-                Destroy(entry.Value.notch.gameObject);
+                Destroy(entry.notch.gameObject);
             }
-            m_enemyNotchImages.Clear();
+            m_enemyData.Clear();
         }
 
         void OnEnemyCountChanged(object sender, EventArgs e)
@@ -154,15 +158,10 @@ namespace Outplay.RhythMage
                 leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
                 rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
             }
-
-            int cellIndex = m_avatar.currentCellIndex;
-            foreach (var entry in m_enemyNotchImages)
+            
+            foreach (var entry in m_enemyData)
             {
-                UpdateEnemyNotch(entry.Key, entry.Value);
-            }
-            if (m_lastSeenCellIndex != cellIndex)
-            {
-                PopulateEnemyList();
+                UpdateEnemyNotch(entry);
             }
         }
 
@@ -181,25 +180,18 @@ namespace Outplay.RhythMage
             }
         }
 
-        void PopulateEnemyList()
+        void PopulateEnemyList(int distanceAhead)
         {
-            int cellIndex = m_avatar.currentCellIndex;
-            Enemy enemy;
-            for (int i = 0; i < 3; ++i)
+            int cellIndex = m_avatar.currentCellIndex + distanceAhead;
+            if (cellIndex < m_dungeon.GetCellCount())
             {
-                int currentIndex = cellIndex + i;
-                if (currentIndex >= m_dungeon.GetCellCount())
-                {
-                    break;
-                }
-
-                Cell cell = m_dungeon.GetCellAtIndex(currentIndex);
-                enemy = m_dungeon.GetEnemyAtCell(cell);
-                if (enemy != null && m_enemyNotchImages.ContainsKey(enemy) == false)
+                Cell cell = m_dungeon.GetCellAtIndex(cellIndex);
+                Enemy enemy = m_dungeon.GetEnemyAtCell(cell);
+                if (enemy != null)
                 {
                     // Add to tracker
                     EnemyData data;
-                    data.cellIndex = currentIndex;
+                    data.cellIndex = cellIndex;
                     Image notch = null;
                     if (enemy.GetEnemyType() == Enemy.EnemyType.Magic)
                     {
@@ -211,15 +203,16 @@ namespace Outplay.RhythMage
                     }
                     notch.transform.SetParent(incomingEnemyDisplay.transform, false);
 
+                    data.enemy = enemy;
                     data.notch = notch;
-                    m_enemyNotchImages.Add(enemy, data);
+                    m_enemyData.Add(data);
                     enemy.OnDeathTriggered += OnEnemyDeath;
-                    UpdateEnemyNotch(enemy, data);
+                    UpdateEnemyNotch(data);
                 }
             }
         }
 
-        void UpdateEnemyNotch(Enemy enemy, EnemyData enemyData)
+        void UpdateEnemyNotch(EnemyData enemyData)
         {
             int currentCellIndex = m_avatar.currentCellIndex;
             int indexOffset = enemyData.cellIndex - currentCellIndex;
@@ -228,6 +221,14 @@ namespace Outplay.RhythMage
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
             float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
+            if (timeOffset > incomingEnemyTilesAhead - 1)
+            {
+                scale = incomingEnemyTilesAhead - timeOffset;
+            }
+            else if (timeOffset < 0.0f)
+            {
+                scale = System.Math.Max(0.0f, 1.0f + timeOffset);
+            }
 
             float xCoordinate = timeOffset * 100.0f;
             enemyData.notch.transform.localPosition = new Vector2(xCoordinate, 0.0f);
@@ -237,12 +238,18 @@ namespace Outplay.RhythMage
         void OnEnemyDeath(object sender, EventArgs e)
         {
             var enemy = (Enemy)sender;
-            EnemyData data;
-            if (m_enemyNotchImages.TryGetValue(enemy, out data))
+            for (int i = 0; i < m_enemyData.Count;)
             {
-                StartCoroutine(DeathAnimation(data.notch.transform, 0.0f, 0.3f));
+                if (m_enemyData[i].enemy == enemy)
+                {
+                    StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, 0.0f, 0.3f));
+                    m_enemyData.RemoveAt(i);
+                }
+                else
+                {
+                    ++i;
+                }
             }
-            m_enemyNotchImages.Remove(enemy);
         }
 
         IEnumerator DeathAnimation(Transform transform, float scale, float duration)
