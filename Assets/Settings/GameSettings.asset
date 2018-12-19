@@ -63,9 +63,9 @@ MonoBehaviour:
       type: 2}
   SoundManagerSettings:
     timings:
-    - clip: {fileID: 8300000, guid: 7583a2bfa4dedb141851277621359715, type: 3}
+    - clip: {fileID: 8300000, guid: b870bfd13f4e2a0479fe9b548ead2c68, type: 3}
       bps: 0.4864865
-    - clip: {fileID: 8300000, guid: 415d61ab8a01f04468f57cdd5e0027cc, type: 3}
+    - clip: {fileID: 8300000, guid: 0567509887a08ba49bf61d4c91a4bebb, type: 3}
       bps: 0.45
-    - clip: {fileID: 8300000, guid: a2a6f7f4e6360f7498b96f1851e12cff, type: 3}
+    - clip: {fileID: 8300000, guid: 514c02449440a6843b1818dea6c85db3, type: 3}
       bps: 0.39130434
