@@ -1,10 +1,8 @@
 .vs
-iOSBuild/
+build/
 Library/
 obj/
 Temp/
-WebGLBuild/
-WindowsBuild/
 *.csproj
 *.log
 *.sln

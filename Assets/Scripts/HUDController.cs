@@ -54,8 +54,8 @@ namespace Outplay.RhythMage
 
         public List<Image> healthImages;
         public TextMeshProUGUI enemyCounter;
-        public GameObject leftHand;
-        public GameObject rightHand;
+        public Image leftHand;
+        public Image rightHand;
 
         public Image damageOverlayImage;
         public Image incomingEnemyDisplay;
@@ -77,12 +77,6 @@ namespace Outplay.RhythMage
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_gestureHandler.OnSwipe += OnSwipe;
             m_sound.OnBeat += OnBeat;
-
-            var camera = m_camera.Get();
-            leftHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.125f, 0.25f, 0.25f));
-            leftHand.transform.forward = camera.transform.forward;
-            rightHand.transform.position = camera.ViewportToWorldPoint(new Vector3(0.875f, 0.25f, 0.25f));
-            rightHand.transform.forward = camera.transform.forward;
         }
 
         void OnBeat(object sender, EventArgs e)
@@ -139,15 +133,15 @@ namespace Outplay.RhythMage
             var args = (GestureHandler.GestureSwipeEventArgs)e;
             if (args.Direction == Direction.Left)
             {
-                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
-                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandAttack;
+                leftHand.sprite = m_settings.leftHandNormal;
+                rightHand.sprite = m_settings.rightHandAttack;
             }
             else if (args.Direction == Direction.Right)
             {
-                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandAttack;
-                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+                leftHand.sprite = m_settings.leftHandAttack;
+                rightHand.sprite = m_settings.rightHandNormal;
             }
-            m_timeToResetAttackGraphics = m_sound.GetBeatLength();
+            m_timeToResetAttackGraphics = System.Convert.ToSingle(m_sound.GetBeatLength());
         }
 
         void Update()
@@ -155,8 +149,8 @@ namespace Outplay.RhythMage
             m_timeToResetAttackGraphics -= Time.deltaTime;
             if (m_timeToResetAttackGraphics <= 0.0f)
             {
-                leftHand.GetComponent<SpriteRenderer>().sprite = m_settings.leftHandNormal;
-                rightHand.GetComponent<SpriteRenderer>().sprite = m_settings.rightHandNormal;
+                leftHand.sprite = m_settings.leftHandNormal;
+                rightHand.sprite = m_settings.rightHandNormal;
             }
             
             foreach (var entry in m_enemyData)
@@ -216,8 +210,8 @@ namespace Outplay.RhythMage
         {
             int currentCellIndex = m_avatar.currentCellIndex;
             int indexOffset = enemyData.cellIndex - currentCellIndex;
-            float delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
-            float timeOffset = indexOffset - delay;
+            double delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
+            float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
             float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
