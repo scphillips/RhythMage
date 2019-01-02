@@ -35,8 +35,6 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 2a7614aa54bafbf40b32523980c5f453, type: 2}
     - {fileID: 2100000, guid: ab06d6efe95d18742938b583cd2392be, type: 2}
   EnemySettings:
-    prefabEnemy: {fileID: 1677183367982454, guid: 9e67caea77b0f2141b5727e5069a6a66,
-      type: 2}
     magicFrames:
     - {fileID: 21300000, guid: ae48ab8f54b7e9341b7bfa235abd22bc, type: 3}
     - {fileID: 21300000, guid: a2a1841df085c3b4dac4fc198b9fcf9d, type: 3}

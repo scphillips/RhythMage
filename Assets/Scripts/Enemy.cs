@@ -7,30 +7,37 @@ namespace Outplay.RhythMage
 {
     public class Enemy : MonoBehaviour
     {
-        public enum EnemyType
+        public class Factory : Zenject.PlaceholderFactory<Cell, EnemyType, Enemy>
         {
-            Magic,
-            Melee
         }
-
-        public static readonly int enemyTypeCount = Enum.GetValues(typeof(EnemyType)).Length;
 
         [Serializable]
         public class Settings
         {
-            public GameObject prefabEnemy;
             public List<Sprite> magicFrames;
             public List<Sprite> meleeFrames;
         }
-        
-        public Settings settings;
-        public CameraProvider cameraProvider;
-        public SoundManager soundManager;
+
+        [Zenject.Inject]
+        readonly Settings settings;
+
+        [Zenject.Inject]
+        readonly CameraProvider cameraProvider;
+
+        [Zenject.Inject]
+        readonly SoundManager soundManager;
 
         public event EventHandler OnDeathTriggered;
 
         int m_currentFrame;
         EnemyType m_type;
+
+        [Zenject.Inject]
+        public void Construct(Cell cell, EnemyType type)
+        {
+            SetPosition(cell);
+            SetEnemyType(type);
+        }
 
         void Start()
         {

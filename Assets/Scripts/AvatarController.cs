@@ -127,8 +127,8 @@ namespace Outplay.RhythMage
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
                     var enemy = m_dungeon.GetEnemyAtCell(currentCell);
-                    if (enemy.GetEnemyType() == Enemy.EnemyType.Magic && args.Direction == Direction.Right
-                        || enemy.GetEnemyType() == Enemy.EnemyType.Melee && args.Direction == Direction.Left)
+                    if ((enemy.GetEnemyType() == EnemyType.Magic && args.Direction == Direction.Right)
+                        || (enemy.GetEnemyType() == EnemyType.Melee && args.Direction == Direction.Left))
                     {
                         // Valid combination, destroy the enemy
                         ++m_avatar.killCount;

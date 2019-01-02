@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Outplay.RhythMage
 {
@@ -13,8 +11,16 @@ namespace Outplay.RhythMage
         None
     }
 
+    public enum EnemyType
+    {
+        Magic,
+        Melee
+    }
+
     public class Defs
     {
+        public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;
+
         public static Dictionary<Direction, CoordinateOffset> Facings = new Dictionary<Direction, CoordinateOffset>()
         {
             { Direction.Forwards, CoordinateOffset.Create(0, 1) },

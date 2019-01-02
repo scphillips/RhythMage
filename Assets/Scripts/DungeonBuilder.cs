@@ -33,7 +33,7 @@ namespace Outplay.RhythMage
         DungeonModel m_dungeon;
 
         [Zenject.Inject]
-        EnemyFactory m_enemyFactory;
+        Enemy.Factory m_enemyFactory;
 
         [Zenject.Inject]
         SoundManager m_sound;
@@ -132,8 +132,8 @@ namespace Outplay.RhythMage
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
-                var type = (Enemy.EnemyType)m_rng.Next(Enemy.enemyTypeCount);
-                var enemy = m_enemyFactory.CreateEnemy(enemyLocationChoices[index], type);
+                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
+                var enemy = m_enemyFactory.Create(enemyLocationChoices[index], type);
                 enemy.transform.SetParent(transform, false);
                 m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], enemy);
                 enemyLocationChoices.RemoveAt(index);
