@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 
@@ -10,7 +9,8 @@ namespace Outplay.RhythMage
         [Serializable]
         public class Settings
         {
-            public string gameOverSceneId;
+            public UnityEditor.SceneAsset gameOverScene;
+            public UnityEditor.SceneAsset menuScene;
         }
 
         [Inject]
@@ -21,8 +21,7 @@ namespace Outplay.RhythMage
         readonly ZenjectSceneLoader m_sceneLoader;
 
         [Inject]
-        GameStateManager(ZenjectSceneLoader sceneLoader,
-            AvatarModel avatarModel)
+        GameStateManager(ZenjectSceneLoader sceneLoader, AvatarModel avatarModel)
         {
             m_sceneLoader = sceneLoader;
             m_avatar = avatarModel;
@@ -33,7 +32,7 @@ namespace Outplay.RhythMage
         {
             if (m_avatar.IsAlive() == false)
             {
-                m_sceneLoader.LoadScene(m_settings.gameOverSceneId, LoadSceneMode.Single, (container) =>
+                m_sceneLoader.LoadScene(m_settings.gameOverScene.name, LoadSceneMode.Single, (container) =>
                 {
                     container.BindInstance(m_avatar.killCount).WhenInjectedInto<GameOverSceneInstaller>();
                 });

@@ -46,7 +46,8 @@ MonoBehaviour:
     maxEnemyPopulation: 0.25
     maxInputTimeOffBeat: 0.075
   GameStateManagerSettings:
-    gameOverSceneId: GameOverScene
+    gameOverScene: {fileID: 102900000, guid: 891b239581a043d4f8a42df50da14d0b, type: 3}
+    menuScene: {fileID: 102900000, guid: 63afccf960cb9754b8139415d96c2af3, type: 3}
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}

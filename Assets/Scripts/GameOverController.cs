@@ -1,13 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace Outplay.RhythMage
 {
     public class GameOverController
     {
-        public string nextScene = "MenuScene";
-
-        int m_finalScore;
+        [Zenject.Inject]
+        readonly GameStateManager.Settings m_settings;
+        
+        readonly int m_finalScore;
 
         GameOverController(int finalScore)
         {
@@ -21,7 +21,7 @@ namespace Outplay.RhythMage
 
         public void LoadNextScene()
         {
-            SceneManager.LoadScene(nextScene);
+            SceneManager.LoadScene(m_settings.menuScene.name);
         }
     }
 }
