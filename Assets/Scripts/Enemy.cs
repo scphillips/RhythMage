@@ -95,7 +95,7 @@ namespace Outplay.RhythMage
 
             while (elapsedTime < duration)
             {
-                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
+                elapsedTime = Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
                 float currentRotation = angle * mag;
                 transform.localRotation = Quaternion.Euler(0, 0, currentRotation);

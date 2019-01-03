@@ -78,7 +78,7 @@ namespace Outplay.RhythMage
                 Defs.Facings.TryGetValue(currentDirection, out offset);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
-                length = System.Math.Min(length, tileCount - m_dungeon.GetCellCount());
+                length = Math.Min(length, tileCount - m_dungeon.GetCellCount());
                 for (int j = 0; j < length; ++j)
                 {
                     offset.Apply(ref currentPosition);
@@ -115,12 +115,12 @@ namespace Outplay.RhythMage
             }
 
             // Remove start and end tiles from list of location choices
-            for (int i = 0; i < System.Math.Min(3, m_dungeon.GetCellCount()); ++i)
+            for (int i = 0; i < Math.Min(3, m_dungeon.GetCellCount()); ++i)
             {
                 var cell = m_dungeon.GetCellAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
-            for (int i = System.Math.Max(0, m_dungeon.GetCellCount() - 3); i < m_dungeon.GetCellCount(); ++i)
+            for (int i = Math.Max(0, m_dungeon.GetCellCount() - 3); i < m_dungeon.GetCellCount(); ++i)
             {
                 var cell = m_dungeon.GetCellAtIndex(i);
                 enemyLocationChoices.Remove(cell);
@@ -128,7 +128,7 @@ namespace Outplay.RhythMage
 
             // Spawn Enemies
             int enemiesToSpawn = System.Convert.ToInt32(floors.Count * enemyPopulation);
-            enemiesToSpawn = System.Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
+            enemiesToSpawn = Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);

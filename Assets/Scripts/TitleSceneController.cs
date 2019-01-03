@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -32,7 +33,7 @@ namespace Outplay.RhythMage
 
             float mag = Time.deltaTime * m_fadeSpeed;
             float delta = (m_isEnding) ? -mag : mag;
-            m_opacity = System.Math.Max(0.0f, System.Math.Min(1.0f, m_opacity + delta));
+            m_opacity = Math.Max(0.0f, Math.Min(1.0f, m_opacity + delta));
             foreach (var entry in fadeEntities)
             {
                 var color = entry.GetComponent<Image>().color;

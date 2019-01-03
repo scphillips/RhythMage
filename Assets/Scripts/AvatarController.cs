@@ -162,7 +162,7 @@ namespace Outplay.RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime = elapsedTime + Time.deltaTime;
-                float mag = System.Math.Min(1.0f, elapsedTime / duration);
+                float mag = Math.Min(1.0f, elapsedTime / duration);
                 transform.localPosition = startPosition + offset * mag;
                 transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, mag);
                 yield return null;

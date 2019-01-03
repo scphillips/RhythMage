@@ -167,7 +167,7 @@ namespace Outplay.RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float mag = System.Math.Min(1.0f, elapsedTime / duration);
+                float mag = Math.Min(1.0f, elapsedTime / duration);
                 color.a = (1.0f - mag) * opacity; // Linear fade out
                 target.color = color;
                 yield return null;
@@ -213,7 +213,7 @@ namespace Outplay.RhythMage
             double delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
             float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
-            float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
+            float mag = Math.Max(0.0f, (timeWindow - Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
             if (timeOffset > incomingEnemyTilesAhead - 1)
             {
@@ -221,7 +221,7 @@ namespace Outplay.RhythMage
             }
             else if (timeOffset < 0.0f)
             {
-                scale = System.Math.Max(0.0f, 1.0f + timeOffset);
+                scale = Math.Max(0.0f, 1.0f + timeOffset);
             }
 
             float xCoordinate = timeOffset * 100.0f;
@@ -253,7 +253,7 @@ namespace Outplay.RhythMage
 
             while (elapsedTime < duration)
             {
-                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
+                elapsedTime = Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
                 float currentScale = startScale + (scale - startScale) * mag;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);
