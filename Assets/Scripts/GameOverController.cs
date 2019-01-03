@@ -21,7 +21,7 @@ namespace Outplay.RhythMage
 
         public void LoadNextScene()
         {
-            SceneManager.LoadScene(m_settings.menuScene.name);
+            SceneManager.LoadScene(m_settings.menuScene.ScenePath);
         }
     }
 }

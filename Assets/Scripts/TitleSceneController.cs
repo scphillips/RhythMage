@@ -43,7 +43,7 @@ namespace Outplay.RhythMage
 
             if (m_isEnding && m_opacity == 0.0f)
             {
-                SceneManager.LoadScene(m_settings.menuScene.name);
+                SceneManager.LoadScene(m_settings.menuScene.ScenePath);
             }
         }
     }

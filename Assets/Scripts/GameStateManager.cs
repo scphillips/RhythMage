@@ -9,8 +9,8 @@ namespace Outplay.RhythMage
         [Serializable]
         public class Settings
         {
-            public UnityEditor.SceneAsset gameOverScene;
-            public UnityEditor.SceneAsset menuScene;
+            public SceneReference gameOverScene;
+            public SceneReference menuScene;
         }
 
         [Inject]
@@ -32,7 +32,7 @@ namespace Outplay.RhythMage
         {
             if (m_avatar.IsAlive() == false)
             {
-                m_sceneLoader.LoadScene(m_settings.gameOverScene.name, LoadSceneMode.Single, (container) =>
+                m_sceneLoader.LoadScene(m_settings.gameOverScene.ScenePath, LoadSceneMode.Single, (container) =>
                 {
                     container.BindInstance(m_avatar.killCount).WhenInjectedInto<GameOverSceneInstaller>();
                 });
