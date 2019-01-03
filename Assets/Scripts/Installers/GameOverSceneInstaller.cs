@@ -1,14 +1,17 @@
 using Zenject;
 
-public class GameOverSceneInstaller : MonoInstaller
+namespace Outplay.RhythMage
 {
-    [InjectOptional]
-    public int finalScore = 0;
-
-    public override void InstallBindings()
+    public class GameOverSceneInstaller : MonoInstaller
     {
-        Container.Bind<Outplay.RhythMage.GameOverController>()
-            .AsSingle()
-            .WithArguments(finalScore);
+        [InjectOptional]
+        public int finalScore = 0;
+
+        public override void InstallBindings()
+        {
+            Container.Bind<GameOverController>()
+                .AsSingle()
+                .WithArguments(finalScore);
+        }
     }
 }

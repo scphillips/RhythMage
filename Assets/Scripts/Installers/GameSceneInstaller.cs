@@ -1,33 +1,34 @@
-using Outplay;
-using Outplay.RhythMage;
 using System;
 using UnityEngine;
 using Zenject;
 
-public class GameSceneInstaller : MonoInstaller
+namespace Outplay.RhythMage
 {
-    public GameObject prefabEnemy;
-
-    public override void InstallBindings()
+    public class GameSceneInstaller : MonoInstaller
     {
-        Container.Bind<RandomNumberProvider>()
-            .AsSingle()
-            .WithArguments(Environment.TickCount);
+        public GameObject prefabEnemy;
 
-        Container.Bind<AvatarModel>()
-            .AsSingle();
+        public override void InstallBindings()
+        {
+            Container.Bind<RandomNumberProvider>()
+                .AsSingle()
+                .WithArguments(Environment.TickCount);
 
-        Container.Bind<DungeonModel>()
-            .AsSingle();
+            Container.Bind<AvatarModel>()
+                .AsSingle();
 
-        Container.BindFactory<Cell, EnemyType, Enemy, Enemy.Factory>()
-            .FromComponentInNewPrefab(prefabEnemy);
+            Container.Bind<DungeonModel>()
+                .AsSingle();
 
-        Container.Bind<GameStateManager>()
-            .AsSingle()
-            .NonLazy();
+            Container.BindFactory<Cell, EnemyType, Enemy, Enemy.Factory>()
+                .FromComponentInNewPrefab(prefabEnemy);
 
-        Container.BindInterfacesAndSelfTo<SoundManager>()
-            .AsSingle();
+            Container.Bind<GameStateManager>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<SoundManager>()
+                .AsSingle();
+        }
     }
 }
