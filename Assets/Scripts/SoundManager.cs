@@ -69,7 +69,7 @@ namespace Outplay.RhythMage
 
         public void Tick()
         {
-            if (m_audioSource.time >= m_audioSource.clip.length)
+            if (m_audioSource.time >= m_audioSource.clip.length || m_audioSource.isPlaying == false)
             {
                 PickNextTrack();
             }
