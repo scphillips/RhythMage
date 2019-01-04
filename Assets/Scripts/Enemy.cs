@@ -29,30 +29,35 @@ namespace Outplay.RhythMage
 
         public event EventHandler OnDeathTriggered;
 
+        List<Sprite> animationFrames;
         int m_currentFrame;
         EnemyType m_type;
+
+        public EnemyType EnemyType
+        {
+            get
+            {
+                return m_type;
+            }
+            set
+            {
+                m_type = value;
+                animationFrames = (m_type == EnemyType.Magic) ? settings.magicFrames : settings.meleeFrames;
+                m_currentFrame = 0;
+                UpdateAnimation();
+            }
+        }
 
         [Zenject.Inject]
         public void Construct(Cell cell, EnemyType type)
         {
             SetPosition(cell);
-            SetEnemyType(type);
+            EnemyType = type;
         }
 
         void Start()
         {
             soundManager.OnBeat += OnBeat;
-        }
-
-        public EnemyType GetEnemyType()
-        {
-            return m_type;
-        }
-
-        public void SetEnemyType(EnemyType type)
-        {
-            m_type = type;
-            UpdateAnimation();
         }
 
         public void SetPosition(Cell cell)
@@ -62,6 +67,7 @@ namespace Outplay.RhythMage
 
         void OnBeat(object sender, EventArgs e)
         {
+            m_currentFrame = (m_currentFrame + 1) % animationFrames.Count;
             UpdateAnimation();
         }
 
@@ -72,9 +78,7 @@ namespace Outplay.RhythMage
 
         void UpdateAnimation()
         {
-            var frames = (m_type == EnemyType.Magic) ? settings.magicFrames : settings.meleeFrames;
-            m_currentFrame = (m_currentFrame + 1) % frames.Count;
-            GetComponent<SpriteRenderer>().sprite = frames[m_currentFrame];
+            GetComponent<SpriteRenderer>().sprite = animationFrames[m_currentFrame];
         }
 
         public void Die()

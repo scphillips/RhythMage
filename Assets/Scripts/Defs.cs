@@ -4,9 +4,9 @@ namespace Outplay.RhythMage
 {
     public enum Direction
     {
-        Forwards,
+        Forward,
         Right,
-        Backwards,
+        Backward,
         Left,
         None
     }
@@ -21,17 +21,17 @@ namespace Outplay.RhythMage
     {
         public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;
 
-        public static Dictionary<Direction, CoordinateOffset> Facings = new Dictionary<Direction, CoordinateOffset>()
+        public static Dictionary<Direction, CoordinateOffset> facings = new Dictionary<Direction, CoordinateOffset>()
         {
-            { Direction.Forwards, CoordinateOffset.Create(0, 1) },
+            { Direction.Forward, CoordinateOffset.Create(0, 1) },
             { Direction.Right, CoordinateOffset.Create(1, 0) },
-            { Direction.Backwards, CoordinateOffset.Create(0, -1) },
+            { Direction.Backward, CoordinateOffset.Create(0, -1) },
             { Direction.Left, CoordinateOffset.Create(-1, 0) }
         };
 
         public static Direction GetOffsetDirection(ref CoordinateOffset offset)
         {
-            foreach (var entry in Facings)
+            foreach (var entry in facings)
             {
                 if (entry.Value == offset)
                 {

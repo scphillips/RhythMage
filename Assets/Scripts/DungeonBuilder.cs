@@ -6,7 +6,7 @@ namespace Outplay.RhythMage
 {
     public class DungeonBuilder : MonoBehaviour
     {
-        [System.Serializable]
+        [Serializable]
         public class Settings
         {
             public int minSegmentLength;
@@ -67,7 +67,7 @@ namespace Outplay.RhythMage
             int tileCount = (int)(trackDuration / m_sound.GetBeatLength()) + 1;
 
             // First generate path for the floor and block out all surrounding walls
-            Direction currentDirection = Direction.Forwards;
+            Direction currentDirection = Direction.Forward;
             Cell currentPosition = Cell.zero;
             HashSet<Cell> wallCells = new HashSet<Cell>();
             AddPathAtCell(ref currentPosition, wallCells);
@@ -75,11 +75,11 @@ namespace Outplay.RhythMage
             while (m_dungeon.GetCellCount() < tileCount)
             {
                 CoordinateOffset offset;
-                Defs.Facings.TryGetValue(currentDirection, out offset);
+                Defs.facings.TryGetValue(currentDirection, out offset);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
                 length = Math.Min(length, tileCount - m_dungeon.GetCellCount());
-                for (int j = 0; j < length; ++j)
+                for (int i = 0; i < length; ++i)
                 {
                     offset.Apply(ref currentPosition);
                     AddPathAtCell(ref currentPosition, wallCells);
@@ -127,23 +127,37 @@ namespace Outplay.RhythMage
             }
 
             // Spawn Enemies
-            int enemiesToSpawn = System.Convert.ToInt32(floors.Count * enemyPopulation);
+            int enemiesToSpawn = Convert.ToInt32(floors.Count * enemyPopulation);
             enemiesToSpawn = Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
+                var cell = enemyLocationChoices[index];
                 var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
-                var enemy = m_enemyFactory.Create(enemyLocationChoices[index], type);
+                var gameObject = enemies.TryGetNext();
+                Enemy enemy = null;
+                if (gameObject != null)
+                {
+                    enemy = gameObject.GetComponent<Enemy>();
+                    enemy.EnemyType = type;
+                    enemy.SetPosition(cell);
+                    enemy.transform.localScale = Vector3.one;
+                }
+                else
+                {
+                    enemy = m_enemyFactory.Create(cell, type);
+                }
                 enemy.transform.SetParent(transform, false);
-                m_dungeon.AddEnemyAtCell(enemyLocationChoices[index], enemy);
+                m_dungeon.AddEnemyAtCell(cell, enemy);
                 enemyLocationChoices.RemoveAt(index);
+                enemies.AddToCell(cell, enemy.gameObject);
             }
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)
         {
-            int dirInt = System.Convert.ToInt32(currentDirection);
-            dirInt = (dirInt + Defs.Facings.Count + change) % Defs.Facings.Count;
+            int dirInt = Convert.ToInt32(currentDirection);
+            dirInt = (dirInt + Defs.facings.Count + change) % Defs.facings.Count;
             return (Direction)dirInt;
         }
 
@@ -210,7 +224,7 @@ namespace Outplay.RhythMage
             {
                 // Find orthogonally adjacent walls (if any)
                 List<Cell> adjacentWallCells = new List<Cell>();
-                foreach (var entry in Defs.Facings)
+                foreach (var entry in Defs.facings)
                 {
                     Cell test = cell + entry.Value;
                     if (walls.Contains(test))
@@ -233,7 +247,7 @@ namespace Outplay.RhythMage
                         brazier = Instantiate(m_settings.prefabBrazier);
                     }
                     brazier.transform.SetParent(transform, false);
-                    float angle = 90.0f * (System.Convert.ToInt32(direction) - 1);
+                    float angle = 90.0f * (Convert.ToInt32(direction) - 1);
                     Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     brazier.transform.localPosition = (rotation * new Vector3(0.25f, 0.75f, 0.0f)) + new Vector3(cell.x, 0.0f, cell.y);
                     brazier.transform.localRotation = rotation;

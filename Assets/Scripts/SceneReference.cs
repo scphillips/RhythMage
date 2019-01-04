@@ -81,8 +81,7 @@ public class SceneReference : ISerializationCallbackReceiver
         EditorApplication.update += HandleAfterDeserialize;
 #endif
     }
-
-
+    
 #if UNITY_EDITOR
     SceneAsset GetSceneAssetFromPath()
     {

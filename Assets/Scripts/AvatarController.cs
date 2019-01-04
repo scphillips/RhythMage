@@ -69,8 +69,8 @@ namespace Outplay.RhythMage
             {
                 Cell nextCell = m_dungeon.GetCellAtIndex(cellIndex + 1);
                 CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                Direction direction = Direction.Forwards;
-                foreach (var entry in Defs.Facings)
+                Direction direction = Direction.Forward;
+                foreach (var entry in Defs.facings)
                 {
                     if (entry.Value == offset)
                     {
@@ -81,13 +81,13 @@ namespace Outplay.RhythMage
                 
                 switch (direction)
                 {
-                    case Direction.Forwards:
+                    case Direction.Forward:
                         targetAngle = 0.0f;
                         break;
                     case Direction.Right:
                         targetAngle = 90.0f;
                         break;
-                    case Direction.Backwards:
+                    case Direction.Backward:
                         targetAngle = 180.0f;
                         break;
                     case Direction.Left:
@@ -127,8 +127,8 @@ namespace Outplay.RhythMage
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
                     var enemy = m_dungeon.GetEnemyAtCell(currentCell);
-                    if ((enemy.GetEnemyType() == EnemyType.Magic && args.Direction == Direction.Right)
-                        || (enemy.GetEnemyType() == EnemyType.Melee && args.Direction == Direction.Left))
+                    if ((enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
+                        || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left))
                     {
                         // Valid combination, destroy the enemy
                         ++m_avatar.killCount;

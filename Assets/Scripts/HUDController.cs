@@ -187,13 +187,13 @@ namespace Outplay.RhythMage
                     EnemyData data;
                     data.cellIndex = cellIndex;
                     Image notch = null;
-                    if (enemy.GetEnemyType() == EnemyType.Magic)
+                    if (enemy.EnemyType == EnemyType.Magic)
                     {
-                        notch = (Image)Instantiate(m_settings.prefabMagicEnemyNotch);
+                        notch = Instantiate(m_settings.prefabMagicEnemyNotch);
                     }
-                    else if (enemy.GetEnemyType() == EnemyType.Melee)
+                    else if (enemy.EnemyType == EnemyType.Melee)
                     {
-                        notch = (Image)Instantiate(m_settings.prefabMeleeEnemyNotch);
+                        notch = Instantiate(m_settings.prefabMeleeEnemyNotch);
                     }
                     notch.transform.SetParent(incomingEnemyDisplay.transform, false);
 
