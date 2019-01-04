@@ -39,13 +39,7 @@ namespace Outplay.RhythMage
             m_rng = rng;
             m_settings = settings;
 
-            int trackIndex = m_rng.Next(m_settings.timings.Count);
-            var timingData = m_settings.timings[trackIndex];
-            m_audioSource.clip = timingData.clip;
-            m_audioSource.Play();
-            m_bpm = timingData.bpm;
-            m_beatLength = 60.0 / m_bpm;
-            m_halfBeatLength = m_beatLength * 0.5;
+            PickNextTrack();
         }
 
         public float GetTrackLength()
@@ -75,6 +69,10 @@ namespace Outplay.RhythMage
 
         public void Tick()
         {
+            if (m_audioSource.time >= m_audioSource.clip.length)
+            {
+                PickNextTrack();
+            }
             double currentElapsed = m_audioSource.time;
             double beatCounter = (int)(currentElapsed / 60.0) * m_bpm;
             beatCounter += ((currentElapsed % 60.0) / m_beatLength);
@@ -90,6 +88,17 @@ namespace Outplay.RhythMage
             }
             m_lastSeenTime = currentElapsed;
             m_lastBeatIndex = currentBeatIndex;
+        }
+
+        void PickNextTrack()
+        {
+            int trackIndex = m_rng.Next(m_settings.timings.Count);
+            var timingData = m_settings.timings[trackIndex];
+            m_audioSource.clip = timingData.clip;
+            m_audioSource.Play();
+            m_bpm = timingData.bpm;
+            m_beatLength = 60.0 / m_bpm;
+            m_halfBeatLength = m_beatLength * 0.5;
         }
     }
 }
