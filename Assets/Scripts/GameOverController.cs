@@ -6,13 +6,9 @@ namespace Outplay.RhythMage
     {
         [Zenject.Inject]
         readonly GameStateManager.Settings m_settings;
-        
-        readonly int m_finalScore;
 
-        GameOverController(int finalScore)
-        {
-            m_finalScore = finalScore;
-        }
+        [Zenject.Inject]
+        readonly int m_finalScore;
 
         public int GetFinalScore()
         {
@@ -21,7 +17,7 @@ namespace Outplay.RhythMage
 
         public void LoadNextScene()
         {
-            SceneManager.LoadScene(m_settings.menuScene.ScenePath);
+            SceneManager.LoadScene(m_settings.menuScene);
         }
     }
 }

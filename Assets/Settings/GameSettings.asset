@@ -49,6 +49,9 @@ MonoBehaviour:
     gameOverScene:
       m_sceneAsset: {fileID: 102900000, guid: 891b239581a043d4f8a42df50da14d0b, type: 3}
       m_scenePath: Assets/Scenes/GameOverScene.unity
+    gameScene:
+      m_sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
+      m_scenePath: Assets/Scenes/GameScene.unity
     menuScene:
       m_sceneAsset: {fileID: 102900000, guid: 63afccf960cb9754b8139415d96c2af3, type: 3}
       m_scenePath: Assets/Scenes/MenuScene.unity

@@ -23,7 +23,7 @@ namespace Outplay.RhythMage
             Container.BindFactory<Cell, EnemyType, Enemy, Enemy.Factory>()
                 .FromComponentInNewPrefab(prefabEnemy);
 
-            Container.Bind<GameStateManager>()
+            Container.BindInterfacesAndSelfTo<GameStateManager>()
                 .AsSingle()
                 .NonLazy();
 

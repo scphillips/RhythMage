@@ -4,27 +4,27 @@ using Zenject;
 
 namespace Outplay.RhythMage
 {
-    public class GameStateManager
+    public class GameStateManager : IInitializable
     {
         [Serializable]
         public class Settings
         {
             public SceneReference gameOverScene;
+            public SceneReference gameScene;
             public SceneReference menuScene;
         }
 
         [Inject]
         readonly Settings m_settings;
 
-        AvatarModel m_avatar;
-
+        [Inject]
         readonly ZenjectSceneLoader m_sceneLoader;
 
         [Inject]
-        GameStateManager(ZenjectSceneLoader sceneLoader, AvatarModel avatarModel)
+        AvatarModel m_avatar;
+        
+        public void Initialize()
         {
-            m_sceneLoader = sceneLoader;
-            m_avatar = avatarModel;
             m_avatar.OnHealthChange += OnHealthChanged;
         }
 
@@ -32,7 +32,7 @@ namespace Outplay.RhythMage
         {
             if (m_avatar.IsAlive() == false)
             {
-                m_sceneLoader.LoadScene(m_settings.gameOverScene.ScenePath, LoadSceneMode.Single, (container) =>
+                m_sceneLoader.LoadScene(m_settings.gameOverScene, LoadSceneMode.Single, (container) =>
                 {
                     container.BindInstance(m_avatar.killCount).WhenInjectedInto<GameOverSceneInstaller>();
                 });

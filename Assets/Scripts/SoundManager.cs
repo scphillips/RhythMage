@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Outplay.RhythMage
 {
-    public class SoundManager : Zenject.ITickable
+    public class SoundManager : IInitializable, ITickable
     {
         [Serializable]
         public struct AudioTiming
@@ -20,9 +21,14 @@ namespace Outplay.RhythMage
         }
 
         public event EventHandler OnBeat;
-        
+
+        [Inject]
         AudioSource m_audioSource;
+
+        [Inject]
         RandomNumberProvider m_rng;
+
+        [Inject]
         readonly Settings m_settings;
 
         double m_bpm;
@@ -31,14 +37,9 @@ namespace Outplay.RhythMage
 
         double m_lastSeenTime;
         int m_lastBeatIndex;
-
-        [Zenject.Inject]
-        public SoundManager(AudioSource audioSource, RandomNumberProvider rng, Settings settings)
+        
+        public void Initialize()
         {
-            m_audioSource = audioSource;
-            m_rng = rng;
-            m_settings = settings;
-
             PickNextTrack();
         }
 

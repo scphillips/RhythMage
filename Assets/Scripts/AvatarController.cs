@@ -64,7 +64,7 @@ namespace Outplay.RhythMage
                 m_dungeonBuilder.BuildDungeon();
             }
 
-            float targetAngle = 0.0f;
+            float targetAngle = transform.localRotation.eulerAngles.y;
             if (cellIndex < m_dungeon.GetCellCount() - 1)
             {
                 Cell nextCell = m_dungeon.GetCellAtIndex(cellIndex + 1);
@@ -94,10 +94,6 @@ namespace Outplay.RhythMage
                         targetAngle = 270.0f;
                         break;
                 }
-            }
-            else
-            {
-                targetAngle = transform.localRotation.eulerAngles.z;
             }
             StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), targetAngle, 0.125f));
         }

@@ -41,9 +41,6 @@ namespace Outplay.RhythMage
         AvatarModel m_avatar;
 
         [Zenject.Inject]
-        CameraProvider m_camera;
-
-        [Zenject.Inject]
         DungeonModel m_dungeon;
 
         [Zenject.Inject]
