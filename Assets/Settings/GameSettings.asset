@@ -29,6 +29,8 @@ MonoBehaviour:
       type: 2}
     prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,
       type: 2}
+    prefabPortal: {fileID: 1945772521070428, guid: 6c04d207c2be1244ca64ccca31b698ee,
+      type: 2}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 2}
     wallMaterials:

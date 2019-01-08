@@ -6,7 +6,7 @@ namespace Outplay.RhythMage
     public class DungeonModel
     {
         Dictionary<Cell, Enemy> m_enemies;
-        List<Cell> m_floorCells;
+        public List<Cell> FloorCells { get; private set; }
 
         public event EventHandler OnDungeonReset;
         public event EventHandler OnEnemyCountChange;
@@ -14,19 +14,19 @@ namespace Outplay.RhythMage
         public DungeonModel()
         {
             m_enemies = new Dictionary<Cell, Enemy>();
-            m_floorCells = new List<Cell>();
+            FloorCells = new List<Cell>();
         }
 
         public void Reset()
         {
             m_enemies.Clear();
-            m_floorCells.Clear();
+            FloorCells.Clear();
             OnDungeonReset(this, null);
         }
 
         public void AddToPath(Cell cell)
         {
-            m_floorCells.Add(cell);
+            FloorCells.Add(cell);
         }
 
         public int GetEnemyCount()
@@ -61,12 +61,12 @@ namespace Outplay.RhythMage
 
         public Cell GetCellAtIndex(int index)
         {
-            return m_floorCells[index];
+            return FloorCells[index];
         }
 
         public int GetCellCount()
         {
-            return m_floorCells.Count;
+            return FloorCells.Count;
         }
     }
 }

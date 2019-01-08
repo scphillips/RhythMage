@@ -70,12 +70,7 @@ namespace Outplay.RhythMage
             m_currentFrame = (m_currentFrame + 1) % animationFrames.Count;
             UpdateAnimation();
         }
-
-        void Update()
-        {
-            transform.forward = cameraProvider.transform.forward;
-        }
-
+        
         void UpdateAnimation()
         {
             GetComponent<SpriteRenderer>().sprite = animationFrames[m_currentFrame];

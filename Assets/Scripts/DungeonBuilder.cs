@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Outplay.RhythMage
@@ -15,6 +16,7 @@ namespace Outplay.RhythMage
 
             public GameObject prefabBrazier;
             public GameObject prefabFloor;
+            public GameObject prefabPortal;
             public GameObject prefabWall;
 
             public List<Material> wallMaterials;
@@ -41,6 +43,7 @@ namespace Outplay.RhythMage
         DungeonEntityTracker braziers;
         DungeonEntityTracker enemies;
         DungeonEntityTracker floors;
+        DungeonEntityTracker portals;
         DungeonEntityTracker walls;
 
         void Start()
@@ -48,6 +51,7 @@ namespace Outplay.RhythMage
             braziers = new DungeonEntityTracker();
             enemies = new DungeonEntityTracker();
             floors = new DungeonEntityTracker();
+            portals = new DungeonEntityTracker();
             walls = new DungeonEntityTracker();
 
             BuildDungeon();
@@ -56,7 +60,7 @@ namespace Outplay.RhythMage
         public void BuildDungeon()
         {
             // Cleanup existing dungeon (if any)
-            var trackers = new List<DungeonEntityTracker> { braziers, enemies, floors, walls };
+            var trackers = new List<DungeonEntityTracker> { braziers, enemies, floors, portals, walls };
             foreach (var entry in trackers)
             {
                 entry.RemoveAll();
@@ -133,25 +137,16 @@ namespace Outplay.RhythMage
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
                 var cell = enemyLocationChoices[index];
-                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
-                var gameObject = enemies.TryGetNext();
-                Enemy enemy = null;
-                if (gameObject != null)
-                {
-                    enemy = gameObject.GetComponent<Enemy>();
-                    enemy.EnemyType = type;
-                    enemy.SetPosition(cell);
-                    enemy.transform.localScale = Vector3.one;
-                }
-                else
-                {
-                    enemy = m_enemyFactory.Create(cell, type);
-                }
-                enemy.transform.SetParent(transform, false);
-                m_dungeon.AddEnemyAtCell(cell, enemy);
+                CreateEnemy(cell);
                 enemyLocationChoices.RemoveAt(index);
-                enemies.AddToCell(cell, enemy.gameObject);
             }
+
+            // Spawn Portal at start and end of dungeon
+            //if (m_dungeon.GetCellCount() > 0)
+            //{
+            //    CreatePortal(m_dungeon.FloorCells.First());
+            //    CreatePortal(m_dungeon.FloorCells.Last());
+            //}
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)
@@ -179,42 +174,64 @@ namespace Outplay.RhythMage
             }
         }
 
+        GameObject CreateFromPool(Cell cell, DungeonEntityTracker pool, GameObject prefab)
+        {
+            GameObject entity = null;
+            if (pool.Contains(cell) == false)
+            {
+                entity = pool.TryGetNext();
+                if (entity == null)
+                {
+                    entity = Instantiate(prefab);
+                }
+                entity.transform.SetParent(transform, false);
+                entity.transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
+                pool.AddToCell(cell, entity);
+            }
+            return entity;
+        }
+
         GameObject CreateFloor(Cell cell)
         {
-            GameObject floor = null;
-            if (floors.Contains(cell) == false)
-            {
-                floor = floors.TryGetNext();
-                if (floor == null)
-                {
-                    floor = Instantiate(m_settings.prefabFloor);
-                }
-                floor.transform.SetParent(transform, false);
-                floor.transform.localPosition = new Vector3(cell.x, -0.5f, cell.y);
-                floors.AddToCell(cell, floor);
-            }
-            return floor;
+            return CreateFromPool(cell, floors, m_settings.prefabFloor);
+        }
+
+        GameObject CreatePortal(Cell cell)
+        {
+            return CreateFromPool(cell, portals, m_settings.prefabPortal);
         }
 
         GameObject CreateWall(Cell cell)
         {
-            GameObject wall = null;
-            if (walls.Contains(cell) == false)
+            GameObject wall = CreateFromPool(cell, walls, m_settings.prefabWall);
+            if (wall != null)
             {
-                wall = walls.TryGetNext();
-                if (wall == null)
-                {
-                    wall = Instantiate(m_settings.prefabWall);
-                }
-                wall.transform.SetParent(transform, false);
-                wall.transform.localPosition = new Vector3(cell.x, 4.5f, cell.y);
-                if (cell.x % 3 == 0 && cell.y % 3 == 0)
-                {
-                    wall.GetComponent<MeshRenderer>().material = m_settings.wallMaterials[0];
-                }
-                walls.AddToCell(cell, wall);
+                int materialIndex = (cell.x % 3 == 0 && cell.y % 3 == 0) ? 0 : 1;
+                wall.GetComponentInChildren<MeshRenderer>().material = m_settings.wallMaterials[materialIndex];
             }
             return wall;
+        }
+
+        Enemy CreateEnemy(Cell cell)
+        {
+            var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
+            Enemy enemy = null;
+            var gameObject = enemies.TryGetNext();
+            if (gameObject != null)
+            {
+                enemy = gameObject.GetComponent<Enemy>();
+                enemy.EnemyType = type;
+                enemy.SetPosition(cell);
+                enemy.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                enemy = m_enemyFactory.Create(cell, type);
+            }
+            enemy.transform.SetParent(transform, false);
+            m_dungeon.AddEnemyAtCell(cell, enemy);
+            enemies.AddToCell(cell, enemy.gameObject);
+            return enemy;
         }
 
         GameObject CreateBrazier(Cell cell)
@@ -247,10 +264,9 @@ namespace Outplay.RhythMage
                         brazier = Instantiate(m_settings.prefabBrazier);
                     }
                     brazier.transform.SetParent(transform, false);
-                    float angle = 90.0f * (Convert.ToInt32(direction) - 1);
-                    Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    brazier.transform.localPosition = (rotation * new Vector3(0.25f, 0.75f, 0.0f)) + new Vector3(cell.x, 0.0f, cell.y);
-                    brazier.transform.localRotation = rotation;
+                    float angle = 90.0f * Convert.ToInt32(direction);
+                    brazier.transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
+                    brazier.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
                     braziers.AddToCell(cell, brazier);
                 }
             }

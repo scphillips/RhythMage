@@ -42,12 +42,12 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         SoundManager m_sound;
 
-        public AudioSource audioSource;
+        [Zenject.Inject]
+        AudioSource audioSource;
 
         void Start()
         {
             m_sound.OnBeat += OnBeat;
-
             m_gestureHandler.OnSwipe += OnSwipe;
         }
 
