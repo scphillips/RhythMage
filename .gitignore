@@ -1,4 +1,5 @@
-.vs
+.gradle/
+.vs/
 build/
 Library/
 obj/

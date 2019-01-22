@@ -57,6 +57,17 @@ namespace Outplay.RhythMage
             BuildDungeon();
         }
 
+        bool WillEndOnPath(int tileCount, Cell currentCell, Direction direction)
+        {
+            int tilesRemaining = tileCount - m_dungeon.GetCellCount();
+            CoordinateOffset offset;
+            Defs.facings.TryGetValue(direction, out offset);
+            offset.x *= tilesRemaining;
+            offset.y *= tilesRemaining;
+            offset.Apply(ref currentCell);
+            return (m_dungeon.FloorCells.Contains(currentCell));
+        }
+
         public void BuildDungeon()
         {
             // Cleanup existing dungeon (if any)
@@ -66,9 +77,8 @@ namespace Outplay.RhythMage
                 entry.RemoveAll();
             }
             m_dungeon.Reset();
-
-            float trackDuration = m_sound.GetTrackLength();
-            int tileCount = (int)(trackDuration / m_sound.GetBeatLength()) + 1;
+            
+            int tileCount = m_sound.GetTotalBeatsInTrack();
 
             // First generate path for the floor and block out all surrounding walls
             Direction currentDirection = Direction.Forward;
@@ -90,7 +100,16 @@ namespace Outplay.RhythMage
                 }
                 
                 int directionChange = m_rng.Next(2) * 2 - 1;
-                currentDirection = ChangeDirection(currentDirection, directionChange);
+                var nextDirection = ChangeDirection(currentDirection, directionChange);
+                // Test if end cell will land in on existing path
+                if (WillEndOnPath(tileCount, currentPosition, nextDirection))
+                {
+                    nextDirection = ChangeDirection(currentDirection, -directionChange);
+                }
+                if (WillEndOnPath(tileCount, currentPosition, nextDirection) == false)
+                {
+                    currentDirection = nextDirection;
+                }
             }
             
             // Generate walls

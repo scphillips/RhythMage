@@ -53,6 +53,11 @@ namespace Outplay.RhythMage
             return m_beatLength;
         }
 
+        public int GetTotalBeatsInTrack()
+        {
+            return Convert.ToInt32(GetTrackLength() / GetBeatLength());
+        }
+
         public double TimeSinceLastBeat()
         {
             return m_audioSource.time % m_beatLength;
