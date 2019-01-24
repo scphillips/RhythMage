@@ -55,6 +55,7 @@ namespace Outplay.RhythMage
         public Image rightHand;
 
         public Image damageOverlayImage;
+        public CanvasGroup portalOverlayImage;
         public Image incomingEnemyDisplay;
         public int incomingEnemyTilesAhead = 2;
 
@@ -79,6 +80,10 @@ namespace Outplay.RhythMage
         void OnBeat(object sender, EventArgs e)
         {
             PopulateEnemyList(incomingEnemyTilesAhead);
+            if (m_avatar.currentCellIndex == m_dungeon.GetCellCount() - 1)
+            {
+                StartCoroutine(ShowPortalOverlay(portalOverlayImage, 0.25f, 0.15f));
+            }
         }
 
         void OnDungeonReset(object sender, EventArgs e)
@@ -167,6 +172,27 @@ namespace Outplay.RhythMage
                 float mag = Math.Min(1.0f, elapsedTime / duration);
                 color.a = (1.0f - mag) * opacity; // Linear fade out
                 target.color = color;
+                yield return null;
+            }
+        }
+
+        IEnumerator ShowPortalOverlay(CanvasGroup target, float fadeTime, float duration)
+        {
+            float elapsedTime = 0.0f;
+            float totalDuration = fadeTime * 2 + duration;
+            while (elapsedTime < totalDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float mag = 1.0f;
+                if (elapsedTime < fadeTime)
+                {
+                    mag = Math.Min(1.0f, elapsedTime / fadeTime);
+                }
+                else if (elapsedTime >= fadeTime + duration)
+                {
+                    mag = 1.0f - Math.Min(1.0f, (elapsedTime - fadeTime - duration) / fadeTime);
+                }
+                target.alpha = mag;
                 yield return null;
             }
         }

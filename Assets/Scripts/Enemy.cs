@@ -10,27 +10,15 @@ namespace Outplay.RhythMage
         public class Factory : Zenject.PlaceholderFactory<Cell, EnemyType, Enemy>
         {
         }
-
-        [Serializable]
-        public class Settings
-        {
-            public List<Sprite> magicFrames;
-            public List<Sprite> meleeFrames;
-        }
-
-        [Zenject.Inject]
-        readonly Settings settings;
-
+        
         [Zenject.Inject]
         readonly CameraProvider cameraProvider;
 
-        [Zenject.Inject]
-        readonly SoundManager soundManager;
+        public GameObject magic;
+        public GameObject melee;
 
         public event EventHandler OnDeathTriggered;
-
-        List<Sprite> animationFrames;
-        int m_currentFrame;
+        
         EnemyType m_type;
 
         public EnemyType EnemyType
@@ -42,9 +30,8 @@ namespace Outplay.RhythMage
             set
             {
                 m_type = value;
-                animationFrames = (m_type == EnemyType.Magic) ? settings.magicFrames : settings.meleeFrames;
-                m_currentFrame = 0;
-                UpdateAnimation();
+                magic.SetActive(m_type == EnemyType.Magic);
+                melee.SetActive(m_type == EnemyType.Melee);
             }
         }
 
@@ -55,25 +42,9 @@ namespace Outplay.RhythMage
             EnemyType = type;
         }
 
-        void Start()
-        {
-            soundManager.OnBeat += OnBeat;
-        }
-
         public void SetPosition(Cell cell)
         {
             transform.localPosition = new Vector3(cell.x, 0, cell.y);
-        }
-
-        void OnBeat(object sender, EventArgs e)
-        {
-            m_currentFrame = (m_currentFrame + 1) % animationFrames.Count;
-            UpdateAnimation();
-        }
-        
-        void UpdateAnimation()
-        {
-            GetComponent<SpriteRenderer>().sprite = animationFrames[m_currentFrame];
         }
 
         public void Die()

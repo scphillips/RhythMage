@@ -34,6 +34,7 @@ namespace Outplay.RhythMage
         double m_bpm;
         double m_beatLength;
         double m_halfBeatLength;
+        int m_beatsInTrack;
 
         double m_lastSeenTime;
         int m_lastBeatIndex;
@@ -55,7 +56,7 @@ namespace Outplay.RhythMage
 
         public int GetTotalBeatsInTrack()
         {
-            return Convert.ToInt32(GetTrackLength() / GetBeatLength());
+            return m_beatsInTrack;
         }
 
         public double TimeSinceLastBeat()
@@ -105,6 +106,7 @@ namespace Outplay.RhythMage
             m_bpm = timingData.bpm;
             m_beatLength = 60.0 / m_bpm;
             m_halfBeatLength = m_beatLength * 0.5;
+            m_beatsInTrack = Convert.ToInt32(GetTrackLength() / GetBeatLength());
         }
     }
 }

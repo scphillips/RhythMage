@@ -57,11 +57,19 @@ namespace Outplay.RhythMage
             BuildDungeon();
         }
 
-        bool WillEndOnPath(int tileCount, Cell currentCell, Direction direction)
+        bool WillIntersectPortal(int tileCount, Cell currentCell, Direction direction)
         {
             int tilesRemaining = tileCount - m_dungeon.GetCellCount();
             CoordinateOffset offset;
             Defs.facings.TryGetValue(direction, out offset);
+            for (int i = 0; i < tilesRemaining; ++i)
+            {
+                offset.Apply(ref currentCell);
+                if (currentCell == m_dungeon.FloorCells.First())
+                {
+                    return true;
+                }
+            }
             offset.x *= tilesRemaining;
             offset.y *= tilesRemaining;
             offset.Apply(ref currentCell);
@@ -102,11 +110,11 @@ namespace Outplay.RhythMage
                 int directionChange = m_rng.Next(2) * 2 - 1;
                 var nextDirection = ChangeDirection(currentDirection, directionChange);
                 // Test if end cell will land in on existing path
-                if (WillEndOnPath(tileCount, currentPosition, nextDirection))
+                if (WillIntersectPortal(tileCount, currentPosition, nextDirection))
                 {
                     nextDirection = ChangeDirection(currentDirection, -directionChange);
                 }
-                if (WillEndOnPath(tileCount, currentPosition, nextDirection) == false)
+                if (WillIntersectPortal(tileCount, currentPosition, nextDirection) == false)
                 {
                     currentDirection = nextDirection;
                 }
@@ -156,16 +164,17 @@ namespace Outplay.RhythMage
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
                 var cell = enemyLocationChoices[index];
-                CreateEnemy(cell);
+                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
+                CreateEnemy(cell, type);
                 enemyLocationChoices.RemoveAt(index);
             }
 
             // Spawn Portal at start and end of dungeon
-            //if (m_dungeon.GetCellCount() > 0)
-            //{
-            //    CreatePortal(m_dungeon.FloorCells.First());
-            //    CreatePortal(m_dungeon.FloorCells.Last());
-            //}
+            if (m_dungeon.GetCellCount() > 0)
+            {
+                CreatePortal(m_dungeon.FloorCells.First(), Direction.Forward);
+                CreatePortal(m_dungeon.FloorCells.Last(), currentDirection);
+            }
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)
@@ -215,9 +224,12 @@ namespace Outplay.RhythMage
             return CreateFromPool(cell, floors, m_settings.prefabFloor);
         }
 
-        GameObject CreatePortal(Cell cell)
+        GameObject CreatePortal(Cell cell, Direction direction)
         {
-            return CreateFromPool(cell, portals, m_settings.prefabPortal);
+            var portal = CreateFromPool(cell, portals, m_settings.prefabPortal);
+            float angle = 90.0f * Convert.ToInt32(direction);
+            portal.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
+            return portal;
         }
 
         GameObject CreateWall(Cell cell)
@@ -231,9 +243,8 @@ namespace Outplay.RhythMage
             return wall;
         }
 
-        Enemy CreateEnemy(Cell cell)
+        Enemy CreateEnemy(Cell cell, EnemyType type)
         {
-            var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
             Enemy enemy = null;
             var gameObject = enemies.TryGetNext();
             if (gameObject != null)

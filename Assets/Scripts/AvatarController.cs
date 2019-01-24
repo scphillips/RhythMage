@@ -60,7 +60,7 @@ namespace Outplay.RhythMage
             Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
             if (cellIndex == 0)
             {
-                transform.localPosition = new Vector3(currentCell.x, 0.25f, currentCell.y);
+                transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
                 m_dungeonBuilder.BuildDungeon();
             }
 
@@ -95,7 +95,7 @@ namespace Outplay.RhythMage
                         break;
                 }
             }
-            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.25f, currentCell.y), targetAngle, 0.125f));
+            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
         }
 
         void OnSwipe(object sender, EventArgs e)

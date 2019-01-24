@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 
-public class Billboard : MonoBehaviour
+namespace Outplay.RhythMage
 {
-    [Zenject.Inject]
-    readonly CameraProvider cameraProvider;
-
-    void Update()
+    public class Billboard : MonoBehaviour
     {
-        transform.forward = cameraProvider.transform.forward;
+        [Zenject.Inject]
+        readonly CameraProvider cameraProvider;
+
+        void Update()
+        {
+            transform.forward = cameraProvider.transform.forward;
+        }
     }
 }

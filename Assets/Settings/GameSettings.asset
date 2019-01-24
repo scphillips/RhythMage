@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -26,23 +27,16 @@ MonoBehaviour:
     maxSegmentLength: 8
     brazierSpacing: 8
     prefabBrazier: {fileID: 1113930872431330, guid: 7ee445317dc3f0c488d78e748cf2bf91,
-      type: 2}
+      type: 3}
     prefabFloor: {fileID: 1837516992693036, guid: 74f83a4ef55262a4cbd2698a84764ed9,
-      type: 2}
+      type: 3}
     prefabPortal: {fileID: 1945772521070428, guid: 6c04d207c2be1244ca64ccca31b698ee,
-      type: 2}
+      type: 3}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
-      type: 2}
+      type: 3}
     wallMaterials:
     - {fileID: 2100000, guid: 2a7614aa54bafbf40b32523980c5f453, type: 2}
     - {fileID: 2100000, guid: ab06d6efe95d18742938b583cd2392be, type: 2}
-  EnemySettings:
-    magicFrames:
-    - {fileID: 21300000, guid: ae48ab8f54b7e9341b7bfa235abd22bc, type: 3}
-    - {fileID: 21300000, guid: a2a1841df085c3b4dac4fc198b9fcf9d, type: 3}
-    meleeFrames:
-    - {fileID: 21300000, guid: 27eca4991113c9644829316f8cdbe444, type: 3}
-    - {fileID: 21300000, guid: 533e8c1de3571434f892c7c693b06212, type: 3}
   GameDifficultySettings:
     minEnemyPopulation: 0.2
     maxEnemyPopulation: 0.25
@@ -65,9 +59,9 @@ MonoBehaviour:
     rightHandNormal: {fileID: 21300000, guid: 4e2de4fc3cc312a48980cc00a6dc1533, type: 3}
     rightHandAttack: {fileID: 21300000, guid: 1f977bd6f9c9ce946a6961ea395c9110, type: 3}
     prefabMagicEnemyNotch: {fileID: 114369721147501060, guid: 8179d50ee6fcf074196183131ec84ef5,
-      type: 2}
+      type: 3}
     prefabMeleeEnemyNotch: {fileID: 114179036072431804, guid: c71fb57a17c6d574ca1c6eb4829a1c61,
-      type: 2}
+      type: 3}
   SoundManagerSettings:
     timings:
     - clip: {fileID: 8300000, guid: b870bfd13f4e2a0479fe9b548ead2c68, type: 3}

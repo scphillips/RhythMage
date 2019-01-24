@@ -8,7 +8,6 @@ namespace Outplay.RhythMage
     {
         public AvatarController.Settings AvatarControllerSettings;
         public DungeonBuilder.Settings DungeonBuilderSettings;
-        public Enemy.Settings EnemySettings;
         public GameDifficulty.Settings GameDifficultySettings;
         public GameStateManager.Settings GameStateManagerSettings;
         public HUDController.Settings HUDControllerSettings;
@@ -18,7 +17,6 @@ namespace Outplay.RhythMage
         {
             Container.BindInstance(AvatarControllerSettings);
             Container.BindInstance(DungeonBuilderSettings);
-            Container.BindInstance(EnemySettings);
             Container.BindInstance(GameDifficultySettings);
             Container.BindInstance(GameStateManagerSettings);
             Container.BindInstance(HUDControllerSettings);
