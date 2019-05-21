@@ -1,10 +1,23 @@
+*.log
 .gradle/
+.idea/
 .vs/
 build/
 Library/
 obj/
-Temp/
+
+# Project file excludes
 *.csproj
-*.log
+*.csproj.user
+*.DotSettings
+*.DotSettings.user
 *.sln
 *.suo
+
+# Meta files for local project folders
+**/Temp.meta
+**/Temp/
+Assets/EntityCache.meta
+Assets/EntityCache/
+Assets/Plugins/Editor.meta
+Assets/Plugins/Editor/
