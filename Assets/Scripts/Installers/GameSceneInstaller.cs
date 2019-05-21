@@ -27,6 +27,9 @@ namespace Outplay.RhythMage
                 .AsSingle()
                 .NonLazy();
 
+            Container.BindInterfacesAndSelfTo<GestureHandler>()
+                .AsSingle();
+
             Container.BindInterfacesAndSelfTo<SoundManager>()
                 .AsSingle();
         }

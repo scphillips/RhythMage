@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Outplay.RhythMage
 {
-    public class GestureHandler : MonoBehaviour
+    public class GestureHandler : Zenject.ITickable
     {
-        Vector2 m_startTouchPos;
-        bool m_canSwipe;
-
         public float MinThreshold = 20.0f;
 
         public class GestureSwipeEventArgs : EventArgs
@@ -19,12 +14,15 @@ namespace Outplay.RhythMage
 
         public event EventHandler OnSwipe;
 
+        Vector2 m_startTouchPos;
+        bool m_canSwipe;
+
         void Start()
         {
             m_canSwipe = false;
         }
 
-        void Update()
+        public void Tick()
         {
             if (Input.touchCount > 0)
             {

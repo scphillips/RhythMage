@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -160,13 +160,29 @@ namespace Outplay.RhythMage
             // Spawn Enemies
             int enemiesToSpawn = Convert.ToInt32(floors.Count * enemyPopulation);
             enemiesToSpawn = Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
+
+            List<Cell> targetCells = new List<Cell>();
             for (int i = 0; i < enemiesToSpawn; ++i)
             {
                 int index = m_rng.Next(enemyLocationChoices.Count);
                 var cell = enemyLocationChoices[index];
-                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
-                CreateEnemy(cell, type);
+                targetCells.Add(cell);
                 enemyLocationChoices.RemoveAt(index);
+            }
+
+            targetCells.Sort((Cell lhs, Cell rhs) =>
+            {
+                int leftIndex = m_dungeon.FloorCells.IndexOf(lhs);
+                int rightIndex = m_dungeon.FloorCells.IndexOf(rhs);
+                return leftIndex.CompareTo(rightIndex);
+            });
+
+            foreach (Cell cell in targetCells)
+            {
+                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
+                var enemy = CreateEnemy(cell, type);
+                int cellIndex = m_dungeon.FloorCells.IndexOf(cell);
+                enemy.name = "Enemy" + (enemy.EnemyType == EnemyType.Magic ? "Magic" : "Melee") + " [" + cellIndex + "]";
             }
 
             // Spawn Portal at start and end of dungeon

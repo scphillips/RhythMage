@@ -57,45 +57,38 @@ namespace Outplay.RhythMage
             cellIndex = (cellIndex + 1) % m_dungeon.GetCellCount();
             m_avatar.currentCellIndex = cellIndex;
 
-            Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
             if (cellIndex == 0)
             {
-                transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
                 m_dungeonBuilder.BuildDungeon();
+                Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
+                transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
+                transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
             }
-
-            float targetAngle = transform.localRotation.eulerAngles.y;
-            if (cellIndex < m_dungeon.GetCellCount() - 1)
+            else
             {
-                Cell nextCell = m_dungeon.GetCellAtIndex(cellIndex + 1);
-                CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                Direction direction = Direction.Forward;
-                foreach (var entry in Defs.facings)
+                Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
+                float targetAngle = transform.localEulerAngles.y;
+                if (cellIndex < m_dungeon.GetCellCount() - 1)
                 {
-                    if (entry.Value == offset)
+                    Cell nextCell = m_dungeon.GetCellAtIndex(cellIndex + 1);
+                    CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+                    Direction direction = Direction.None;
+                    foreach (var entry in Defs.facings)
                     {
-                        direction = entry.Key;
-                        break;
+                        if (entry.Value == offset)
+                        {
+                            direction = entry.Key;
+                            break;
+                        }
+                    }
+
+                    if (direction != Direction.None)
+                    {
+                        targetAngle = 90.0f * (int)direction;
                     }
                 }
-                
-                switch (direction)
-                {
-                    case Direction.Forward:
-                        targetAngle = 0.0f;
-                        break;
-                    case Direction.Right:
-                        targetAngle = 90.0f;
-                        break;
-                    case Direction.Backward:
-                        targetAngle = 180.0f;
-                        break;
-                    case Direction.Left:
-                        targetAngle = 270.0f;
-                        break;
-                }
+                StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
             }
-            StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
         }
 
         void OnSwipe(object sender, EventArgs e)
@@ -114,22 +107,25 @@ namespace Outplay.RhythMage
             {
                 // Valid swipe, test enemy type
                 int targetCellIndex = m_avatar.currentCellIndex;
-                if (m_sound.TimeToNextBeat() < m_sound.TimeSinceLastBeat())
+                if (m_sound.TimeToNextBeat() < m_difficultySettings.maxInputTimeOffBeat && targetCellIndex < m_dungeon.GetCellCount() - 1)
                 {
                     ++targetCellIndex;
                 }
 
-                var currentCell = m_dungeon.GetCellAtIndex(targetCellIndex);
-                if (m_dungeon.HasEnemyAtCell(currentCell))
+                Debug.Log("Since: " + m_sound.TimeSinceLastBeat() + ", Next: " + m_sound.TimeToNextBeat());
+                Debug.Log("Target index: " + targetCellIndex + " [" + m_avatar.currentCellIndex + "]");
+                var targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
+                if (m_dungeon.HasEnemyAtCell(targetCell))
                 {
-                    var enemy = m_dungeon.GetEnemyAtCell(currentCell);
+                    Debug.Log("Found enemy");
+                    var enemy = m_dungeon.GetEnemyAtCell(targetCell);
                     if ((enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
                         || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left))
                     {
                         // Valid combination, destroy the enemy
                         ++m_avatar.killCount;
                         enemy.Die();
-                        m_dungeon.RemoveEnemyAtCell(currentCell);
+                        m_dungeon.RemoveEnemyAtCell(targetCell);
 
                         if (args.Direction == Direction.Left)
                         {
@@ -142,6 +138,10 @@ namespace Outplay.RhythMage
                             audioSource.PlayOneShot(m_settings.RightHitClips[index]);
                         }
                     }
+                }
+                else
+                {
+                    Debug.Log("No enemy");
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace Outplay.RhythMage
             float elapsedTime = 0.0f;
             while (elapsedTime < duration)
             {
-                elapsedTime = elapsedTime + Time.deltaTime;
+                elapsedTime += Time.deltaTime;
                 float mag = Math.Min(1.0f, elapsedTime / duration);
                 transform.localPosition = startPosition + offset * mag;
                 transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, mag);
