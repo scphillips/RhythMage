@@ -1,9 +1,13 @@
+// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class DungeonBuilder : MonoBehaviour
     {
@@ -46,6 +50,18 @@ namespace Outplay.RhythMage
         DungeonEntityTracker portals;
         DungeonEntityTracker walls;
 
+        IEnumerable<DungeonEntityTracker> AllTrackers
+        {
+            get
+            {
+                yield return braziers;
+                yield return enemies;
+                yield return floors;
+                yield return portals;
+                yield return walls;
+            }
+        }
+
         void Start()
         {
             braziers = new DungeonEntityTracker();
@@ -60,10 +76,9 @@ namespace Outplay.RhythMage
         public void BuildDungeon()
         {
             // Cleanup existing dungeon (if any)
-            var trackers = new List<DungeonEntityTracker> { braziers, enemies, floors, portals, walls };
-            foreach (var entry in trackers)
+            foreach (var tracker in AllTrackers)
             {
-                entry.RemoveAll();
+                tracker.RemoveAll();
             }
             m_dungeon.Reset();
             

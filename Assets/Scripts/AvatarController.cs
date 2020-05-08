@@ -1,8 +1,12 @@
-﻿using System.Collections;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class AvatarController : MonoBehaviour
     {
@@ -113,9 +117,8 @@ namespace Outplay.RhythMage
             m_avatar.currentCellIndex = cellIndex;
         }
 
-        void OnSwipe(object sender, System.EventArgs e)
+        void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            var args = (GestureHandler.GestureSwipeEventArgs)e;
             if (args.Direction == Direction.Left)
             {
                 audioSource.PlayOneShot(m_settings.LeftSwipeClip);

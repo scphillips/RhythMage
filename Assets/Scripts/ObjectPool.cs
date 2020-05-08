@@ -1,16 +1,20 @@
-﻿namespace Outplay.RhythMage
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
+namespace RhythMage
 {
     public class ObjectPool<T>
     {
         class Entry
         {
-            public T entity { get; }
+            public T Entity { get; }
 
             public Entry next;
 
             public Entry(T entity)
             {
-                this.entity = entity;
+                Entity = entity;
             }
         }
 
@@ -24,8 +28,10 @@
 
         public void Add(T entity)
         {
-            var newEntry = new Entry(entity);
-            newEntry.next = m_nextAvailable;
+            var newEntry = new Entry(entity)
+            {
+                next = m_nextAvailable
+            };
             m_nextAvailable = newEntry;
             ++Count;
         }
@@ -37,9 +43,9 @@
                 var entry = m_nextAvailable;
                 m_nextAvailable = entry.next;
                 --Count;
-                return entry.entity;
+                return entry.Entity;
             }
-            return default(T);
+            return default;
         }
     }
 }

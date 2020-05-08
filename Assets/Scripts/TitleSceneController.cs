@@ -1,10 +1,13 @@
-﻿using System;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class TitleSceneController : MonoBehaviour
     {
@@ -33,7 +36,7 @@ namespace Outplay.RhythMage
 
             float mag = Time.deltaTime * m_fadeSpeed;
             float delta = (m_isEnding) ? -mag : mag;
-            m_opacity = Math.Max(0.0f, Math.Min(1.0f, m_opacity + delta));
+            m_opacity = System.Math.Max(0.0f, System.Math.Min(1.0f, m_opacity + delta));
             foreach (var entry in fadeEntities)
             {
                 var color = entry.GetComponent<Image>().color;

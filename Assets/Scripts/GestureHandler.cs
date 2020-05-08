@@ -1,18 +1,21 @@
-﻿using System;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
 using UnityEngine;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class GestureHandler : Zenject.ITickable
     {
         public float MinThreshold = 20.0f;
 
-        public class GestureSwipeEventArgs : EventArgs
+        public class GestureSwipeEventArgs : System.EventArgs
         {
             public Direction Direction { get; set; }
         }
 
-        public event EventHandler OnSwipe;
+        public event System.Action<GestureSwipeEventArgs> OnSwipe;
 
         Vector2 m_startTouchPos;
         bool m_canSwipe;
@@ -49,14 +52,14 @@ namespace Outplay.RhythMage
             }
             else if (Input.GetKeyDown("left"))
             {
-                OnSwipe(this, new GestureSwipeEventArgs
+                OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
                     Direction = Direction.Right
                 });
             }
             else if (Input.GetKeyDown("right"))
             {
-                OnSwipe(this, new GestureSwipeEventArgs
+                OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
                     Direction = Direction.Left
                 });
@@ -74,7 +77,7 @@ namespace Outplay.RhythMage
                 {
                     Direction = (offset.x < 0) ? Direction.Left : Direction.Right
                 };
-                OnSwipe(this, args);
+                OnSwipe?.Invoke(args);
                 m_canSwipe = false;
             }
         }

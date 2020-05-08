@@ -1,15 +1,18 @@
-﻿using System;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
 using System.Collections.Generic;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class DungeonModel
     {
         Dictionary<Cell, Enemy> m_enemies;
         public List<Cell> FloorCells { get; private set; }
 
-        public event EventHandler OnDungeonReset;
-        public event EventHandler OnEnemyCountChange;
+        public event System.Action OnDungeonReset;
+        public event System.Action<int> OnEnemyCountChange;
 
         public DungeonModel()
         {
@@ -21,7 +24,7 @@ namespace Outplay.RhythMage
         {
             m_enemies.Clear();
             FloorCells.Clear();
-            OnDungeonReset(this, null);
+            OnDungeonReset?.Invoke();
         }
 
         public void AddToPath(Cell cell)
@@ -37,7 +40,7 @@ namespace Outplay.RhythMage
         public void AddEnemyAtCell(Cell cell, Enemy enemy)
         {
             m_enemies.Add(cell, enemy);
-            OnEnemyCountChange(this, null);
+            OnEnemyCountChange?.Invoke(m_enemies.Count);
         }
 
         public bool HasEnemyAtCell(Cell cell)
@@ -53,7 +56,7 @@ namespace Outplay.RhythMage
         public bool RemoveEnemyAtCell(Cell cell)
         {
             bool success = m_enemies.Remove(cell);
-            OnEnemyCountChange(this, null);
+            OnEnemyCountChange?.Invoke(m_enemies.Count);
             return success;
         }
 

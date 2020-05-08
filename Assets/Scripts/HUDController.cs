@@ -1,11 +1,14 @@
-﻿using System;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class HUDController : MonoBehaviour
     {
@@ -16,7 +19,7 @@ namespace Outplay.RhythMage
             public int cellIndex;
         }
 
-        [Serializable]
+        [System.Serializable]
         public class Settings
         {
             public Sprite heartFull;
@@ -86,7 +89,7 @@ namespace Outplay.RhythMage
             }
         }
 
-        void OnDungeonReset(object sender, EventArgs e)
+        void OnDungeonReset()
         {
             foreach (var entry in m_enemyData)
             {
@@ -95,14 +98,13 @@ namespace Outplay.RhythMage
             m_enemyData.Clear();
         }
 
-        void OnEnemyCountChanged(object sender, EventArgs e)
+        void OnEnemyCountChanged(int count)
         {
             UpdateEnemyCountUI();
         }
 
-        void OnHealthChanged(object sender, EventArgs e)
+        void OnHealthChanged(AvatarModel avatar, AvatarModel.HealthChangedEventArgs args)
         {
-            var args = (AvatarModel.HealthChangedEventArgs)e;
             if (args.HealthMod < 0)
             {
                 StartCoroutine(ShowDamageOverlay(damageOverlayImage, 0.4f, 0.25f));
@@ -130,9 +132,8 @@ namespace Outplay.RhythMage
             }
         }
 
-        void OnSwipe(object sender, EventArgs e)
+        void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            var args = (GestureHandler.GestureSwipeEventArgs)e;
             if (args.Direction == Direction.Left)
             {
                 leftHand.sprite = m_settings.leftHandNormal;
@@ -169,7 +170,7 @@ namespace Outplay.RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float mag = Math.Min(1.0f, elapsedTime / duration);
+                float mag = System.Math.Min(1.0f, elapsedTime / duration);
                 color.a = (1.0f - mag) * opacity; // Linear fade out
                 target.color = color;
                 yield return null;
@@ -186,11 +187,11 @@ namespace Outplay.RhythMage
                 float mag = 1.0f;
                 if (elapsedTime < fadeTime)
                 {
-                    mag = Math.Min(1.0f, elapsedTime / fadeTime);
+                    mag = System.Math.Min(1.0f, elapsedTime / fadeTime);
                 }
                 else if (elapsedTime >= fadeTime + duration)
                 {
-                    mag = 1.0f - Math.Min(1.0f, (elapsedTime - fadeTime - duration) / fadeTime);
+                    mag = 1.0f - System.Math.Min(1.0f, (elapsedTime - fadeTime - duration) / fadeTime);
                 }
                 target.alpha = mag;
                 yield return null;
@@ -235,7 +236,7 @@ namespace Outplay.RhythMage
             double delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
             float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
-            float mag = Math.Max(0.0f, (timeWindow - Math.Abs(timeOffset)) / timeWindow);
+            float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
             if (timeOffset > incomingEnemyTilesAhead - 1)
             {
@@ -243,7 +244,7 @@ namespace Outplay.RhythMage
             }
             else if (timeOffset < 0.0f)
             {
-                scale = Math.Max(0.0f, 1.0f + timeOffset);
+                scale = System.Math.Max(0.0f, 1.0f + timeOffset);
             }
 
             float xCoordinate = timeOffset * 100.0f;
@@ -274,7 +275,7 @@ namespace Outplay.RhythMage
 
             while (elapsedTime < duration)
             {
-                elapsedTime = Math.Min(elapsedTime + Time.deltaTime, duration);
+                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
                 float currentScale = startScale + (scale - startScale) * mag;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);

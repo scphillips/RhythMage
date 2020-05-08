@@ -1,11 +1,15 @@
-﻿using UnityEditor;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
+
+using UnityEditor;
 using UnityEngine;
 
-// Implementation from:
-// https://gist.github.com/JohannesMP/ec7d3f0bcf167dab3d0d3bb480e0e07b
-
 [System.Serializable]
-public class SceneReference : ISerializationCallbackReceiver
+public class SceneReference
+#if UNITY_EDITOR
+    : ISerializationCallbackReceiver
+#endif
 {
 #if UNITY_EDITOR
     [SerializeField]
@@ -15,7 +19,7 @@ public class SceneReference : ISerializationCallbackReceiver
     {
         get
         {
-            return (m_sceneAsset != null);
+            return m_sceneAsset != null;
         }
     }
 #endif
@@ -50,10 +54,10 @@ public class SceneReference : ISerializationCallbackReceiver
         return sceneReference.ScenePath;
     }
 
+#if UNITY_EDITOR
     // Called to prepare this data for serialization.
     public void OnBeforeSerialize()
     {
-#if UNITY_EDITOR
         if (IsValid == false && string.IsNullOrEmpty(m_scenePath) == false)
         {
             // Asset is invalid but have Path to try and recover from
@@ -70,19 +74,15 @@ public class SceneReference : ISerializationCallbackReceiver
             // Asset takes precendence and overwrites Path
             m_scenePath = GetScenePathFromAsset();
         }
-#endif
     }
 
     // Called to set up data for deserialization.
     public void OnAfterDeserialize()
     {
-#if UNITY_EDITOR
         // AssetDatabase cannot be queried during serialization, defer until next update.
         EditorApplication.update += HandleAfterDeserialize;
-#endif
     }
-    
-#if UNITY_EDITOR
+
     SceneAsset GetSceneAssetFromPath()
     {
         if (string.IsNullOrEmpty(m_scenePath) == false)

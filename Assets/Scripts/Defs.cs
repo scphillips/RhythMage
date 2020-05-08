@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
-namespace Outplay.RhythMage
+using System.Collections.Generic;
+
+namespace RhythMage
 {
     public enum Direction
     {
@@ -21,7 +25,7 @@ namespace Outplay.RhythMage
     {
         public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;
 
-        public static Dictionary<Direction, CoordinateOffset> facings = new Dictionary<Direction, CoordinateOffset>()
+        public static IReadOnlyDictionary<Direction, CoordinateOffset> facings = new Dictionary<Direction, CoordinateOffset>()
         {
             { Direction.Forward, CoordinateOffset.Create(0, 1) },
             { Direction.Right, CoordinateOffset.Create(1, 0) },

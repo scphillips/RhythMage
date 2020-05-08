@@ -1,6 +1,8 @@
-﻿using System;
+﻿// Copyright (C) 2020-2021 Stephen Phillips - All Rights Reserved
+// Unauthorized copying of this file via any medium is strictly prohibited.
+// Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
-namespace Outplay.RhythMage
+namespace RhythMage
 {
     public class AvatarModel
     {
@@ -9,12 +11,12 @@ namespace Outplay.RhythMage
         public int killCount;
         public int currentCellIndex;
 
-        public class HealthChangedEventArgs : EventArgs
+        public class HealthChangedEventArgs : System.EventArgs
         {
             public int HealthMod { get; set; }
         }
 
-        public event EventHandler OnHealthChange;
+        public event System.Action<AvatarModel, HealthChangedEventArgs> OnHealthChange;
 
         public AvatarModel()
         {
@@ -23,17 +25,18 @@ namespace Outplay.RhythMage
             killCount = 0;
         }
 
-        public void TakeDamage()
+        public void TakeDamage(int amount = 1)
         {
-            --currentHealth;
-            HealthChangedEventArgs args = new HealthChangedEventArgs();
-            args.HealthMod = -1;
-            OnHealthChange(this, args);
+            currentHealth -= amount;
+            OnHealthChange(this, new HealthChangedEventArgs
+            {
+                HealthMod = -amount
+            });
         }
 
         public bool IsAlive()
         {
-            return (currentHealth > 0);
+            return currentHealth > 0;
         }
     }
 }
