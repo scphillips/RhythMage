@@ -1,29 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using Zenject;
 
 namespace Outplay.RhythMage
 {
     public class SoundManager : IInitializable, ITickable
     {
-        [Serializable]
+        [System.Serializable]
         public struct AudioTiming
         {
-            public AudioClip clip;
+            public UnityEngine.AudioClip clip;
             public double bpm;
         }
 
-        [Serializable]
+        [System.Serializable]
         public class Settings
         {
             public List<AudioTiming> timings;
         }
 
-        public event EventHandler OnBeat;
+        public event System.Action OnTrackChanged;
+        public event System.Action OnBeat;
+        public event System.Action OnHalfBeat;
 
         [Inject]
-        AudioSource m_audioSource;
+        UnityEngine.AudioSource m_audioSource;
 
         [Inject]
         RandomNumberProvider m_rng;
@@ -37,7 +37,6 @@ namespace Outplay.RhythMage
         int m_beatsInTrack;
 
         double m_lastSeenTime;
-        int m_lastBeatIndex;
         
         public void Initialize()
         {
@@ -71,7 +70,15 @@ namespace Outplay.RhythMage
 
         public double TimeOffBeat()
         {
-            return m_halfBeatLength - Math.Abs(m_halfBeatLength - TimeSinceLastBeat());
+            return System.Math.Min(TimeSinceLastBeat(), TimeToNextBeat());
+        }
+
+        public bool WillBeatThisFrame(double beatMultiplier = 1.0)
+        {
+            double currentElapsed = m_audioSource.time;
+            int currentBeatIndex = (int)(currentElapsed * m_bpm * beatMultiplier / 60.0);
+            int previousBeatIndex = (int)(m_lastSeenTime * m_bpm * beatMultiplier / 60.0);
+            return currentBeatIndex != previousBeatIndex;
         }
 
         public void Tick()
@@ -79,22 +86,18 @@ namespace Outplay.RhythMage
             if (m_audioSource.time >= m_audioSource.clip.length || m_audioSource.isPlaying == false)
             {
                 PickNextTrack();
+                OnBeat?.Invoke();
             }
-            double currentElapsed = m_audioSource.time;
-            double beatCounter = (int)(currentElapsed / 60.0) * m_bpm;
-            beatCounter += ((currentElapsed % 60.0) / m_beatLength);
-            int currentBeatIndex = (int)beatCounter;
-            if (currentBeatIndex != m_lastBeatIndex)
+            else if (WillBeatThisFrame())
             {
-                // Ensure we don't trigger an additional beat due to rounding error on loop
-                if (currentBeatIndex > m_lastBeatIndex
-                    || (m_lastSeenTime - m_beatLength * m_lastBeatIndex) > m_halfBeatLength)
-                {
-                    OnBeat(this, null);
-                }
+                OnBeat?.Invoke();
             }
-            m_lastSeenTime = currentElapsed;
-            m_lastBeatIndex = currentBeatIndex;
+            else if (WillBeatThisFrame(2.0))
+            {
+                OnHalfBeat?.Invoke();
+            }
+
+            m_lastSeenTime = m_audioSource.time;
         }
 
         void PickNextTrack()
@@ -104,9 +107,11 @@ namespace Outplay.RhythMage
             m_audioSource.clip = timingData.clip;
             m_audioSource.Play();
             m_bpm = timingData.bpm;
-            m_beatLength = 60.0 / m_bpm;
+            m_beatLength = m_bpm != 0.0 ? 60.0 / m_bpm : 0.0;
             m_halfBeatLength = m_beatLength * 0.5;
-            m_beatsInTrack = Convert.ToInt32(GetTrackLength() / GetBeatLength());
+            m_beatsInTrack = System.Convert.ToInt32(GetTrackLength() / GetBeatLength());
+
+            OnTrackChanged?.Invoke();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace Outplay.RhythMage
@@ -17,7 +15,7 @@ namespace Outplay.RhythMage
         public GameObject magic;
         public GameObject melee;
 
-        public event EventHandler OnDeathTriggered;
+        public event System.Action<Enemy> OnDeathTriggered;
         
         EnemyType m_type;
 
@@ -49,27 +47,25 @@ namespace Outplay.RhythMage
 
         public void Die()
         {
-            if (OnDeathTriggered != null)
-            {
-                OnDeathTriggered(this, null);
-            }
+            OnDeathTriggered?.Invoke(this);
             transform.SetParent(cameraProvider.transform, true);
             int direction = (m_type == EnemyType.Magic) ? -1 : 1;
-            StartCoroutine(DeathAnimation(transform, 360.0f * direction, 0.0f, 0.3f));
+            StartCoroutine(DeathAnimation(transform, 360.0f * direction, 0.3f));
         }
 
-        IEnumerator DeathAnimation(Transform transform, float angle, float scale, float duration)
+        IEnumerator DeathAnimation(Transform transform, float angle, float duration)
         {
             float elapsedTime = 0.0f;
             float startScale = 1.0f;
+            float endScale = 0.0f;
 
             while (elapsedTime < duration)
             {
-                elapsedTime = Math.Min(elapsedTime + Time.deltaTime, duration);
+                elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
                 float currentRotation = angle * mag;
                 transform.localRotation = Quaternion.Euler(0, 0, currentRotation);
-                float currentScale = startScale + (scale - startScale) * mag;
+                float currentScale = startScale + (endScale - startScale) * mag;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);
                 yield return null;
             }

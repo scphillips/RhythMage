@@ -53,27 +53,8 @@ namespace Outplay.RhythMage
             floors = new DungeonEntityTracker();
             portals = new DungeonEntityTracker();
             walls = new DungeonEntityTracker();
-
+            
             BuildDungeon();
-        }
-
-        bool WillIntersectPortal(int tileCount, Cell currentCell, Direction direction)
-        {
-            int tilesRemaining = tileCount - m_dungeon.GetCellCount();
-            CoordinateOffset offset;
-            Defs.facings.TryGetValue(direction, out offset);
-            for (int i = 0; i < tilesRemaining; ++i)
-            {
-                offset.Apply(ref currentCell);
-                if (currentCell == m_dungeon.FloorCells.First())
-                {
-                    return true;
-                }
-            }
-            offset.x *= tilesRemaining;
-            offset.y *= tilesRemaining;
-            offset.Apply(ref currentCell);
-            return (m_dungeon.FloorCells.Contains(currentCell));
         }
 
         public void BuildDungeon()
@@ -96,8 +77,7 @@ namespace Outplay.RhythMage
 
             while (m_dungeon.GetCellCount() < tileCount)
             {
-                CoordinateOffset offset;
-                Defs.facings.TryGetValue(currentDirection, out offset);
+                Defs.facings.TryGetValue(currentDirection, out CoordinateOffset offset);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
                 length = Math.Min(length, tileCount - m_dungeon.GetCellCount());
@@ -118,22 +98,6 @@ namespace Outplay.RhythMage
                 {
                     currentDirection = nextDirection;
                 }
-            }
-            
-            // Generate walls
-            foreach (var entry in wallCells)
-            {
-                if (floors.Contains(entry) == false)
-                {
-                    CreateWall(entry);
-                }
-            }
-
-            // Spawn braziers along the player path attached to walls
-            for (int i = m_settings.brazierSpacing; i < m_dungeon.GetCellCount(); i += m_settings.brazierSpacing)
-            {
-                Cell cell = m_dungeon.GetCellAtIndex(i);
-                CreateBrazier(cell);
             }
 
             // Find valid locations to spawn enemies
@@ -182,7 +146,23 @@ namespace Outplay.RhythMage
                 var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
                 var enemy = CreateEnemy(cell, type);
                 int cellIndex = m_dungeon.FloorCells.IndexOf(cell);
-                enemy.name = "Enemy" + (enemy.EnemyType == EnemyType.Magic ? "Magic" : "Melee") + " [" + cellIndex + "]";
+                enemy.name = "Enemy" + enemy.EnemyType.ToString() + " [" + cellIndex + "]";
+            }
+            
+            // Generate walls
+            foreach (var entry in wallCells)
+            {
+                if (floors.Contains(entry) == false)
+                {
+                    CreateWall(entry);
+                }
+            }
+
+            // Spawn braziers along the player path attached to walls
+            for (int i = m_settings.brazierSpacing; i < m_dungeon.GetCellCount(); i += m_settings.brazierSpacing)
+            {
+                Cell cell = m_dungeon.GetCellAtIndex(i);
+                CreateBrazier(cell);
             }
 
             // Spawn Portal at start and end of dungeon
@@ -191,6 +171,25 @@ namespace Outplay.RhythMage
                 CreatePortal(m_dungeon.FloorCells.First(), Direction.Forward);
                 CreatePortal(m_dungeon.FloorCells.Last(), currentDirection);
             }
+        }
+
+        bool WillIntersectPortal(int tileCount, Cell currentCell, Direction direction)
+        {
+            int tilesRemaining = tileCount - m_dungeon.GetCellCount();
+            CoordinateOffset offset;
+            Defs.facings.TryGetValue(direction, out offset);
+            for (int i = 0; i < tilesRemaining; ++i)
+            {
+                offset.Apply(ref currentCell);
+                if (currentCell == m_dungeon.FloorCells.First())
+                {
+                    return true;
+                }
+            }
+            offset.x *= tilesRemaining;
+            offset.y *= tilesRemaining;
+            offset.Apply(ref currentCell);
+            return (m_dungeon.FloorCells.Contains(currentCell));
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)

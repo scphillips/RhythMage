@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace Outplay.RhythMage
@@ -9,6 +7,7 @@ namespace Outplay.RhythMage
     {
         [Zenject.Inject]
         readonly GameOverController m_gameOverController;
+
         public TextMeshProUGUI FinalScoreLabel;
 
         void Start()

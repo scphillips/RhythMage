@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace Outplay.RhythMage
 {
     public class AvatarController : MonoBehaviour
     {
-        [Serializable]
+        [System.Serializable]
         public class Settings
         {
             public List<AudioClip> LeftHitClips;
@@ -45,20 +44,41 @@ namespace Outplay.RhythMage
         [Zenject.Inject]
         AudioSource audioSource;
 
+        int m_lastCheckedIndex;
+
         void Start()
         {
+            m_lastCheckedIndex = 0;
+
             m_sound.OnBeat += OnBeat;
             m_gestureHandler.OnSwipe += OnSwipe;
         }
 
-        void OnBeat(object sender, EventArgs e)
+        void Update()
         {
-            int cellIndex = m_avatar.currentCellIndex;
-            cellIndex = (cellIndex + 1) % m_dungeon.GetCellCount();
-            m_avatar.currentCellIndex = cellIndex;
-
-            if (cellIndex == 0)
+            if (m_lastCheckedIndex != m_avatar.currentCellIndex
+                && m_sound.TimeSinceLastBeat() > m_difficultySettings.maxInputTimeOffBeat)
             {
+                // Beat finished, check for enemy collisions
+                Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.currentCellIndex);
+                if (m_dungeon.HasEnemyAtCell(currentCell))
+                {
+                    // Take damage
+                    m_avatar.TakeDamage();
+                    audioSource.PlayOneShot(m_settings.HeartLostClip);
+                }
+
+                m_lastCheckedIndex = m_avatar.currentCellIndex;
+            }
+        }
+
+        void OnBeat()
+        {
+            int cellIndex = m_avatar.currentCellIndex + 1;
+
+            if (cellIndex == m_dungeon.GetCellCount())
+            {
+                cellIndex = 0;
                 m_dungeonBuilder.BuildDungeon();
                 Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
                 transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
@@ -89,9 +109,11 @@ namespace Outplay.RhythMage
                 }
                 StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
             }
+            
+            m_avatar.currentCellIndex = cellIndex;
         }
 
-        void OnSwipe(object sender, EventArgs e)
+        void OnSwipe(object sender, System.EventArgs e)
         {
             var args = (GestureHandler.GestureSwipeEventArgs)e;
             if (args.Direction == Direction.Left)
@@ -107,18 +129,17 @@ namespace Outplay.RhythMage
             {
                 // Valid swipe, test enemy type
                 int targetCellIndex = m_avatar.currentCellIndex;
-                if (m_sound.TimeToNextBeat() < m_difficultySettings.maxInputTimeOffBeat && targetCellIndex < m_dungeon.GetCellCount() - 1)
+                var targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
+                if ((m_sound.WillBeatThisFrame()
+                    || m_sound.TimeToNextBeat() <= m_difficultySettings.maxInputTimeOffBeat)
+                        && targetCellIndex < m_dungeon.GetCellCount() - 1)
                 {
                     ++targetCellIndex;
+                    targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
                 }
 
-                Debug.Log("Since: " + m_sound.TimeSinceLastBeat() + ", Next: " + m_sound.TimeToNextBeat());
-                Debug.Log("Target index: " + targetCellIndex + " [" + m_avatar.currentCellIndex + "]");
-                var targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
-                if (m_dungeon.HasEnemyAtCell(targetCell))
+                if (m_dungeon.GetEnemyAtCell(targetCell, out Enemy enemy))
                 {
-                    Debug.Log("Found enemy");
-                    var enemy = m_dungeon.GetEnemyAtCell(targetCell);
                     if ((enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
                         || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left))
                     {
@@ -139,10 +160,6 @@ namespace Outplay.RhythMage
                         }
                     }
                 }
-                else
-                {
-                    Debug.Log("No enemy");
-                }
             }
         }
 
@@ -158,20 +175,14 @@ namespace Outplay.RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float mag = Math.Min(1.0f, elapsedTime / duration);
+                float mag = System.Math.Min(1.0f, elapsedTime / duration);
                 transform.localPosition = startPosition + offset * mag;
                 transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, mag);
                 yield return null;
             }
 
-            // Finished moving, check for enemy collisions
-            Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.currentCellIndex);
-            if (m_dungeon.HasEnemyAtCell(currentCell))
-            {
-                // Take damage
-                m_avatar.TakeDamage();
-                audioSource.PlayOneShot(m_settings.HeartLostClip);
-            }
+            transform.localPosition = target;
+            transform.localRotation = targetRotation;
         }
     }
 }

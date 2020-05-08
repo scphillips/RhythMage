@@ -45,11 +45,9 @@ namespace Outplay.RhythMage
             return m_enemies.ContainsKey(cell);
         }
 
-        public Enemy GetEnemyAtCell(Cell cell)
+        public bool GetEnemyAtCell(Cell cell, out Enemy enemy)
         {
-            Enemy enemy;
-            m_enemies.TryGetValue(cell, out enemy);
-            return enemy;
+            return m_enemies.TryGetValue(cell, out enemy);
         }
 
         public bool RemoveEnemyAtCell(Cell cell)

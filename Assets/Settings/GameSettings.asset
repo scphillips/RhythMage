@@ -40,7 +40,7 @@ MonoBehaviour:
   GameDifficultySettings:
     minEnemyPopulation: 0.2
     maxEnemyPopulation: 0.25
-    maxInputTimeOffBeat: 0.075
+    maxInputTimeOffBeat: 0.0625
   GameStateManagerSettings:
     gameOverScene:
       m_sceneAsset: {fileID: 102900000, guid: 891b239581a043d4f8a42df50da14d0b, type: 3}
@@ -51,6 +51,7 @@ MonoBehaviour:
     menuScene:
       m_sceneAsset: {fileID: 102900000, guid: 63afccf960cb9754b8139415d96c2af3, type: 3}
       m_scenePath: Assets/Scenes/MenuScene.unity
+    delayTransitionToGameOverDuration: 0
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}
@@ -60,7 +61,7 @@ MonoBehaviour:
     rightHandAttack: {fileID: 21300000, guid: 1f977bd6f9c9ce946a6961ea395c9110, type: 3}
     prefabMagicEnemyNotch: {fileID: 114369721147501060, guid: 8179d50ee6fcf074196183131ec84ef5,
       type: 3}
-    prefabMeleeEnemyNotch: {fileID: 114179036072431804, guid: c71fb57a17c6d574ca1c6eb4829a1c61,
+    prefabMeleeEnemyNotch: {fileID: 4326222218899050934, guid: a0787fb0a6d1d8d43b3c1e58ce8d7fc9,
       type: 3}
   SoundManagerSettings:
     timings:

@@ -77,7 +77,7 @@ namespace Outplay.RhythMage
             m_sound.OnBeat += OnBeat;
         }
 
-        void OnBeat(object sender, EventArgs e)
+        void OnBeat()
         {
             PopulateEnemyList(incomingEnemyTilesAhead);
             if (m_avatar.currentCellIndex == m_dungeon.GetCellCount() - 1)
@@ -203,8 +203,7 @@ namespace Outplay.RhythMage
             if (cellIndex < m_dungeon.GetCellCount())
             {
                 Cell cell = m_dungeon.GetCellAtIndex(cellIndex);
-                Enemy enemy = m_dungeon.GetEnemyAtCell(cell);
-                if (enemy != null)
+                if (m_dungeon.GetEnemyAtCell(cell, out Enemy enemy))
                 {
                     // Add to tracker
                     EnemyData data;
@@ -252,9 +251,8 @@ namespace Outplay.RhythMage
             enemyData.notch.transform.localScale = new Vector2(scale, scale);
         }
 
-        void OnEnemyDeath(object sender, EventArgs e)
+        void OnEnemyDeath(Enemy enemy)
         {
-            var enemy = (Enemy)sender;
             for (int i = 0; i < m_enemyData.Count;)
             {
                 if (m_enemyData[i].enemy == enemy)
