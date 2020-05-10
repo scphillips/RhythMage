@@ -15,10 +15,81 @@ namespace RhythMage
         None
     }
 
+    public enum RotationDirection
+    {
+        Clockwise,
+        CounterClockwise
+    }
+
     public enum EnemyType
     {
+        Flying,
         Magic,
         Melee
+    }
+
+    public struct SegmentModelDef
+    {
+        public Cell origin;
+        public int width;
+        public int depth;
+
+        public int insetCorners;
+
+        public IReadOnlyList<Cell> Path => path;
+
+        List<Cell> path;
+
+        public IEnumerable<Cell> Cells
+        {
+            get
+            {
+                Cell current;
+                for (int i = 0; i < width; ++i)
+                {
+                    for (int j = 0; j < depth; ++j)
+                    {
+                        current.x = i;
+                        current.y = j;
+                        if (HasCell(current))
+                        {
+                            yield return current;
+                        }
+                    }
+                }
+            }
+        }
+
+        public SegmentModelDef(Cell origin, int width, int depth, int insetCorners = 0)
+        {
+            this.origin = origin;
+            this.width = width;
+            this.depth = depth;
+            this.insetCorners = insetCorners;
+
+            path = new List<Cell>();
+        }
+
+        public bool HasCell(in Cell cell)
+        {
+            if (path.Contains(cell))
+            {
+                return true;
+            }
+            
+            int mag = cell.x + cell.y;
+            int invMag = width - 1 - cell.x + cell.y;
+
+            return mag >= insetCorners
+                && mag < width + depth - 1 - insetCorners
+                && invMag >= insetCorners
+                && invMag < width + depth - 1 - insetCorners;
+        }
+
+        public void AddToPath(in Cell cell)
+        {
+            path.Add(cell);
+        }
     }
 
     public class Defs
@@ -43,6 +114,22 @@ namespace RhythMage
                 }
             }
             return Direction.None;
+        }
+
+        public static Direction InverseDirection(Direction direction)
+        {
+            var directionCount = facings.Count;
+            var directionInt = (int)direction;
+            var inverseDirectionInt = (directionInt + directionCount / 2) % directionCount;
+            return (Direction)inverseDirectionInt;
+        }
+
+        public static Direction RotateDirection(Direction direction, RotationDirection rotation)
+        {
+            int directionCount = facings.Count;
+            var rotatedDirectionInt = (int)direction + (rotation == RotationDirection.Clockwise ? -1 : 1);
+            rotatedDirectionInt = (rotatedDirectionInt + directionCount) % directionCount;
+            return (Direction)rotatedDirectionInt;
         }
     }
 }

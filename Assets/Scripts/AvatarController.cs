@@ -119,11 +119,11 @@ namespace RhythMage
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            if (args.Direction == Direction.Left)
+            if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
             {
                 audioSource.PlayOneShot(m_settings.LeftSwipeClip);
             }
-            else if (args.Direction == Direction.Right)
+            else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
             {
                 audioSource.PlayOneShot(m_settings.RightSwipeClip);
             }
@@ -143,7 +143,8 @@ namespace RhythMage
 
                 if (m_dungeon.GetEnemyAtCell(targetCell, out Enemy enemy))
                 {
-                    if ((enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
+                    if ((enemy.EnemyType == EnemyType.Flying && args.Direction == Direction.Forward)
+                        || (enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
                         || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left))
                     {
                         // Valid combination, destroy the enemy
@@ -151,12 +152,12 @@ namespace RhythMage
                         enemy.Die();
                         m_dungeon.RemoveEnemyAtCell(targetCell);
 
-                        if (args.Direction == Direction.Left)
+                        if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
                         {
                             int index = m_rng.Next(m_settings.LeftHitClips.Count);
                             audioSource.PlayOneShot(m_settings.LeftHitClips[index]);
                         }
-                        else if (args.Direction == Direction.Right)
+                        else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
                         {
                             int index = m_rng.Next(m_settings.RightHitClips.Count);
                             audioSource.PlayOneShot(m_settings.RightHitClips[index]);

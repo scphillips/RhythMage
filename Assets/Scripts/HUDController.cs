@@ -30,6 +30,7 @@ namespace RhythMage
             public Sprite rightHandNormal;
             public Sprite rightHandAttack;
 
+            public Image prefabFlyingEnemyNotch;
             public Image prefabMagicEnemyNotch;
             public Image prefabMeleeEnemyNotch;
         }
@@ -134,12 +135,12 @@ namespace RhythMage
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            if (args.Direction == Direction.Left)
+            if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
             {
                 leftHand.sprite = m_settings.leftHandNormal;
                 rightHand.sprite = m_settings.rightHandAttack;
             }
-            else if (args.Direction == Direction.Right)
+            else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
             {
                 leftHand.sprite = m_settings.leftHandAttack;
                 rightHand.sprite = m_settings.rightHandNormal;
@@ -210,7 +211,11 @@ namespace RhythMage
                     EnemyData data;
                     data.cellIndex = cellIndex;
                     Image notch = null;
-                    if (enemy.EnemyType == EnemyType.Magic)
+                    if (enemy.EnemyType == EnemyType.Flying)
+                    {
+                        notch = Instantiate(m_settings.prefabFlyingEnemyNotch);
+                    }
+                    else if (enemy.EnemyType == EnemyType.Magic)
                     {
                         notch = Instantiate(m_settings.prefabMagicEnemyNotch);
                     }

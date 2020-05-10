@@ -14,6 +14,11 @@ namespace RhythMage
         [Serializable]
         public class Settings
         {
+            public int segmentWidth;
+            public int segmentDepth;
+            public int minSegmentConnectionDistance;
+            public int minStepCountInSegment;
+
             public int minSegmentLength;
             public int maxSegmentLength;
             public int brazierSpacing;
@@ -23,6 +28,7 @@ namespace RhythMage
             public GameObject prefabPortal;
             public GameObject prefabWall;
 
+            public List<Material> floorMaterials;
             public List<Material> wallMaterials;
         }
 
@@ -87,9 +93,12 @@ namespace RhythMage
             // First generate path for the floor and block out all surrounding walls
             Direction currentDirection = Direction.Forward;
             Cell currentPosition = Cell.zero;
-            HashSet<Cell> wallCells = new HashSet<Cell>();
-            AddPathAtCell(ref currentPosition, wallCells);
 
+            HashSet<Cell> wallCells = new HashSet<Cell>();
+            AddFloorAtCell(in currentPosition, wallCells, 0);
+            m_dungeon.AddToPath(currentPosition);
+
+            // Build path to traverse dungeon up to tileCount
             while (m_dungeon.GetCellCount() < tileCount)
             {
                 Defs.facings.TryGetValue(currentDirection, out CoordinateOffset offset);
@@ -98,8 +107,9 @@ namespace RhythMage
                 length = Math.Min(length, tileCount - m_dungeon.GetCellCount());
                 for (int i = 0; i < length; ++i)
                 {
-                    offset.Apply(ref currentPosition);
-                    AddPathAtCell(ref currentPosition, wallCells);
+                    offset.ApplyTo(ref currentPosition);
+                    AddFloorAtCell(in currentPosition, wallCells, 0);
+                    m_dungeon.AddToPath(currentPosition);
                 }
                 
                 int directionChange = m_rng.Next(2) * 2 - 1;
@@ -163,7 +173,45 @@ namespace RhythMage
                 int cellIndex = m_dungeon.FloorCells.IndexOf(cell);
                 enemy.name = "Enemy" + enemy.EnemyType.ToString() + " [" + cellIndex + "]";
             }
-            
+
+            List<Cell> roomLocationChoices = new List<Cell>();
+            foreach (var entry in floors.activeEntities)
+            {
+                roomLocationChoices.Add(entry.Key);
+            }
+
+            List<SegmentModelDef> segments = new List<SegmentModelDef>();
+            // Decide where to build rooms around path
+            while (roomLocationChoices.Any())
+            {
+                int roomOriginIndex = m_rng.Next(roomLocationChoices.Count);
+                Cell roomOrigin = roomLocationChoices[roomOriginIndex];
+                int segmentWidth = m_rng.Next(2, 4) * 2 + 1;
+                int segmentDepth = m_rng.Next(2, 4) * 2 + 1;
+
+                int insetCorners = m_rng.Next(Math.Min(segmentWidth, segmentDepth) / 2 + 1);
+                SegmentModelDef segment = new SegmentModelDef(roomOrigin, segmentWidth, segmentDepth, insetCorners);
+                CoordinateOffset roomCentre = CoordinateOffset.Create(segment.width / 2, segment.depth / 2);
+                foreach (Cell roomCell in segment.Cells)
+                {
+                    Cell coord = roomOrigin + CoordinateOffset.Distance(Cell.zero, roomCell - roomCentre);
+                    AddFloorAtCell(coord, wallCells, 1);
+                }
+
+                // Remove all room placement candidates that may overlap this one
+                for (int i = roomLocationChoices.Count - 1; i >= 0; --i)
+                {
+                    Cell cell = roomLocationChoices[i];
+                    CoordinateOffset distance = CoordinateOffset.Distance(roomOrigin, cell);
+                    if (distance.x < 8 + segmentWidth - Math.Min(Math.Abs(distance.y), insetCorners) && distance.y < 8 + segmentDepth - Math.Min(Math.Abs(distance.x), insetCorners))
+                    {
+                        roomLocationChoices.RemoveAt(i);
+                    }
+                }
+
+                segments.Add(segment);
+            }
+
             // Generate walls
             foreach (var entry in wallCells)
             {
@@ -191,11 +239,10 @@ namespace RhythMage
         bool WillIntersectPortal(int tileCount, Cell currentCell, Direction direction)
         {
             int tilesRemaining = tileCount - m_dungeon.GetCellCount();
-            CoordinateOffset offset;
-            Defs.facings.TryGetValue(direction, out offset);
+            Defs.facings.TryGetValue(direction, out CoordinateOffset offset);
             for (int i = 0; i < tilesRemaining; ++i)
             {
-                offset.Apply(ref currentCell);
+                offset.ApplyTo(ref currentCell);
                 if (currentCell == m_dungeon.FloorCells.First())
                 {
                     return true;
@@ -203,8 +250,8 @@ namespace RhythMage
             }
             offset.x *= tilesRemaining;
             offset.y *= tilesRemaining;
-            offset.Apply(ref currentCell);
-            return (m_dungeon.FloorCells.Contains(currentCell));
+            offset.ApplyTo(ref currentCell);
+            return m_dungeon.FloorCells.Contains(currentCell);
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)
@@ -214,11 +261,8 @@ namespace RhythMage
             return (Direction)dirInt;
         }
 
-        void AddPathAtCell(ref Cell cell, HashSet<Cell> wallCells)
+        GameObject AddFloorAtCell(in Cell cell, HashSet<Cell> wallCells, int materialIndex)
         {
-            CreateFloor(cell);
-            m_dungeon.AddToPath(cell);
-
             // Fill all surrounding walls
             for (int i = -1; i < 2; ++i)
             {
@@ -230,6 +274,10 @@ namespace RhythMage
                     wallCells.Add(wallCell);
                 }
             }
+
+            GameObject floor = CreateFloor(cell);
+            floor.GetComponentInChildren<MeshRenderer>().material = m_settings.floorMaterials[materialIndex];
+            return floor;
         }
 
         GameObject CreateFromPool(Cell cell, DungeonEntityTracker pool, GameObject prefab)
@@ -246,6 +294,11 @@ namespace RhythMage
                 entity.transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
                 pool.AddToCell(cell, entity);
             }
+            else
+            {
+                pool.activeEntities.TryGetValue(cell, out entity);
+            }
+
             return entity;
         }
 

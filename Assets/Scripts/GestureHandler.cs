@@ -64,6 +64,20 @@ namespace RhythMage
                     Direction = Direction.Left
                 });
             }
+            else if (Input.GetKeyDown("up"))
+            {
+                OnSwipe?.Invoke(new GestureSwipeEventArgs
+                {
+                    Direction = Direction.Forward
+                });
+            }
+            else if (Input.GetKeyDown("down"))
+            {
+                OnSwipe?.Invoke(new GestureSwipeEventArgs
+                {
+                    Direction = Direction.Backward
+                });
+            }
         }
 
         void CheckForSwipe(Vector2 position)
@@ -73,9 +87,19 @@ namespace RhythMage
             if (offset.SqrMagnitude() >= MinThreshold * MinThreshold)
             {
                 // Swipe detected
+                Direction direction;
+                if (System.Math.Abs(offset.x) > System.Math.Abs(offset.y))
+                {
+                    direction = (offset.x < 0) ? Direction.Left : Direction.Right;
+                }
+                else
+                {
+                    direction = (offset.y < 0) ? Direction.Backward : Direction.Forward;
+                }
+
                 var args = new GestureSwipeEventArgs
                 {
-                    Direction = (offset.x < 0) ? Direction.Left : Direction.Right
+                    Direction = direction
                 };
                 OnSwipe?.Invoke(args);
                 m_canSwipe = false;

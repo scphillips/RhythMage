@@ -39,8 +39,7 @@ namespace RhythMage
 
         public bool RemoveFromCell(Cell cell)
         {
-            GameObject entity;
-            bool exists = activeEntities.TryGetValue(cell, out entity);
+            bool exists = activeEntities.TryGetValue(cell, out GameObject entity);
             if (exists)
             {
                 entity.SetActive(false);

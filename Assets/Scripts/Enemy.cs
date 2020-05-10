@@ -16,6 +16,7 @@ namespace RhythMage
         [Zenject.Inject]
         readonly CameraProvider cameraProvider;
 
+        public GameObject flying;
         public GameObject magic;
         public GameObject melee;
 
@@ -32,6 +33,7 @@ namespace RhythMage
             set
             {
                 m_type = value;
+                flying.SetActive(m_type == EnemyType.Flying);
                 magic.SetActive(m_type == EnemyType.Magic);
                 melee.SetActive(m_type == EnemyType.Melee);
             }

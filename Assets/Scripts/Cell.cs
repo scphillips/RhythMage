@@ -30,7 +30,6 @@ namespace RhythMage
         {
             get
             {
-                // [ 222, 173 ] -> "DEAD"
                 return x.ToString("X2") + y.ToString("X2");
             }
         }
@@ -42,7 +41,7 @@ namespace RhythMage
 
         public bool Equals(Cell other)
         {
-            return (x == other.x && y == other.y);
+            return x == other.x && y == other.y;
         }
 
         public override int GetHashCode()
@@ -58,6 +57,11 @@ namespace RhythMage
         public static bool operator != (Cell lhs, Cell rhs)
         {
             return !(lhs == rhs);
+        }
+
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
         }
     }
 }

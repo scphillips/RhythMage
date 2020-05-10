@@ -33,22 +33,27 @@ namespace RhythMage
             return Get().Next(minValue, maxValue);
         }
 
-        public virtual int Next(int maxValue)
+        public int Next(int maxValue)
         {
             return Get().Next(maxValue);
         }
 
-        public virtual void NextBytes(byte[] buffer)
+        public bool NextBool()
+        {
+            return (Get().Next() & 1) == 0;
+        }
+
+        public void NextBytes(byte[] buffer)
         {
             Get().NextBytes(buffer);
         }
 
-        public virtual float NextSingle()
+        public float NextSingle()
         {
             return System.Convert.ToSingle(Get().NextDouble());
         }
 
-        public virtual double NextDouble()
+        public double NextDouble()
         {
             return Get().NextDouble();
         }

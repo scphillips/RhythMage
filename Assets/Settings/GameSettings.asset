@@ -23,6 +23,10 @@ MonoBehaviour:
     RightSwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
   DungeonBuilderSettings:
+    segmentWidth: 9
+    segmentDepth: 9
+    minSegmentConnectionDistance: 5
+    minStepCountInSegment: 4
     minSegmentLength: 2
     maxSegmentLength: 8
     brazierSpacing: 8
@@ -34,6 +38,9 @@ MonoBehaviour:
       type: 3}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 3}
+    floorMaterials:
+    - {fileID: 2100000, guid: 803a2481a9c3d5c4ea8b09557fa2c5bf, type: 2}
+    - {fileID: 2100000, guid: f0c211f21d13b0f4597215526877cf53, type: 2}
     wallMaterials:
     - {fileID: 2100000, guid: 2a7614aa54bafbf40b32523980c5f453, type: 2}
     - {fileID: 2100000, guid: ab06d6efe95d18742938b583cd2392be, type: 2}
@@ -51,7 +58,7 @@ MonoBehaviour:
     menuScene:
       m_sceneAsset: {fileID: 102900000, guid: 63afccf960cb9754b8139415d96c2af3, type: 3}
       m_scenePath: Assets/Scenes/MenuScene.unity
-    delayTransitionToGameOverDuration: 0
+    delayTransitionToGameOverDuration: 0.25
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}
@@ -59,6 +66,8 @@ MonoBehaviour:
     leftHandAttack: {fileID: 21300000, guid: 2b066246f93a1334f93d0a6525b0518d, type: 3}
     rightHandNormal: {fileID: 21300000, guid: 4e2de4fc3cc312a48980cc00a6dc1533, type: 3}
     rightHandAttack: {fileID: 21300000, guid: 1f977bd6f9c9ce946a6961ea395c9110, type: 3}
+    prefabFlyingEnemyNotch: {fileID: 2224345092267999032, guid: 0310b7b19dd2b6a4c9903f80d19832fc,
+      type: 3}
     prefabMagicEnemyNotch: {fileID: 114369721147501060, guid: 8179d50ee6fcf074196183131ec84ef5,
       type: 3}
     prefabMeleeEnemyNotch: {fileID: 4326222218899050934, guid: a0787fb0a6d1d8d43b3c1e58ce8d7fc9,
