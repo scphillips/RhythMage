@@ -38,9 +38,12 @@ MonoBehaviour:
       type: 3}
     prefabWall: {fileID: 1801076249328130, guid: b05c727c764fa4e4c879001abb736cd7,
       type: 3}
-    floorMaterials:
+    corridorFloorMaterials:
     - {fileID: 2100000, guid: 803a2481a9c3d5c4ea8b09557fa2c5bf, type: 2}
+    roomFloorMaterials:
     - {fileID: 2100000, guid: f0c211f21d13b0f4597215526877cf53, type: 2}
+    - {fileID: 2100000, guid: 06807a329c3276d4fb57298ccc82f1f5, type: 2}
+    - {fileID: 2100000, guid: 195772f9dc1031344b254130125cf9c7, type: 2}
     wallMaterials:
     - {fileID: 2100000, guid: 2a7614aa54bafbf40b32523980c5f453, type: 2}
     - {fileID: 2100000, guid: ab06d6efe95d18742938b583cd2392be, type: 2}

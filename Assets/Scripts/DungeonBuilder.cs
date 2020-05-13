@@ -28,7 +28,8 @@ namespace RhythMage
             public GameObject prefabPortal;
             public GameObject prefabWall;
 
-            public List<Material> floorMaterials;
+            public List<Material> corridorFloorMaterials;
+            public List<Material> roomFloorMaterials;
             public List<Material> wallMaterials;
         }
 
@@ -95,7 +96,7 @@ namespace RhythMage
             Cell currentPosition = Cell.zero;
 
             HashSet<Cell> wallCells = new HashSet<Cell>();
-            AddFloorAtCell(in currentPosition, wallCells, 0);
+            AddCorridorFloorAtCell(in currentPosition, wallCells);
             m_dungeon.AddToPath(currentPosition);
 
             // Build path to traverse dungeon up to tileCount
@@ -108,7 +109,7 @@ namespace RhythMage
                 for (int i = 0; i < length; ++i)
                 {
                     offset.ApplyTo(ref currentPosition);
-                    AddFloorAtCell(in currentPosition, wallCells, 0);
+                    AddCorridorFloorAtCell(in currentPosition, wallCells);
                     m_dungeon.AddToPath(currentPosition);
                 }
                 
@@ -195,7 +196,7 @@ namespace RhythMage
                 foreach (Cell roomCell in segment.Cells)
                 {
                     Cell coord = roomOrigin + CoordinateOffset.Distance(Cell.zero, roomCell - roomCentre);
-                    AddFloorAtCell(coord, wallCells, 1);
+                    AddRoomFloorAtCell(coord, wallCells);
                 }
 
                 // Remove all room placement candidates that may overlap this one
@@ -261,7 +262,17 @@ namespace RhythMage
             return (Direction)dirInt;
         }
 
-        GameObject AddFloorAtCell(in Cell cell, HashSet<Cell> wallCells, int materialIndex)
+        GameObject AddCorridorFloorAtCell(in Cell cell, HashSet<Cell> wallCells)
+        {
+            return AddFloorAtCell(cell, wallCells, m_settings.corridorFloorMaterials);
+        }
+
+        GameObject AddRoomFloorAtCell(in Cell cell, HashSet<Cell> wallCells)
+        {
+            return AddFloorAtCell(cell, wallCells, m_settings.roomFloorMaterials);
+        }
+
+        GameObject AddFloorAtCell(in Cell cell, HashSet<Cell> wallCells, IReadOnlyList<Material> floorMaterialsList)
         {
             // Fill all surrounding walls
             for (int i = -1; i < 2; ++i)
@@ -276,7 +287,11 @@ namespace RhythMage
             }
 
             GameObject floor = CreateFloor(cell);
-            floor.GetComponentInChildren<MeshRenderer>().material = m_settings.floorMaterials[materialIndex];
+            if (floorMaterialsList.Count > 0)
+            {
+                int materialIndex = m_rng.Next(floorMaterialsList.Count);
+                floor.GetComponentInChildren<MeshRenderer>().material = floorMaterialsList[materialIndex];
+            }
             return floor;
         }
 
