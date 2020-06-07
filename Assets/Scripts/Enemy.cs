@@ -39,6 +39,20 @@ namespace RhythMage
             }
         }
 
+        GameObject ActiveSprite
+        {
+            get
+            {
+                switch (EnemyType)
+                {
+                    case EnemyType.Flying: return flying;
+                    case EnemyType.Magic: return magic;
+                    case EnemyType.Melee: return melee;
+                    default: return null;
+                }
+            }
+        }
+
         [Zenject.Inject]
         public void Construct(Cell cell, EnemyType type)
         {
@@ -48,7 +62,7 @@ namespace RhythMage
 
         public void SetPosition(Cell cell)
         {
-            transform.localPosition = new Vector3(cell.x, 0, cell.y);
+            transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
         }
 
         public void Die()
@@ -56,7 +70,7 @@ namespace RhythMage
             OnDeathTriggered?.Invoke(this);
             transform.SetParent(cameraProvider.transform, true);
             int direction = (m_type == EnemyType.Magic) ? -1 : 1;
-            StartCoroutine(DeathAnimation(transform, 360.0f * direction, 0.3f));
+            StartCoroutine(DeathAnimation(ActiveSprite.transform, 360.0f * direction, 0.3f));
         }
 
         IEnumerator DeathAnimation(Transform transform, float angle, float duration)

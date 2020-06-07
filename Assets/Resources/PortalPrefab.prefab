@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1013085190529670}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4928149934512002}
@@ -45,6 +45,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -56,6 +57,7 @@ SpriteRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -145,6 +147,7 @@ MonoBehaviour:
     animationFrames:
     - {fileID: 21300000, guid: 6036d7ef3952a134da82c90d14238296, type: 3}
     - {fileID: 21300000, guid: 5be404b48a67a5942bd69a75ca2e9852, type: 3}
+  <UseHalfBeat>k__BackingField: 0
 --- !u!114 &4977791078180057286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,6 +165,7 @@ MonoBehaviour:
     animationFrames:
     - {fileID: 21300000, guid: cc02d80f728e89a4ba55e0a1104ccc53, type: 3}
     - {fileID: 21300000, guid: 2023dbf51c51b7747bbb89fb665f7983, type: 3}
+  <UseHalfBeat>k__BackingField: 0
 --- !u!114 &2862998573238715856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +218,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2750711106768758592}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4928149934512002}
@@ -234,6 +238,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -245,6 +250,7 @@ SpriteRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
