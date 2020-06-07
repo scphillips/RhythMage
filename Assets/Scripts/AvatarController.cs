@@ -28,25 +28,25 @@ namespace RhythMage
         readonly GameDifficulty.Settings m_difficultySettings;
 
         [Zenject.Inject]
-        DungeonBuilder m_dungeonBuilder;
+        readonly DungeonBuilder m_dungeonBuilder;
 
         [Zenject.Inject]
-        DungeonModel m_dungeon;
+        readonly DungeonModel m_dungeon;
 
         [Zenject.Inject]
-        AvatarModel m_avatar;
+        readonly AvatarModel m_avatar;
 
         [Zenject.Inject]
-        GestureHandler m_gestureHandler;
+        readonly GestureHandler m_gestureHandler;
 
         [Zenject.Inject]
-        RandomNumberProvider m_rng;
+        readonly RandomNumberProvider m_rng;
 
         [Zenject.Inject]
-        SoundManager m_sound;
+        readonly SoundManager m_sound;
 
         [Zenject.Inject]
-        AudioSource audioSource;
+        readonly AudioSource audioSource;
 
         int m_lastCheckedIndex;
 
@@ -60,11 +60,11 @@ namespace RhythMage
 
         void Update()
         {
-            if (m_lastCheckedIndex != m_avatar.currentCellIndex
+            if (m_lastCheckedIndex != m_avatar.CurrentCellIndex
                 && m_sound.TimeSinceLastBeat() > m_difficultySettings.maxInputTimeOffBeat)
             {
                 // Beat finished, check for enemy collisions
-                Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.currentCellIndex);
+                Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.CurrentCellIndex);
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
                     // Take damage
@@ -72,13 +72,13 @@ namespace RhythMage
                     audioSource.PlayOneShot(m_settings.HeartLostClip);
                 }
 
-                m_lastCheckedIndex = m_avatar.currentCellIndex;
+                m_lastCheckedIndex = m_avatar.CurrentCellIndex;
             }
         }
 
         void OnBeat()
         {
-            int cellIndex = m_avatar.currentCellIndex + 1;
+            int cellIndex = m_avatar.CurrentCellIndex + 1;
 
             if (cellIndex == m_dungeon.GetCellCount())
             {
@@ -114,7 +114,7 @@ namespace RhythMage
                 StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
             }
             
-            m_avatar.currentCellIndex = cellIndex;
+            m_avatar.CurrentCellIndex = cellIndex;
         }
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
@@ -131,7 +131,7 @@ namespace RhythMage
             if (m_sound.TimeOffBeat() <= m_difficultySettings.maxInputTimeOffBeat)
             {
                 // Valid swipe, test enemy type
-                int targetCellIndex = m_avatar.currentCellIndex;
+                int targetCellIndex = m_avatar.CurrentCellIndex;
                 var targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
                 if ((m_sound.WillBeatThisFrame()
                     || m_sound.TimeToNextBeat() <= m_difficultySettings.maxInputTimeOffBeat)

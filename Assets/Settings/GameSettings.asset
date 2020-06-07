@@ -22,6 +22,12 @@ MonoBehaviour:
     - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
     RightSwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
+  DungeonAmbientControllerSettings:
+    tilePulseColor: {r: 1, g: 1, b: 1, a: 0.627451}
+    tilePulsePrefab: {fileID: 3574761479905969316, guid: 9e9cbf0199a5ba84f9716d50ed95bf16,
+      type: 3}
+    tilePulseDuration: 0.25
+    tilePulseEaseType: 5
   DungeonBuilderSettings:
     segmentWidth: 9
     segmentDepth: 9
@@ -75,6 +81,7 @@ MonoBehaviour:
       type: 3}
     prefabMeleeEnemyNotch: {fileID: 4326222218899050934, guid: a0787fb0a6d1d8d43b3c1e58ce8d7fc9,
       type: 3}
+    notchScaleEaseType: 2
   SoundManagerSettings:
     timings:
     - clip: {fileID: 8300000, guid: b870bfd13f4e2a0479fe9b548ead2c68, type: 3}

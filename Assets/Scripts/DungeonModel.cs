@@ -14,14 +14,44 @@ namespace RhythMage
         public event System.Action OnDungeonReset;
         public event System.Action<int> OnEnemyCountChange;
 
+        public DungeonEntityTracker Braziers { get; }
+        public DungeonEntityTracker Enemies { get; }
+        public DungeonEntityTracker Floors { get; }
+        public DungeonEntityTracker Portals { get; }
+        public DungeonEntityTracker Walls { get; }
+
+        IEnumerable<DungeonEntityTracker> AllTrackers
+        {
+            get
+            {
+                yield return Braziers;
+                yield return Enemies;
+                yield return Floors;
+                yield return Portals;
+                yield return Walls;
+            }
+        }
+
         public DungeonModel()
         {
             m_enemies = new Dictionary<Cell, Enemy>();
             FloorCells = new List<Cell>();
+
+            Braziers = new DungeonEntityTracker();
+            Enemies = new DungeonEntityTracker();
+            Floors = new DungeonEntityTracker();
+            Portals = new DungeonEntityTracker();
+            Walls = new DungeonEntityTracker();
+
         }
 
         public void Reset()
         {
+            foreach (var tracker in AllTrackers)
+            {
+                tracker.RemoveAll();
+            }
+
             m_enemies.Clear();
             FloorCells.Clear();
             OnDungeonReset?.Invoke();

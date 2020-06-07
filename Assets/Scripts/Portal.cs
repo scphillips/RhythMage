@@ -27,9 +27,9 @@ namespace RhythMage
 
         void OnBeat()
         {
-            bool isActive = m_avatar.currentCellIndex >= m_dungeon.GetCellCount() - 5;
+            bool isActive = m_avatar.CurrentCellIndex >= m_dungeon.GetCellCount() - 5;
             active.SetActive(isActive);
-            inactive.SetActive(isActive == false);
+            inactive.SetActive(!isActive);
         }
     }
 }

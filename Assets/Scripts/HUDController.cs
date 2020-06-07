@@ -33,6 +33,8 @@ namespace RhythMage
             public Image prefabFlyingEnemyNotch;
             public Image prefabMagicEnemyNotch;
             public Image prefabMeleeEnemyNotch;
+
+            public EasingFunction.Ease notchScaleEaseType;
         }
 
         [Zenject.Inject]
@@ -84,7 +86,7 @@ namespace RhythMage
         void OnBeat()
         {
             PopulateEnemyList(incomingEnemyTilesAhead);
-            if (m_avatar.currentCellIndex == m_dungeon.GetCellCount() - 1)
+            if (m_avatar.CurrentCellIndex == m_dungeon.GetCellCount() - 1)
             {
                 StartCoroutine(ShowPortalOverlay(portalOverlayImage, 0.25f, 0.15f));
             }
@@ -122,7 +124,7 @@ namespace RhythMage
         {
             for (int i = 0; i < healthImages.Count; ++i)
             {
-                if (i < m_avatar.currentHealth)
+                if (i < m_avatar.CurrentHealth)
                 {
                     healthImages[i].sprite = m_settings.heartFull;
                 }
@@ -201,7 +203,7 @@ namespace RhythMage
 
         void PopulateEnemyList(int distanceAhead)
         {
-            int cellIndex = m_avatar.currentCellIndex + distanceAhead;
+            int cellIndex = m_avatar.CurrentCellIndex + distanceAhead;
             if (cellIndex < m_dungeon.GetCellCount())
             {
                 Cell cell = m_dungeon.GetCellAtIndex(cellIndex);
@@ -236,13 +238,17 @@ namespace RhythMage
 
         void UpdateEnemyNotch(EnemyData enemyData)
         {
-            int currentCellIndex = m_avatar.currentCellIndex;
+            int currentCellIndex = m_avatar.CurrentCellIndex;
             int indexOffset = enemyData.cellIndex - currentCellIndex;
-            double delay = m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength();
+            double delay = System.Math.Min(1.0f, m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength());
             float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
+
+            //var easeFunc = EasingFunction.GetEasingFunction(m_settings.notchScaleEaseType);
+            //float easedMag = easeFunc(0.0f, 1.0f, mag);
             float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
+
             if (timeOffset > incomingEnemyTilesAhead - 1)
             {
                 scale = incomingEnemyTilesAhead - timeOffset;
@@ -263,7 +269,7 @@ namespace RhythMage
             {
                 if (m_enemyData[i].enemy == enemy)
                 {
-                    StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, 0.0f, 0.3f));
+                    StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, Vector2.zero, 0.3f));
                     m_enemyData.RemoveAt(i);
                 }
                 else
@@ -273,17 +279,17 @@ namespace RhythMage
             }
         }
 
-        IEnumerator DeathAnimation(Transform transform, float scale, float duration)
+        IEnumerator DeathAnimation(Transform transform, Vector2 scale, float duration)
         {
             float elapsedTime = 0.0f;
-            float startScale = transform.localScale.x;
+            Vector2 startScale = transform.localScale;
 
             while (elapsedTime < duration)
             {
                 elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
                 float mag = elapsedTime / duration;
-                float currentScale = startScale + (scale - startScale) * mag;
-                transform.localScale = new Vector3(currentScale, currentScale, currentScale);
+                Vector2 currentScale = startScale + (scale - startScale) * mag;
+                transform.localScale = new Vector3(currentScale.x, currentScale.y, 1.0f);
                 yield return null;
             }
 

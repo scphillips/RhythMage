@@ -2,7 +2,6 @@
 // Unauthorized copying of this file via any medium is strictly prohibited.
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace RhythMage
 {
     public class DungeonBuilder : MonoBehaviour
     {
-        [Serializable]
+        [System.Serializable]
         public class Settings
         {
             public int segmentWidth;
@@ -51,42 +50,15 @@ namespace RhythMage
         [Zenject.Inject]
         SoundManager m_sound;
 
-        DungeonEntityTracker braziers;
-        DungeonEntityTracker enemies;
-        DungeonEntityTracker floors;
-        DungeonEntityTracker portals;
-        DungeonEntityTracker walls;
-
-        IEnumerable<DungeonEntityTracker> AllTrackers
-        {
-            get
-            {
-                yield return braziers;
-                yield return enemies;
-                yield return floors;
-                yield return portals;
-                yield return walls;
-            }
-        }
 
         void Start()
         {
-            braziers = new DungeonEntityTracker();
-            enemies = new DungeonEntityTracker();
-            floors = new DungeonEntityTracker();
-            portals = new DungeonEntityTracker();
-            walls = new DungeonEntityTracker();
-            
             BuildDungeon();
         }
 
         public void BuildDungeon()
         {
             // Cleanup existing dungeon (if any)
-            foreach (var tracker in AllTrackers)
-            {
-                tracker.RemoveAll();
-            }
             m_dungeon.Reset();
             
             int tileCount = m_sound.GetTotalBeatsInTrack();
@@ -105,7 +77,7 @@ namespace RhythMage
                 Defs.facings.TryGetValue(currentDirection, out CoordinateOffset offset);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
-                length = Math.Min(length, tileCount - m_dungeon.GetCellCount());
+                length = System.Math.Min(length, tileCount - m_dungeon.GetCellCount());
                 for (int i = 0; i < length; ++i)
                 {
                     offset.ApplyTo(ref currentPosition);
@@ -130,26 +102,26 @@ namespace RhythMage
             float range = m_difficultySettings.maxEnemyPopulation - m_difficultySettings.minEnemyPopulation;
             float enemyPopulation = m_difficultySettings.minEnemyPopulation + m_rng.NextSingle() * range;
             List<Cell> enemyLocationChoices = new List<Cell>();
-            foreach (var entry in floors.activeEntities)
+            foreach (var entry in m_dungeon.Floors.ActiveEntities)
             {
                 enemyLocationChoices.Add(entry.Key);
             }
 
             // Remove start and end tiles from list of location choices
-            for (int i = 0; i < Math.Min(3, m_dungeon.GetCellCount()); ++i)
+            for (int i = 0; i < System.Math.Min(3, m_dungeon.GetCellCount()); ++i)
             {
                 var cell = m_dungeon.GetCellAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
-            for (int i = Math.Max(0, m_dungeon.GetCellCount() - 3); i < m_dungeon.GetCellCount(); ++i)
+            for (int i = System.Math.Max(0, m_dungeon.GetCellCount() - 3); i < m_dungeon.GetCellCount(); ++i)
             {
                 var cell = m_dungeon.GetCellAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
 
             // Spawn Enemies
-            int enemiesToSpawn = Convert.ToInt32(floors.Count * enemyPopulation);
-            enemiesToSpawn = Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
+            int enemiesToSpawn = System.Convert.ToInt32(m_dungeon.Floors.Count * enemyPopulation);
+            enemiesToSpawn = System.Math.Min(enemiesToSpawn, enemyLocationChoices.Count);
 
             List<Cell> targetCells = new List<Cell>();
             for (int i = 0; i < enemiesToSpawn; ++i)
@@ -176,7 +148,7 @@ namespace RhythMage
             }
 
             List<Cell> roomLocationChoices = new List<Cell>();
-            foreach (var entry in floors.activeEntities)
+            foreach (var entry in m_dungeon.Floors.ActiveEntities)
             {
                 roomLocationChoices.Add(entry.Key);
             }
@@ -190,7 +162,7 @@ namespace RhythMage
                 int segmentWidth = m_rng.Next(2, 4) * 2 + 1;
                 int segmentDepth = m_rng.Next(2, 4) * 2 + 1;
 
-                int insetCorners = m_rng.Next(Math.Min(segmentWidth, segmentDepth) / 2 + 1);
+                int insetCorners = m_rng.Next(System.Math.Min(segmentWidth, segmentDepth) / 2 + 1);
                 SegmentModelDef segment = new SegmentModelDef(roomOrigin, segmentWidth, segmentDepth, insetCorners);
                 CoordinateOffset roomCentre = CoordinateOffset.Create(segment.width / 2, segment.depth / 2);
                 foreach (Cell roomCell in segment.Cells)
@@ -204,7 +176,7 @@ namespace RhythMage
                 {
                     Cell cell = roomLocationChoices[i];
                     CoordinateOffset distance = CoordinateOffset.Distance(roomOrigin, cell);
-                    if (distance.x < 8 + segmentWidth - Math.Min(Math.Abs(distance.y), insetCorners) && distance.y < 8 + segmentDepth - Math.Min(Math.Abs(distance.x), insetCorners))
+                    if (distance.x < 8 + segmentWidth - System.Math.Min(System.Math.Abs(distance.y), insetCorners) && distance.y < 8 + segmentDepth - System.Math.Min(System.Math.Abs(distance.x), insetCorners))
                     {
                         roomLocationChoices.RemoveAt(i);
                     }
@@ -216,7 +188,7 @@ namespace RhythMage
             // Generate walls
             foreach (var entry in wallCells)
             {
-                if (floors.Contains(entry) == false)
+                if (m_dungeon.Floors.Contains(entry) == false)
                 {
                     CreateWall(entry);
                 }
@@ -257,7 +229,7 @@ namespace RhythMage
 
         Direction ChangeDirection(Direction currentDirection, int change)
         {
-            int dirInt = Convert.ToInt32(currentDirection);
+            int dirInt = System.Convert.ToInt32(currentDirection);
             dirInt = (dirInt + Defs.facings.Count + change) % Defs.facings.Count;
             return (Direction)dirInt;
         }
@@ -290,7 +262,8 @@ namespace RhythMage
             if (floorMaterialsList.Count > 0)
             {
                 int materialIndex = m_rng.Next(floorMaterialsList.Count);
-                floor.GetComponentInChildren<MeshRenderer>().material = floorMaterialsList[materialIndex];
+                var renderer = floor.GetComponentInChildren<MeshRenderer>();
+                renderer.material = floorMaterialsList[materialIndex];
             }
             return floor;
         }
@@ -311,7 +284,7 @@ namespace RhythMage
             }
             else
             {
-                pool.activeEntities.TryGetValue(cell, out entity);
+                pool.ActiveEntities.TryGetValue(cell, out entity);
             }
 
             return entity;
@@ -319,20 +292,20 @@ namespace RhythMage
 
         GameObject CreateFloor(Cell cell)
         {
-            return CreateFromPool(cell, floors, m_settings.prefabFloor);
+            return CreateFromPool(cell, m_dungeon.Floors, m_settings.prefabFloor);
         }
 
         GameObject CreatePortal(Cell cell, Direction direction)
         {
-            var portal = CreateFromPool(cell, portals, m_settings.prefabPortal);
-            float angle = 90.0f * Convert.ToInt32(direction);
+            var portal = CreateFromPool(cell, m_dungeon.Portals, m_settings.prefabPortal);
+            float angle = 90.0f * System.Convert.ToInt32(direction);
             portal.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
             return portal;
         }
 
         GameObject CreateWall(Cell cell)
         {
-            GameObject wall = CreateFromPool(cell, walls, m_settings.prefabWall);
+            GameObject wall = CreateFromPool(cell, m_dungeon.Walls, m_settings.prefabWall);
             if (wall != null)
             {
                 int materialIndex = (cell.x % 3 == 0 && cell.y % 3 == 0) ? 0 : 1;
@@ -344,7 +317,7 @@ namespace RhythMage
         Enemy CreateEnemy(Cell cell, EnemyType type)
         {
             Enemy enemy = null;
-            var gameObject = enemies.TryGetNext();
+            var gameObject = m_dungeon.Enemies.TryGetNext();
             if (gameObject != null)
             {
                 enemy = gameObject.GetComponent<Enemy>();
@@ -358,21 +331,21 @@ namespace RhythMage
             }
             enemy.transform.SetParent(transform, false);
             m_dungeon.AddEnemyAtCell(cell, enemy);
-            enemies.AddToCell(cell, enemy.gameObject);
+            m_dungeon.Enemies.AddToCell(cell, enemy.gameObject);
             return enemy;
         }
 
         GameObject CreateBrazier(Cell cell)
         {
             GameObject brazier = null;
-            if (braziers.Contains(cell) == false)
+            if (m_dungeon.Braziers.Contains(cell) == false)
             {
                 // Find orthogonally adjacent walls (if any)
                 List<Cell> adjacentWallCells = new List<Cell>();
                 foreach (var entry in Defs.facings)
                 {
                     Cell test = cell + entry.Value;
-                    if (walls.Contains(test))
+                    if (m_dungeon.Walls.Contains(test))
                     {
                         adjacentWallCells.Add(test);
                     }
@@ -386,16 +359,16 @@ namespace RhythMage
                     CoordinateOffset offset = CoordinateOffset.Create(wallCell.x - cell.x, wallCell.y - cell.y);
                     Direction direction = Defs.GetOffsetDirection(ref offset);
 
-                    brazier = braziers.TryGetNext();
+                    brazier = m_dungeon.Braziers.TryGetNext();
                     if (brazier == null)
                     {
                         brazier = Instantiate(m_settings.prefabBrazier);
                     }
                     brazier.transform.SetParent(transform, false);
-                    float angle = 90.0f * Convert.ToInt32(direction);
+                    float angle = 90.0f * System.Convert.ToInt32(direction);
                     brazier.transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
                     brazier.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    braziers.AddToCell(cell, brazier);
+                    m_dungeon.Braziers.AddToCell(cell, brazier);
                 }
             }
             return brazier;

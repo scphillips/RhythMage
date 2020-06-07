@@ -6,29 +6,42 @@ namespace RhythMage
 {
     public class AvatarModel
     {
-        public readonly int maxHealth;
-        public int currentHealth;
-        public int killCount;
-        public int currentCellIndex;
-
         public class HealthChangedEventArgs : System.EventArgs
         {
             public int HealthMod { get; set; }
         }
 
         public event System.Action<AvatarModel, HealthChangedEventArgs> OnHealthChange;
+        public event System.Action<AvatarModel> OnMove;
+        
+        public int CurrentCellIndex
+        {
+            get => m_currentCellIndex;
+            set
+            {
+                m_currentCellIndex = value;
+                OnMove?.Invoke(this);
+            }
+        }
+
+        public int MaxHealth { get; }
+        public int CurrentHealth { get; private set; }
+
+        public int killCount;
+        
+        int m_currentCellIndex;
 
         public AvatarModel()
         {
-            maxHealth = 5;
-            currentHealth = maxHealth;
+            MaxHealth = 5;
+            CurrentHealth = MaxHealth;
             killCount = 0;
         }
 
         public void TakeDamage(int amount = 1)
         {
-            currentHealth -= amount;
-            OnHealthChange(this, new HealthChangedEventArgs
+            CurrentHealth -= amount;
+            OnHealthChange?.Invoke(this, new HealthChangedEventArgs
             {
                 HealthMod = -amount
             });
@@ -36,7 +49,7 @@ namespace RhythMage
 
         public bool IsAlive()
         {
-            return currentHealth > 0;
+            return CurrentHealth > 0;
         }
     }
 }

@@ -9,59 +9,61 @@ namespace RhythMage
 {
     public class DungeonEntityTracker
     {
-        public Dictionary<Cell, GameObject> activeEntities;
-        public ObjectPool<GameObject> entityPool;
+        public IReadOnlyDictionary<Cell, GameObject> ActiveEntities { get => m_activeEntities; }
+
+        Dictionary<Cell, GameObject> m_activeEntities;
+        ObjectPool<GameObject> m_entityPool;
 
         public DungeonEntityTracker()
         {
-            activeEntities = new Dictionary<Cell, GameObject>();
-            entityPool = new ObjectPool<GameObject>();
+            m_activeEntities = new Dictionary<Cell, GameObject>();
+            m_entityPool = new ObjectPool<GameObject>();
         }
 
         public bool Contains(Cell cell)
         {
-            return activeEntities.ContainsKey(cell);
+            return m_activeEntities.ContainsKey(cell);
         }
 
         public int Count
         {
             get
             {
-                return activeEntities.Count;
+                return m_activeEntities.Count;
             }
         }
 
         public void AddToCell(Cell cell, GameObject entity)
         {
             entity.SetActive(true);
-            activeEntities.Add(cell, entity);
+            m_activeEntities.Add(cell, entity);
         }
 
         public bool RemoveFromCell(Cell cell)
         {
-            bool exists = activeEntities.TryGetValue(cell, out GameObject entity);
+            bool exists = m_activeEntities.TryGetValue(cell, out GameObject entity);
             if (exists)
             {
                 entity.SetActive(false);
-                entityPool.Add(entity);
-                activeEntities.Remove(cell);
+                m_entityPool.Add(entity);
+                m_activeEntities.Remove(cell);
             }
             return exists;
         }
 
         public void RemoveAll()
         {
-            foreach (var entry in activeEntities)
+            foreach (var entry in m_activeEntities)
             {
                 entry.Value.SetActive(false);
-                entityPool.Add(entry.Value);
+                m_entityPool.Add(entry.Value);
             }
-            activeEntities.Clear();
+            m_activeEntities.Clear();
         }
 
         public GameObject TryGetNext()
         {
-            return entityPool.TryGet();
+            return m_entityPool.TryGet();
         }
     }
 }

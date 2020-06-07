@@ -11,6 +11,7 @@ namespace RhythMage
     public class GameSettings : ScriptableObjectInstaller<GameSettings>
     {
         public AvatarController.Settings AvatarControllerSettings;
+        public DungeonAmbientController.Settings DungeonAmbientControllerSettings;
         public DungeonBuilder.Settings DungeonBuilderSettings;
         public GameDifficulty.Settings GameDifficultySettings;
         public GameStateManager.Settings GameStateManagerSettings;
@@ -20,6 +21,7 @@ namespace RhythMage
         public override void InstallBindings()
         {
             Container.BindInstance(AvatarControllerSettings);
+            Container.BindInstance(DungeonAmbientControllerSettings);
             Container.BindInstance(DungeonBuilderSettings);
             Container.BindInstance(GameDifficultySettings);
             Container.BindInstance(GameStateManagerSettings);
