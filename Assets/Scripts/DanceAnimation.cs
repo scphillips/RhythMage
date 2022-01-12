@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace RhythMage
 {
@@ -14,7 +13,7 @@ namespace RhythMage
         public struct AnimationEntry
         {
             public SpriteRenderer target;
-            public Image ui_target;
+            public UnityEngine.UI.Image ui_target;
             public Sprite[] animationFrames;
         }
 
