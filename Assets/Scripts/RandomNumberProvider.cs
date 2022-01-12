@@ -25,37 +25,37 @@ namespace RhythMage
 
         public int Next()
         {
-            return Get().Next();
+            return m_random.Next();
         }
 
         public int Next(int minValue, int maxValue)
         {
-            return Get().Next(minValue, maxValue);
+            return m_random.Next(minValue, maxValue);
         }
 
         public int Next(int maxValue)
         {
-            return Get().Next(maxValue);
+            return m_random.Next(maxValue);
         }
 
         public bool NextBool()
         {
-            return (Get().Next() & 1) == 0;
+            return (m_random.Next() & 1) == 0;
         }
 
         public void NextBytes(byte[] buffer)
         {
-            Get().NextBytes(buffer);
+            m_random.NextBytes(buffer);
         }
 
         public float NextSingle()
         {
-            return System.Convert.ToSingle(Get().NextDouble());
+            return System.Convert.ToSingle(m_random.NextDouble());
         }
 
         public double NextDouble()
         {
-            return Get().NextDouble();
+            return m_random.NextDouble();
         }
     }
 }

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RhythMage
 {
@@ -13,6 +14,7 @@ namespace RhythMage
         public struct AnimationEntry
         {
             public SpriteRenderer target;
+            public Image ui_target;
             public Sprite[] animationFrames;
         }
 
@@ -55,7 +57,14 @@ namespace RhythMage
             m_currentFrame = (m_currentFrame + 1) % m_frameCount;
             foreach (var entry in animationEntries)
             {
-                entry.target.sprite = entry.animationFrames[m_currentFrame];
+                if (entry.target != null)
+                {
+                    entry.target.sprite = entry.animationFrames[m_currentFrame];
+                }
+                if (entry.ui_target != null)
+                {
+                    entry.ui_target.sprite = entry.animationFrames[m_currentFrame];
+                }
             }
         }
     }

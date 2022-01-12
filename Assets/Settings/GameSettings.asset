@@ -83,6 +83,9 @@ MonoBehaviour:
       type: 3}
     notchScaleEaseType: 2
   SoundManagerSettings:
+    menuTiming:
+      clip: {fileID: 8300000, guid: 1b24aec8c6c75e24188952c93ba11ec6, type: 3}
+      bpm: 133.333333333333
     timings:
     - clip: {fileID: 8300000, guid: b870bfd13f4e2a0479fe9b548ead2c68, type: 3}
       bpm: 123.33333333333333

@@ -3,6 +3,7 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace RhythMage
@@ -19,6 +20,7 @@ namespace RhythMage
         [System.Serializable]
         public class Settings
         {
+            public AudioTiming menuTiming;
             public List<AudioTiming> timings;
         }
 
@@ -44,7 +46,7 @@ namespace RhythMage
         
         public void Initialize()
         {
-            PickNextTrack();
+            PlayNextTrack();
         }
 
         public float GetTrackLength()
@@ -89,7 +91,7 @@ namespace RhythMage
         {
             if (m_audioSource.time >= m_audioSource.clip.length || m_audioSource.isPlaying == false)
             {
-                PickNextTrack();
+                PlayNextTrack();
                 OnBeat?.Invoke();
             }
             else if (WillBeatThisFrame())
@@ -104,10 +106,9 @@ namespace RhythMage
             m_lastSeenTime = m_audioSource.time;
         }
 
-        void PickNextTrack()
+        void PlayNextTrack()
         {
-            int trackIndex = m_rng.Next(m_settings.timings.Count);
-            var timingData = m_settings.timings[trackIndex];
+            var timingData = GetNextTrack();
             m_audioSource.clip = timingData.clip;
             m_audioSource.Play();
             m_bpm = timingData.bpm;
@@ -116,6 +117,20 @@ namespace RhythMage
             m_beatsInTrack = System.Convert.ToInt32(GetTrackLength() / GetBeatLength());
 
             OnTrackChanged?.Invoke();
+        }
+
+        AudioTiming GetNextTrack()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.name == "MenuScene")
+            {
+                return m_settings.menuTiming;
+            }
+            else
+            {
+                int trackIndex = m_rng.Next(m_settings.timings.Count);
+                return m_settings.timings[trackIndex];
+            }
         }
     }
 }
