@@ -322,8 +322,7 @@ namespace RhythMage
             {
                 enemy = gameObject.GetComponent<Enemy>();
                 enemy.EnemyType = type;
-                enemy.SetPosition(cell);
-                enemy.transform.localScale = Vector3.one;
+                enemy.Reset(cell);
             }
             else
             {

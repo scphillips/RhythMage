@@ -56,8 +56,15 @@ namespace RhythMage
         [Zenject.Inject]
         public void Construct(Cell cell, EnemyType type)
         {
-            SetPosition(cell);
+            Reset(cell);
             EnemyType = type;
+        }
+
+        public void Reset(Cell cell)
+        {
+            transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
+            ActiveSprite.transform.localRotation = Quaternion.Euler(0, 0, 0);
+            ActiveSprite.transform.localScale = Vector3.one;
         }
 
         public void SetPosition(Cell cell)

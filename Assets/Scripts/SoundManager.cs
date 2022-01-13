@@ -59,6 +59,11 @@ namespace RhythMage
             return m_beatLength;
         }
 
+        public double GetMaxTimeOffBeat()
+        {
+            return m_beatLength * 0.25;
+        }
+
         public int GetTotalBeatsInTrack()
         {
             return m_beatsInTrack;
@@ -76,7 +81,9 @@ namespace RhythMage
 
         public double TimeOffBeat()
         {
-            return System.Math.Min(TimeSinceLastBeat(), TimeToNextBeat());
+            var timeSinceLastBeat = TimeSinceLastBeat();
+            var timeToNextBeat = m_beatLength - timeSinceLastBeat;
+            return System.Math.Min(timeSinceLastBeat, timeToNextBeat);
         }
 
         public bool WillBeatThisFrame(double beatMultiplier = 1.0)

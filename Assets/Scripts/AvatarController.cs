@@ -61,12 +61,14 @@ namespace RhythMage
         void Update()
         {
             if (m_lastCheckedIndex != m_avatar.CurrentCellIndex
-                && m_sound.TimeSinceLastBeat() > m_difficultySettings.maxInputTimeOffBeat)
+                && m_sound.TimeSinceLastBeat() > m_sound.GetMaxTimeOffBeat())
             {
                 // Beat finished, check for enemy collisions
                 Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.CurrentCellIndex);
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
+                    m_dungeon.GetEnemyAtCell(currentCell, out var enemy);
+                    Debug.Log(System.String.Format("Move to {0} at {1} ({2})", enemy.name, m_sound.TimeSinceLastBeat(), m_sound.GetMaxTimeOffBeat()));
                     // Take damage
                     m_avatar.TakeDamage();
                     audioSource.PlayOneShot(m_settings.HeartLostClip);
@@ -127,43 +129,50 @@ namespace RhythMage
             {
                 audioSource.PlayOneShot(m_settings.RightSwipeClip);
             }
-            
-            if (m_sound.TimeOffBeat() <= m_difficultySettings.maxInputTimeOffBeat)
+            if (m_sound.TimeOffBeat() <= m_sound.GetMaxTimeOffBeat())
             {
                 // Valid swipe, test enemy type
                 int targetCellIndex = m_avatar.CurrentCellIndex;
                 var targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
-                if ((m_sound.WillBeatThisFrame()
-                    || m_sound.TimeToNextBeat() <= m_difficultySettings.maxInputTimeOffBeat)
-                        && targetCellIndex < m_dungeon.GetCellCount() - 1)
+                if (targetCellIndex < m_dungeon.GetCellCount() - 1
+                    && (m_sound.WillBeatThisFrame()
+                        || m_sound.TimeToNextBeat() <= m_sound.GetMaxTimeOffBeat()))
                 {
                     ++targetCellIndex;
                     targetCell = m_dungeon.GetCellAtIndex(targetCellIndex);
                 }
 
-                if (m_dungeon.GetEnemyAtCell(targetCell, out Enemy enemy))
-                {
-                    if ((enemy.EnemyType == EnemyType.Flying && args.Direction == Direction.Forward)
+                if (m_dungeon.GetEnemyAtCell(targetCell, out Enemy enemy)
+                    && ((enemy.EnemyType == EnemyType.Flying && args.Direction == Direction.Forward)
                         || (enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
-                        || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left))
-                    {
-                        // Valid combination, destroy the enemy
-                        ++m_avatar.killCount;
-                        enemy.Die();
-                        m_dungeon.RemoveEnemyAtCell(targetCell);
+                        || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left)))
+                {
+                    // Valid combination, destroy the enemy
+                    ++m_avatar.killCount;
+                    enemy.Die();
+                    m_dungeon.RemoveEnemyAtCell(targetCell);
 
-                        if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
-                        {
-                            int index = m_rng.Next(m_settings.LeftHitClips.Count);
-                            audioSource.PlayOneShot(m_settings.LeftHitClips[index]);
-                        }
-                        else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
-                        {
-                            int index = m_rng.Next(m_settings.RightHitClips.Count);
-                            audioSource.PlayOneShot(m_settings.RightHitClips[index]);
-                        }
+                    if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
+                    {
+                        int index = m_rng.Next(m_settings.LeftHitClips.Count);
+                        audioSource.PlayOneShot(m_settings.LeftHitClips[index]);
                     }
+                    else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
+                    {
+                        int index = m_rng.Next(m_settings.RightHitClips.Count);
+                        audioSource.PlayOneShot(m_settings.RightHitClips[index]);
+                    }
+
+                    Debug.Log(System.String.Format("Hit {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
                 }
+                else
+                {
+                    //Debug.Log(System.String.Format("Fumble {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
+                }
+            }
+            else
+            {
+                //Debug.Log(System.String.Format("Miss {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
             }
         }
 
