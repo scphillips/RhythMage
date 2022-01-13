@@ -12,20 +12,6 @@ public class UIElementProvider : MonoBehaviour
     public Vector3 m_rotationPortrait;
 
     Vector2 lastScreenSize;
-
-#pragma warning disable IDE1006 // Naming Styles
-    public Sprite sprite
-#pragma warning restore IDE1006 // Naming Styles
-    {
-        get
-        {
-            return GetComponent<UnityEngine.UI.Image>().sprite;
-        }
-        set
-        {
-            GetComponent<UnityEngine.UI.Image>().sprite = value;
-        }
-    }
     
     void Start()
     {

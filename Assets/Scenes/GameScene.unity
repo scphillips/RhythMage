@@ -1007,8 +1007,8 @@ MonoBehaviour:
   - {fileID: 1019681201}
   - {fileID: 422690200}
   enemyCounter: {fileID: 2119025168}
-  leftHand: {fileID: 1378771079}
-  rightHand: {fileID: 1878469755}
+  leftHand: {fileID: 1378771077}
+  rightHand: {fileID: 1878469753}
   damageOverlayImage: {fileID: 223113934}
   portalOverlayImage: {fileID: 1144269417}
   incomingEnemyDisplay: {fileID: 365208544}

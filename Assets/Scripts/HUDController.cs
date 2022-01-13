@@ -57,8 +57,8 @@ namespace RhythMage
 
         public List<Image> healthImages;
         public TextMeshProUGUI enemyCounter;
-        public UIElementProvider leftHand;
-        public UIElementProvider rightHand;
+        public Image leftHand;
+        public Image rightHand;
 
         public Image damageOverlayImage;
         public CanvasGroup portalOverlayImage;

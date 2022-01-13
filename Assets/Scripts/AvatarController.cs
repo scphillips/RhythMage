@@ -67,8 +67,6 @@ namespace RhythMage
                 Cell currentCell = m_dungeon.GetCellAtIndex(m_avatar.CurrentCellIndex);
                 if (m_dungeon.HasEnemyAtCell(currentCell))
                 {
-                    m_dungeon.GetEnemyAtCell(currentCell, out var enemy);
-                    Debug.Log(System.String.Format("Move to {0} at {1} ({2})", enemy.name, m_sound.TimeSinceLastBeat(), m_sound.GetMaxTimeOffBeat()));
                     // Take damage
                     m_avatar.TakeDamage();
                     audioSource.PlayOneShot(m_settings.HeartLostClip);
@@ -129,6 +127,7 @@ namespace RhythMage
             {
                 audioSource.PlayOneShot(m_settings.RightSwipeClip);
             }
+
             if (m_sound.TimeOffBeat() <= m_sound.GetMaxTimeOffBeat())
             {
                 // Valid swipe, test enemy type
@@ -162,17 +161,7 @@ namespace RhythMage
                         int index = m_rng.Next(m_settings.RightHitClips.Count);
                         audioSource.PlayOneShot(m_settings.RightHitClips[index]);
                     }
-
-                    Debug.Log(System.String.Format("Hit {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
                 }
-                else
-                {
-                    //Debug.Log(System.String.Format("Fumble {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
-                }
-            }
-            else
-            {
-                //Debug.Log(System.String.Format("Miss {0} at {1} ({2})", args.Direction.ToString(), m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
             }
         }
 
