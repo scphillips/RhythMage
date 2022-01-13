@@ -43,7 +43,7 @@ namespace Zenject
         {
             Assert.IsNotNull(context);
 
-            var gameObject = _prefabInstantiator.Instantiate(args, out injectAction);
+            var gameObject = _prefabInstantiator.Instantiate(context, args, out injectAction);
 
             // NOTE: Need to set includeInactive to true here, because prefabs are always
             // instantiated as disabled until injection occurs, so that Awake / OnEnabled is executed
@@ -54,7 +54,7 @@ namespace Zenject
                 var match = gameObject.GetComponentInChildren(_componentType, true);
 
                 Assert.IsNotNull(match, "Could not find component with type '{0}' on prefab '{1}'",
-                _componentType, _prefabInstantiator.GetPrefab().name);
+                _componentType, _prefabInstantiator.GetPrefab(context).name);
 
                 buffer.Add(match);
                 return;
@@ -64,7 +64,7 @@ namespace Zenject
 
             Assert.That(allComponents.Length >= 1,
                 "Expected to find at least one component with type '{0}' on prefab '{1}'",
-                _componentType, _prefabInstantiator.GetPrefab().name);
+                _componentType, _prefabInstantiator.GetPrefab(context).name);
 
             buffer.AllocFreeAddRange(allComponents);
         }

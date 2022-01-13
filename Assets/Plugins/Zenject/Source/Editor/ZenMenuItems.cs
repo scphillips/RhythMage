@@ -10,15 +10,13 @@ namespace Zenject.Internal
 {
     public static class ZenMenuItems
     {
-        // NOTE: We use shift+alt+v instead of control+shift+v because control+shift+v conflicts
-        // with a vuforia shortcut
         [MenuItem("Edit/Zenject/Validate Current Scenes #&v")]
         public static void ValidateCurrentScene()
         {
             ValidateCurrentSceneInternal();
         }
 
-        [MenuItem("Edit/Zenject/Validate Then Run #%r")]
+        [MenuItem("Edit/Zenject/Validate Then Run #&r")]
         public static void ValidateCurrentSceneThenRun()
         {
             if (ValidateCurrentSceneInternal())
@@ -192,7 +190,6 @@ namespace Zenject.Internal
         {
             var assetPath = ZenUnityEditorUtil.ConvertFullAbsolutePathToAssetPath(absoluteDir);
             var prefabPath = (Path.Combine(assetPath, ProjectContext.ProjectContextResourcePath) + ".prefab").Replace("\\", "/");
-            var emptyPrefab = PrefabUtility.CreateEmptyPrefab(prefabPath);
 
             var gameObject = new GameObject();
 
@@ -200,7 +197,11 @@ namespace Zenject.Internal
             {
                 gameObject.AddComponent<ProjectContext>();
 
-                var prefabObj = PrefabUtility.ReplacePrefab(gameObject, emptyPrefab);
+#if UNITY_2018_3_OR_NEWER
+                var prefabObj = PrefabUtility.SaveAsPrefabAsset(gameObject, prefabPath);
+#else
+                var prefabObj = PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.CreateEmptyPrefab(prefabPath));
+#endif
 
                 Selection.activeObject = prefabObj;
             }
