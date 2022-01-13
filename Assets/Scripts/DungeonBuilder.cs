@@ -356,7 +356,7 @@ namespace RhythMage
                     int index = m_rng.Next(adjacentWallCells.Count);
                     Cell wallCell = adjacentWallCells[index];
                     CoordinateOffset offset = CoordinateOffset.Create(wallCell.x - cell.x, wallCell.y - cell.y);
-                    Direction direction = Defs.GetOffsetDirection(ref offset);
+                    Direction direction = Defs.GetOffsetDirection(in offset);
 
                     brazier = m_dungeon.Braziers.TryGetNext();
                     if (brazier == null)

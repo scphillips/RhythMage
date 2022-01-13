@@ -104,7 +104,7 @@ namespace RhythMage
             { Direction.Left, CoordinateOffset.Create(-1, 0) }
         };
 
-        public static Direction GetOffsetDirection(ref CoordinateOffset offset)
+        public static Direction GetOffsetDirection(in CoordinateOffset offset)
         {
             foreach (var entry in facings)
             {
