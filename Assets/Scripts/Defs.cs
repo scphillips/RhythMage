@@ -36,10 +36,6 @@ namespace RhythMage
 
         public int insetCorners;
 
-        public IReadOnlyList<Cell> Path => path;
-
-        List<Cell> path;
-
         public IEnumerable<Cell> Cells
         {
             get
@@ -66,29 +62,17 @@ namespace RhythMage
             this.width = width;
             this.depth = depth;
             this.insetCorners = insetCorners;
-
-            path = new List<Cell>();
         }
 
         public bool HasCell(in Cell cell)
         {
-            if (path.Contains(cell))
-            {
-                return true;
-            }
-            
             int mag = cell.x + cell.y;
-            int invMag = width - 1 - cell.x + cell.y;
+            int invMag = width - 1 - mag;
 
             return mag >= insetCorners
                 && mag < width + depth - 1 - insetCorners
                 && invMag >= insetCorners
                 && invMag < width + depth - 1 - insetCorners;
-        }
-
-        public void AddToPath(in Cell cell)
-        {
-            path.Add(cell);
         }
     }
 
@@ -130,6 +114,13 @@ namespace RhythMage
             var rotatedDirectionInt = (int)direction + (rotation == RotationDirection.Clockwise ? -1 : 1);
             rotatedDirectionInt = (rotatedDirectionInt + directionCount) % directionCount;
             return (Direction)rotatedDirectionInt;
+        }
+
+        public static T Clamp<T>(T value, T min, T max) where T : System.IComparable<T>
+        {
+            if (value.CompareTo(max) > 0) return max;
+            if (value.CompareTo(min) < 0) return min;
+            return value;
         }
     }
 }

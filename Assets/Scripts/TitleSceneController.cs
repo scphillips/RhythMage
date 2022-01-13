@@ -36,12 +36,13 @@ namespace RhythMage
 
             float mag = Time.deltaTime * m_fadeSpeed;
             float delta = (m_isEnding) ? -mag : mag;
-            m_opacity = System.Math.Max(0.0f, System.Math.Min(1.0f, m_opacity + delta));
+            m_opacity = Defs.Clamp(m_opacity + delta, 0.0f, 1.0f);
             foreach (var entry in fadeEntities)
             {
-                var color = entry.GetComponent<Image>().color;
+                var image = entry.GetComponent<Image>();
+                var color = image.color;
                 color.a = m_opacity;
-                entry.GetComponent<Image>().color = color;
+                image.color = color;
             }
 
             if (m_isEnding && m_opacity == 0.0f)

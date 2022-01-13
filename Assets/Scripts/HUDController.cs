@@ -178,6 +178,8 @@ namespace RhythMage
                 target.color = color;
                 yield return null;
             }
+            color.a = 0.0f;
+            target.color = color;
         }
 
         IEnumerator ShowPortalOverlay(CanvasGroup target, float fadeTime, float duration)
@@ -199,6 +201,7 @@ namespace RhythMage
                 target.alpha = mag;
                 yield return null;
             }
+            target.alpha = 0.0f;
         }
 
         void PopulateEnemyList(int distanceAhead)
