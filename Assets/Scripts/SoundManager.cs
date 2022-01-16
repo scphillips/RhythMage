@@ -21,6 +21,7 @@ namespace RhythMage
         public class Settings
         {
             public AudioTiming menuTiming;
+            public AudioTiming passLevelTiming;
             public List<AudioTiming> timings;
         }
 
@@ -132,6 +133,10 @@ namespace RhythMage
             if (scene.name == "MenuScene")
             {
                 return m_settings.menuTiming;
+            }
+            else if (scene.name == "PassLevelScene")
+            {
+                return m_settings.passLevelTiming;
             }
             else
             {

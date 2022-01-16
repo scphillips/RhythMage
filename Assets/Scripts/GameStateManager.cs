@@ -12,6 +12,7 @@ namespace RhythMage
             public SceneReference gameOverScene;
             public SceneReference gameScene;
             public SceneReference menuScene;
+            public SceneReference passLevelScene;
 
             public float delayTransitionToGameOverDuration;
         }

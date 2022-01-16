@@ -11,42 +11,31 @@ namespace RhythMage
     public class AvatarController : MonoBehaviour
     {
         [System.Serializable]
+        public class AttackAudioSettings
+        {
+            public List<AudioClip> HitClips;
+            public AudioClip SwipeClip;
+        }
+
+        [System.Serializable]
         public class Settings
         {
-            public List<AudioClip> LeftHitClips;
-            public AudioClip LeftSwipeClip;
-            public List<AudioClip> RightHitClips;
-            public AudioClip RightSwipeClip;
+            public AttackAudioSettings SwipeLeftSettings;
+            public AttackAudioSettings SwipeRightSettings;
+            public AttackAudioSettings SwipeUpSettings;
 
             public AudioClip HeartLostClip;
         }
 
-        [Zenject.Inject]
-        readonly Settings m_settings;
-
-        [Zenject.Inject]
-        readonly GameDifficulty.Settings m_difficultySettings;
-
-        [Zenject.Inject]
-        readonly DungeonBuilder m_dungeonBuilder;
-
-        [Zenject.Inject]
-        readonly DungeonModel m_dungeon;
-
-        [Zenject.Inject]
-        readonly AvatarModel m_avatar;
-
-        [Zenject.Inject]
-        readonly GestureHandler m_gestureHandler;
-
-        [Zenject.Inject]
-        readonly RandomNumberProvider m_rng;
-
-        [Zenject.Inject]
-        readonly SoundManager m_sound;
-
-        [Zenject.Inject]
-        readonly AudioSource audioSource;
+        [Zenject.Inject] readonly Settings m_settings;
+        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
+        [Zenject.Inject] readonly DungeonBuilder m_dungeonBuilder;
+        [Zenject.Inject] readonly DungeonModel m_dungeon;
+        [Zenject.Inject] readonly AvatarModel m_avatar;
+        [Zenject.Inject] readonly GestureHandler m_gestureHandler;
+        [Zenject.Inject] readonly RandomNumberProvider m_rng;
+        [Zenject.Inject] readonly SoundManager m_sound;
+        [Zenject.Inject] readonly AudioSource audioSource;
 
         int m_lastCheckedIndex;
 
@@ -119,13 +108,17 @@ namespace RhythMage
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
+            if (args.Direction == Direction.Left)
             {
-                audioSource.PlayOneShot(m_settings.LeftSwipeClip);
+                audioSource.PlayOneShot(m_settings.SwipeLeftSettings.SwipeClip);
             }
-            else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
+            else if (args.Direction == Direction.Right)
             {
-                audioSource.PlayOneShot(m_settings.RightSwipeClip);
+                audioSource.PlayOneShot(m_settings.SwipeRightSettings.SwipeClip);
+            }
+            else if (args.Direction == Direction.Forward)
+            {
+                audioSource.PlayOneShot(m_settings.SwipeUpSettings.SwipeClip);
             }
 
             if (m_sound.TimeOffBeat() <= m_sound.GetMaxTimeOffBeat())
@@ -151,15 +144,21 @@ namespace RhythMage
                     enemy.Die();
                     m_dungeon.RemoveEnemyAtCell(targetCell);
 
-                    if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
+                    Debug.Log("Swipe " + args.Direction.ToString());
+                    if (args.Direction == Direction.Left)
                     {
-                        int index = m_rng.Next(m_settings.LeftHitClips.Count);
-                        audioSource.PlayOneShot(m_settings.LeftHitClips[index]);
+                        int index = m_rng.Next(m_settings.SwipeLeftSettings.HitClips.Count);
+                        audioSource.PlayOneShot(m_settings.SwipeLeftSettings.HitClips[index]);
                     }
-                    else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
+                    else if (args.Direction == Direction.Right)
                     {
-                        int index = m_rng.Next(m_settings.RightHitClips.Count);
-                        audioSource.PlayOneShot(m_settings.RightHitClips[index]);
+                        int index = m_rng.Next(m_settings.SwipeRightSettings.HitClips.Count);
+                        audioSource.PlayOneShot(m_settings.SwipeRightSettings.HitClips[index]);
+                    }
+                    else if (args.Direction == Direction.Forward)
+                    {
+                        int index = m_rng.Next(m_settings.SwipeUpSettings.HitClips.Count);
+                        audioSource.PlayOneShot(m_settings.SwipeUpSettings.HitClips[index]);
                     }
                 }
             }

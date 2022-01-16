@@ -13,14 +13,21 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   AvatarControllerSettings:
-    LeftHitClips:
-    - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
-    - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
-    LeftSwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
-    RightHitClips:
-    - {fileID: 8300000, guid: 8650644619390f849a5f0f7f424a2d28, type: 3}
-    - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
-    RightSwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
+    SwipeLeftSettings:
+      HitClips:
+      - {fileID: 8300000, guid: 8650644619390f849a5f0f7f424a2d28, type: 3}
+      - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
+      SwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
+    SwipeRightSettings:
+      HitClips:
+      - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
+      - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
+      SwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
+    SwipeUpSettings:
+      HitClips:
+      - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
+      - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
+      SwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
   DungeonAmbientControllerSettings:
     tilePulseColor: {r: 1, g: 1, b: 1, a: 0.627451}
@@ -67,6 +74,9 @@ MonoBehaviour:
     menuScene:
       m_sceneAsset: {fileID: 102900000, guid: 63afccf960cb9754b8139415d96c2af3, type: 3}
       m_scenePath: Assets/Scenes/MenuScene.unity
+    passLevelScene:
+      m_sceneAsset: {fileID: 102900000, guid: 30c390194167ae844bd2dd8f17e54705, type: 3}
+      m_scenePath: Assets/Scenes/PassLevelScene.unity
     delayTransitionToGameOverDuration: 0.25
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
@@ -84,6 +94,9 @@ MonoBehaviour:
     notchScaleEaseType: 2
   SoundManagerSettings:
     menuTiming:
+      clip: {fileID: 8300000, guid: 1b24aec8c6c75e24188952c93ba11ec6, type: 3}
+      bpm: 133.333333333333
+    passLevelTiming:
       clip: {fileID: 8300000, guid: 1b24aec8c6c75e24188952c93ba11ec6, type: 3}
       bpm: 133.333333333333
     timings:
