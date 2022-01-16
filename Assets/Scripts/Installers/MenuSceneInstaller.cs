@@ -6,7 +6,7 @@ using Zenject;
 
 namespace RhythMage
 {
-    public class MainMenuInstaller : MonoInstaller
+    public class MenuSceneInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {
