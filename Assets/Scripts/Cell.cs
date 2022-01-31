@@ -9,7 +9,7 @@ namespace RhythMage
         public int x;
         public int y;
 
-        public static Cell zero
+        public static Cell Zero
         {
             get
             {
@@ -36,7 +36,7 @@ namespace RhythMage
 
         public override bool Equals(object obj)
         {
-            return obj is Cell && Equals((Cell)obj);
+            return obj is Cell cell && Equals(cell);
         }
 
         public bool Equals(Cell other)
@@ -49,12 +49,12 @@ namespace RhythMage
             return (x << 16) + y;
         }
 
-        public static bool operator == (Cell lhs, Cell rhs)
+        public static bool operator == (in Cell lhs, in Cell rhs)
         {
             return lhs.Equals(rhs);
         }
 
-        public static bool operator != (Cell lhs, Cell rhs)
+        public static bool operator != (in Cell lhs, in Cell rhs)
         {
             return !(lhs == rhs);
         }

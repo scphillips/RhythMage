@@ -65,7 +65,7 @@ namespace RhythMage
 
             // First generate path for the floor and block out all surrounding walls
             Direction currentDirection = Direction.Forward;
-            Cell currentPosition = Cell.zero;
+            Cell currentPosition = Cell.Zero;
 
             HashSet<Cell> wallCells = new HashSet<Cell>();
             AddCorridorFloorAtCell(in currentPosition, wallCells);
@@ -167,7 +167,7 @@ namespace RhythMage
                 CoordinateOffset roomCentre = CoordinateOffset.Create(segment.width / 2, segment.depth / 2);
                 foreach (Cell roomCell in segment.Cells)
                 {
-                    Cell coord = roomOrigin + CoordinateOffset.Distance(Cell.zero, roomCell - roomCentre);
+                    Cell coord = roomOrigin + CoordinateOffset.Distance(Cell.Zero, roomCell - roomCentre);
                     AddRoomFloorAtCell(coord, wallCells);
                 }
 

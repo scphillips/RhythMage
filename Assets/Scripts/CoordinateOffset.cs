@@ -51,32 +51,32 @@ namespace RhythMage
             return (x << 16) + y;
         }
 
-        public static bool operator ==(CoordinateOffset lhs, CoordinateOffset rhs)
+        public static bool operator ==(in CoordinateOffset lhs, in CoordinateOffset rhs)
         {
             return (lhs.x == rhs.x) && (lhs.y == rhs.y);
         }
 
-        public static bool operator !=(CoordinateOffset lhs, CoordinateOffset rhs)
+        public static bool operator !=(in CoordinateOffset lhs, in CoordinateOffset rhs)
         {
             return !(lhs == rhs);
         }
 
-        public static CoordinateOffset operator -(CoordinateOffset offset)
+        public static CoordinateOffset operator -(in CoordinateOffset offset)
         {
             return Create(-offset.x, -offset.y);
         }
 
-        public static CoordinateOffset operator +(CoordinateOffset lhs, CoordinateOffset rhs)
+        public static CoordinateOffset operator +(in CoordinateOffset lhs, in CoordinateOffset rhs)
         {
             return Create(lhs.x + rhs.x, lhs.y + rhs.y);
         }
 
-        public static CoordinateOffset operator -(CoordinateOffset lhs, CoordinateOffset rhs)
+        public static CoordinateOffset operator -(in CoordinateOffset lhs, in CoordinateOffset rhs)
         {
             return Create(lhs.x - rhs.x, lhs.y - rhs.y);
         }
 
-        public static CoordinateOffset operator *(CoordinateOffset offset, int magnitude)
+        public static CoordinateOffset operator *(in CoordinateOffset offset, int magnitude)
         {
             return Create(offset.x * magnitude, offset.y * magnitude);
         }

@@ -2,6 +2,9 @@
 // Unauthorized copying of this file via any medium is strictly prohibited.
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace RhythMage
 {
     public class RandomNumberProvider
@@ -56,6 +59,16 @@ namespace RhythMage
         public double NextDouble()
         {
             return m_random.NextDouble();
+        }
+
+        public T Pick<T>(ICollection<T> collection)
+        {
+            if (collection != null && collection.Any())
+            {
+                int index = Next(collection.Count);
+                return collection.ElementAt(index);
+            }
+            return default;
         }
     }
 }

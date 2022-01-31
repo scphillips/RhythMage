@@ -69,7 +69,7 @@ namespace RhythMage
         {
             int cellIndex = m_avatar.CurrentCellIndex + 1;
 
-            if (cellIndex == m_dungeon.GetCellCount())
+            if (cellIndex >= m_dungeon.GetCellCount())
             {
                 cellIndex = 0;
                 m_dungeonBuilder.BuildDungeon();

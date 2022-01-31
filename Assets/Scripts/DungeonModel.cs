@@ -92,7 +92,7 @@ namespace RhythMage
 
         public Cell GetCellAtIndex(int index)
         {
-            return FloorCells[index];
+            return (index < FloorCells.Count) ? FloorCells[index] : Cell.Zero;
         }
 
         public int GetCellCount()
