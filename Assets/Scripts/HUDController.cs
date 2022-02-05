@@ -209,7 +209,7 @@ namespace RhythMage
             int cellIndex = m_avatar.CurrentCellIndex + distanceAhead;
             if (cellIndex < m_dungeon.GetCellCount())
             {
-                Cell cell = m_dungeon.GetCellAtIndex(cellIndex);
+                Cell cell = m_dungeon.GetPathAtIndex(cellIndex);
                 if (m_dungeon.GetEnemyAtCell(cell, out Enemy enemy))
                 {
                     // Add to tracker

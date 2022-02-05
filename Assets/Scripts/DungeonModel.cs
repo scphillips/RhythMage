@@ -8,41 +8,30 @@ namespace RhythMage
 {
     public class DungeonModel
     {
-        Dictionary<Cell, Enemy> m_enemies;
-        public List<Cell> FloorCells { get; private set; }
+        Dictionary<Cell, Enemy> m_enemies = new Dictionary<Cell, Enemy>();
+        public List<Cell> Path { get; private set; } = new List<Cell>();
+
+        public DungeonEntityTracker Braziers { get; } = new DungeonEntityTracker();
+        public DungeonEntityTracker Doors { get; } = new DungeonEntityTracker();
+        public DungeonEntityTracker Enemies { get; } = new DungeonEntityTracker();
+        public DungeonEntityTracker Floors { get; } = new DungeonEntityTracker();
+        public DungeonEntityTracker Portals { get; } = new DungeonEntityTracker();
+        public DungeonEntityTracker Walls { get; } = new DungeonEntityTracker();
 
         public event System.Action OnDungeonReset;
         public event System.Action<int> OnEnemyCountChange;
-
-        public DungeonEntityTracker Braziers { get; }
-        public DungeonEntityTracker Enemies { get; }
-        public DungeonEntityTracker Floors { get; }
-        public DungeonEntityTracker Portals { get; }
-        public DungeonEntityTracker Walls { get; }
 
         IEnumerable<DungeonEntityTracker> AllTrackers
         {
             get
             {
                 yield return Braziers;
+                yield return Doors;
                 yield return Enemies;
                 yield return Floors;
                 yield return Portals;
                 yield return Walls;
             }
-        }
-
-        public DungeonModel()
-        {
-            m_enemies = new Dictionary<Cell, Enemy>();
-            FloorCells = new List<Cell>();
-
-            Braziers = new DungeonEntityTracker();
-            Enemies = new DungeonEntityTracker();
-            Floors = new DungeonEntityTracker();
-            Portals = new DungeonEntityTracker();
-            Walls = new DungeonEntityTracker();
-
         }
 
         public void Reset()
@@ -53,13 +42,13 @@ namespace RhythMage
             }
 
             m_enemies.Clear();
-            FloorCells.Clear();
+            Path.Clear();
             OnDungeonReset?.Invoke();
         }
 
         public void AddToPath(Cell cell)
         {
-            FloorCells.Add(cell);
+            Path.Add(cell);
         }
 
         public int GetEnemyCount()
@@ -90,14 +79,14 @@ namespace RhythMage
             return success;
         }
 
-        public Cell GetCellAtIndex(int index)
+        public Cell GetPathAtIndex(int index)
         {
-            return (index < FloorCells.Count) ? FloorCells[index] : Cell.Zero;
+            return (index < Path.Count) ? Path[index] : Cell.Zero;
         }
 
         public int GetCellCount()
         {
-            return FloorCells.Count;
+            return Path.Count;
         }
     }
 }

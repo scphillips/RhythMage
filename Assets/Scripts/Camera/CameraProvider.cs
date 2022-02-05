@@ -8,9 +8,8 @@ namespace RhythMage
 {
     public class CameraProvider : MonoBehaviour
     {
-        public Camera Get()
-        {
-            return GetComponent<Camera>();
-        }
+        public Camera m_camera;
+        public Camera Camera => m_camera;
+        public Camera Get() => Camera ?? GetComponent<Camera>();
     }
 }

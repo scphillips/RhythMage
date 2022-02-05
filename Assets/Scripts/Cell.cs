@@ -20,6 +20,14 @@ namespace RhythMage
             }
         }
 
+        public static Cell Create(int x, int y)
+        {
+            Cell entry;
+            entry.x = x;
+            entry.y = y;
+            return entry;
+        }
+
         public Cell(int x, int y)
         {
             this.x = x;

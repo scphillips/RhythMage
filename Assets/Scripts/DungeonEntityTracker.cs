@@ -20,26 +20,17 @@ namespace RhythMage
             m_entityPool = new ObjectPool<GameObject>();
         }
 
-        public bool Contains(Cell cell)
-        {
-            return m_activeEntities.ContainsKey(cell);
-        }
+        public bool Contains(in Cell cell) => m_activeEntities.ContainsKey(cell);
 
-        public int Count
-        {
-            get
-            {
-                return m_activeEntities.Count;
-            }
-        }
+        public int Count => m_activeEntities.Count;
 
-        public void AddToCell(Cell cell, GameObject entity)
+        public void AddToCell(in Cell cell, GameObject entity)
         {
             entity.SetActive(true);
             m_activeEntities.Add(cell, entity);
         }
 
-        public bool RemoveFromCell(Cell cell)
+        public bool RemoveFromCell(in Cell cell)
         {
             bool exists = m_activeEntities.TryGetValue(cell, out GameObject entity);
             if (exists)
@@ -64,6 +55,20 @@ namespace RhythMage
         public GameObject TryGetNext()
         {
             return m_entityPool.TryGet();
+        }
+
+        public GameObject GetOrCreateAtCell(in Cell cell, GameObject prefab)
+        {
+            if (!ActiveEntities.TryGetValue(cell, out GameObject entity))
+            {
+                entity = TryGetNext();
+                if (entity == null)
+                {
+                    entity = Object.Instantiate(prefab);
+                }
+                AddToCell(cell, entity);
+            }
+            return entity;
         }
     }
 }

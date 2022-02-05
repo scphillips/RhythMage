@@ -110,12 +110,12 @@ namespace RhythMage
             // Remove start and end tiles from list of location choices
             for (int i = 0; i < System.Math.Min(3, m_dungeon.GetCellCount()); ++i)
             {
-                var cell = m_dungeon.GetCellAtIndex(i);
+                var cell = m_dungeon.GetPathAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
             for (int i = System.Math.Max(0, m_dungeon.GetCellCount() - 3); i < m_dungeon.GetCellCount(); ++i)
             {
-                var cell = m_dungeon.GetCellAtIndex(i);
+                var cell = m_dungeon.GetPathAtIndex(i);
                 enemyLocationChoices.Remove(cell);
             }
 
@@ -134,8 +134,8 @@ namespace RhythMage
 
             targetCells.Sort((Cell lhs, Cell rhs) =>
             {
-                int leftIndex = m_dungeon.FloorCells.IndexOf(lhs);
-                int rightIndex = m_dungeon.FloorCells.IndexOf(rhs);
+                int leftIndex = m_dungeon.Path.IndexOf(lhs);
+                int rightIndex = m_dungeon.Path.IndexOf(rhs);
                 return leftIndex.CompareTo(rightIndex);
             });
 
@@ -143,7 +143,7 @@ namespace RhythMage
             {
                 var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
                 var enemy = CreateEnemy(cell, type);
-                int cellIndex = m_dungeon.FloorCells.IndexOf(cell);
+                int cellIndex = m_dungeon.Path.IndexOf(cell);
                 enemy.name = "Enemy" + enemy.EnemyType.ToString() + " [" + cellIndex + "]";
             }
 
@@ -197,15 +197,15 @@ namespace RhythMage
             // Spawn braziers along the player path attached to walls
             for (int i = m_settings.brazierSpacing; i < m_dungeon.GetCellCount(); i += m_settings.brazierSpacing)
             {
-                Cell cell = m_dungeon.GetCellAtIndex(i);
+                Cell cell = m_dungeon.GetPathAtIndex(i);
                 CreateBrazier(cell);
             }
 
             // Spawn Portal at start and end of dungeon
             if (m_dungeon.GetCellCount() > 0)
             {
-                CreatePortal(m_dungeon.FloorCells.First(), Direction.Forward);
-                CreatePortal(m_dungeon.FloorCells.Last(), currentDirection);
+                CreatePortal(m_dungeon.Path.First(), Direction.Forward);
+                CreatePortal(m_dungeon.Path.Last(), currentDirection);
             }
         }
 
@@ -216,7 +216,7 @@ namespace RhythMage
             for (int i = 0; i < tilesRemaining; ++i)
             {
                 offset.ApplyTo(ref currentCell);
-                if (currentCell == m_dungeon.FloorCells.First())
+                if (currentCell == m_dungeon.Path.First())
                 {
                     return true;
                 }
@@ -224,7 +224,7 @@ namespace RhythMage
             offset.x *= tilesRemaining;
             offset.y *= tilesRemaining;
             offset.ApplyTo(ref currentCell);
-            return m_dungeon.FloorCells.Contains(currentCell);
+            return m_dungeon.Path.Contains(currentCell);
         }
 
         Direction ChangeDirection(Direction currentDirection, int change)
@@ -251,10 +251,7 @@ namespace RhythMage
             {
                 for (int j = -1; j < 2; ++j)
                 {
-                    Cell wallCell;
-                    wallCell.x = cell.x + i;
-                    wallCell.y = cell.y + j;
-                    wallCells.Add(wallCell);
+                    wallCells.Add(Cell.Create(cell.x + i, cell.y + j));
                 }
             }
 

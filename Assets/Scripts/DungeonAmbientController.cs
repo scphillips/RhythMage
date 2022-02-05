@@ -41,7 +41,7 @@ namespace RhythMage
             int nextCellIndex = avatar.CurrentCellIndex + 1;
             if (nextCellIndex < m_dungeon.GetCellCount())
             {
-                var nextCell = m_dungeon.GetCellAtIndex(nextCellIndex);
+                var nextCell = m_dungeon.GetPathAtIndex(nextCellIndex);
                 if (m_dungeon.HasEnemyAtCell(nextCell)
                     && m_dungeon.Floors.ActiveEntities.TryGetValue(nextCell, out var tile))
                 {

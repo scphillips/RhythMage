@@ -76,6 +76,156 @@ namespace RhythMage
         }
     }
 
+    public class Region
+    {
+        public Cell origin;
+        public CoordinateOffset size;
+        public List<System.ValueTuple<Direction, Region>> connections;
+
+        public bool Enabled { get; set; } = true;
+
+        public Region(int x, int y, int width, int depth)
+        {
+            origin.x = x;
+            origin.y = y;
+            size.x = width;
+            size.y = depth;
+            connections = new List<(Direction, Region)>();
+        }
+
+        public IEnumerable<Cell> Cells
+        {
+            get
+            {
+                Cell current;
+                for (int i = 0; i < size.x - 1; ++i)
+                {
+                    for (int j = 0; j < size.y - 1; ++j)
+                    {
+                        current.x = origin.x + i;
+                        current.y = origin.y + j;
+                        yield return current;
+                    }
+                }
+            }
+        }
+
+        public int Front => origin.y + size.y - 1;
+        public int Right => origin.x + size.x - 1;
+        public int Back => origin.y;
+        public int Left => origin.x;
+        public int Width => size.x;
+        public int Depth => size.y;
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1}x{2})", origin, size.x, size.y);
+        }
+    }
+
+    public class Room : Region, System.IEquatable<Room>
+    {
+        public int index;
+
+        public List<System.ValueTuple<Cell, Room>> Doorways { get; }
+
+        public Room(int x, int y, int w, int d, int i) :
+            base(x, y, w, d)
+        {
+            index = i;
+            Doorways = new List<System.ValueTuple<Cell, Region>>();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Room room && Equals(room);
+        }
+
+        public bool Equals(Room other)
+        {
+            return other?.Equals(null) == false && index == other.index;
+        }
+
+        public override int GetHashCode()
+        {
+            return origin.GetHashCode();
+        }
+
+        public static bool operator ==(in Room lhs, in Room rhs)
+        {
+            return ReferenceEquals(lhs, rhs) || (!(lhs is null) && lhs.Equals(rhs));
+        }
+
+        public static bool operator !=(in Room lhs, in Room rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} ({2}x{3})", index, origin, size.x, size.y);
+        }
+    }
+
+    public class AggregateRegion : Region
+    {
+        public List<Region> regions;
+
+        public AggregateRegion() :
+            base(0, 0, 0, 0)
+        {
+            regions = new List<Region>();
+        }
+
+        public AggregateRegion(Region sourceRegion) :
+            base(0, 0, 0, 0)
+        {
+            regions = new List<Region>();
+            Add(sourceRegion);
+        }
+
+        public void Reset()
+        {
+            regions.Clear();
+            origin = default;
+            size = default;
+        }
+
+        public void Add(Region region)
+        {
+            if (regions.Count > 0)
+            {
+                int right = Right;
+                int front = Front;
+                origin.x = System.Math.Min(origin.x, region.origin.x);
+                origin.y = System.Math.Min(origin.y, region.origin.y);
+                size.x = System.Math.Max(right, region.Right) - origin.x + 1;
+                size.y = System.Math.Max(front, region.Front) - origin.y + 1;
+            }
+            else
+            {
+                origin = region.origin;
+                size = region.size;
+            }
+            regions.Add(region);
+        }
+
+        public void AddRange(IEnumerable<Region> regions)
+        {
+            foreach (var region in regions)
+            {
+                Add(region);
+            }
+        }
+
+        public int Count => regions.Count;
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1}x{2}) containing {3} region{4}", origin, size.x, size.y, regions.Count, regions.Count == 1 ? "" : "s");
+        }
+    }
+
     public class Defs
     {
         public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;

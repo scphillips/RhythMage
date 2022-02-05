@@ -8,153 +8,6 @@ using UnityEngine;
 
 namespace RhythMage
 {
-    public class Region
-    {
-        public Cell origin;
-        public CoordinateOffset size;
-        public List<System.ValueTuple<Direction, Region>> connections;
-
-        public bool Enabled { get; set; } = true;
-
-        public Region(int x, int y, int width, int depth)
-        {
-            origin.x = x;
-            origin.y = y;
-            size.x = width;
-            size.y = depth;
-            connections = new List<(Direction, Region)>();
-        }
-
-        public IEnumerable<Cell> Cells
-        {
-            get
-            {
-                Cell current;
-                for (int i = 0; i < size.x - 1; ++i)
-                {
-                    for (int j = 0; j < size.y - 1; ++j)
-                    {
-                        current.x = origin.x + i;
-                        current.y = origin.y + j;
-                        yield return current;
-                    }
-                }
-            }
-        }
-
-        public int Front => origin.y + size.y - 1;
-        public int Right => origin.x + size.x - 1;
-        public int Back => origin.y;
-        public int Left => origin.x;
-        public int Width => size.x;
-        public int Depth => size.y;
-
-        public override string ToString()
-        {
-            return string.Format("{0} ({1}x{2})", origin, size.x, size.y);
-        }
-    }
-
-    public class Room : Region, System.IEquatable<Room>
-    {
-        public int index;
-        
-        public Room(int x, int y, int w, int d, int i) :
-            base(x, y, w, d)
-        {
-            index = i;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Room room && Equals(room);
-        }
-
-        public bool Equals(Room other)
-        {
-            return other?.Equals(null) == false && index == other.index;
-        }
-
-        public override int GetHashCode()
-        {
-            return origin.GetHashCode();
-        }
-
-        public static bool operator ==(in Room lhs, in Room rhs)
-        {
-            return ReferenceEquals(lhs, rhs) || (!(lhs is null) && lhs.Equals(rhs));
-        }
-
-        public static bool operator !=(in Room lhs, in Room rhs)
-        {
-            return !(lhs == rhs);
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0} {1} ({2}x{3})", index, origin, size.x, size.y);
-        }
-    }
-
-    public class AggregateRegion : Region
-    {
-        public List<Region> regions;
-
-        public AggregateRegion() :
-            base(0, 0, 0, 0)
-        {
-            regions = new List<Region>();
-        }
-
-        public AggregateRegion(Region sourceRegion) :
-            base(0, 0, 0, 0)
-        {
-            regions = new List<Region>();
-            Add(sourceRegion);
-        }
-
-        public void Reset()
-        {
-            regions.Clear();
-            origin = default;
-            size = default;
-        }
-
-        public void Add(Region region)
-        {
-            if (regions.Any())
-            {
-                int right = Right;
-                int front = Front;
-                origin.x = System.Math.Min(origin.x, region.origin.x);
-                origin.y = System.Math.Min(origin.y, region.origin.y);
-                size.x = System.Math.Max(right, region.Right) - origin.x + 1;
-                size.y = System.Math.Max(front, region.Front) - origin.y + 1;
-            }
-            else
-            {
-                origin = region.origin;
-                size = region.size;
-            }
-            regions.Add(region);
-        }
-
-        public void AddRange(IEnumerable<Region> regions)
-        {
-            foreach (var region in regions)
-            {
-                Add(region);
-            }
-        }
-
-        public int Count => regions.Count;
-
-        public override string ToString()
-        {
-            return string.Format("{0} ({1}x{2}) containing {3} region{4}", origin, size.x, size.y, regions.Count, regions.Count == 1 ? "" : "s");
-        }
-    }
-
     public class LevelBuilder
     {
         [System.Serializable]
@@ -213,6 +66,7 @@ namespace RhythMage
 
             foreach (GameObject entity in m_entities)
             {
+                entity.transform.DetachChildren();
                 Object.Destroy(entity);
             }
             m_entities.Clear();
@@ -222,7 +76,6 @@ namespace RhythMage
             List<Region> allRegions = new List<Region>();
             // Create full level as one region
             Region firstRegion = new Region(0, 0, m_settings.maxLevelSize, m_settings.maxLevelSize);
-            AddRegionToList(firstRegion, allRegions);
 
             // Determine number of rooms to fill level with
             int roomCount = m_settings.fixedRoomCount;
@@ -232,13 +85,7 @@ namespace RhythMage
             }
 
             // Set up first room
-            Room firstRoom = TryAddRoomToRegion(null, Direction.None, firstRegion, allRegions);
-            if (firstRoom != null)
-            {
-                AggregateRegion firstRegionAggregate = new AggregateRegion(firstRegion);
-                AddRoom(firstRoom, firstRegionAggregate, allRooms, allRegions);
-            }
-
+            Room firstRoom = TryAddRoomToRegion(null, Direction.Forward, firstRegion, allRooms, allRegions);
             Room previousRoom = firstRoom;
             bool hasReversedRooms = false;
             // Place remaining rooms - start at index 1
@@ -253,14 +100,9 @@ namespace RhythMage
                     var (direction, region) = previousRoom.connections[connectionIndex];
                     if (region != null && !(region is Room) && region.Enabled)
                     {
-                        // Aggregate regions in chosen direction, plus orthogonal regions cw and ccw from it
-                        AggregateRegion targetRegions = new AggregateRegion();
-                        FindOrthogonalRegions(region, direction, targetRegions);
-                        Room newRoom = TryAddRoomToRegion(previousRoom, direction, targetRegions, allRegions);
+                        Room newRoom = TryAddRoomToRegion(previousRoom, direction, region, allRooms, allRegions);
                         if (newRoom != null)
                         {
-                            newRoom.index = allRooms.Count;
-                            AddRoom(newRoom, targetRegions, allRooms, allRegions);
                             previousRoom = newRoom;
 
                             // Disable regions which are too small to house connections
@@ -302,10 +144,8 @@ namespace RhythMage
 
             int worldOffsetX = firstRoom.origin.x - firstRoom.size.x / 2;
             int worldOffsetZ = firstRoom.origin.y - firstRoom.size.y / 2;
-
+            
             // Show placeholder doors where rooms join
-            HashSet<Cell> doorCells = new HashSet<Cell>();
-            List<GameObject> doorEntities = new List<GameObject>();
             for (int i = 0; i < allRooms.Count - 1; ++i)
             {
                 Room current = allRooms[i];
@@ -344,15 +184,15 @@ namespace RhythMage
                     coordZ = m_rng.Next(zMin, zMax);
                 }
 
-                GameObject doorEntity = Object.Instantiate(m_dungeonSettings.prefabFloor);
+                Cell doorLocation = Cell.Create(coordX, coordZ);
+                GameObject doorEntity = dungeon.Doors.GetOrCreateAtCell(doorLocation, m_dungeonSettings.prefabFloor);
                 doorEntity.name = string.Format("Doorway [{0}:{1}]", current.index, next.index);
-                doorEntities.Add(doorEntity);
-                Transform roomTransform = doorEntity.transform;
-                roomTransform.SetParent(rootTransform, false);
-                roomTransform.localPosition = new Vector3(coordX - worldOffsetX + 0.5f, 0.0f, coordZ - worldOffsetZ + 0.5f);
-                doorCells.Add(new Cell(coordX, coordZ));
+                Transform doorTransform = doorEntity.transform;
+                doorTransform.SetParent(rootTransform, false);
+                doorTransform.localPosition = new Vector3(coordX, 0.0f, coordZ);
+                current.Doorways.Add((doorLocation, next));
+                next.Doorways.Add((doorLocation, current));
             }
-            m_entities.AddRange(doorEntities);
 
             HashSet<Cell> placedWalls = new HashSet<Cell>();
             foreach (Room room in allRooms)
@@ -361,12 +201,12 @@ namespace RhythMage
                 m_entities.Add(roomEntity);
                 Transform roomTransform = roomEntity.transform;
                 roomTransform.SetParent(rootTransform, false);
-                roomTransform.localPosition = new Vector3(room.origin.x - worldOffsetX + 0.5f, 0.0f, room.origin.y - worldOffsetZ + 0.5f);
+                roomTransform.localPosition = new Vector3(room.origin.x, 0.0f, room.origin.y);
 
                 foreach (Cell cell in room.Cells)
                 {
                     // Build floor within room
-                    GameObject floor = Object.Instantiate(m_dungeonSettings.prefabFloor);
+                    GameObject floor = dungeon.Floors.GetOrCreateAtCell(cell, m_dungeonSettings.prefabFloor);
                     floor.name = string.Format("Floor {0}", cell);
                     Transform transform = floor.transform;
                     transform.SetParent(roomTransform, false);
@@ -385,13 +225,11 @@ namespace RhythMage
                     {
                         if (i == 0 || j == 0 || i == room.Width || j == room.Depth)
                         {
-                            Cell cell;
-                            cell.x = room.Left + i - 1;
-                            cell.y = room.Back + j - 1;
-                            if (!doorCells.Contains(cell) && !placedWalls.Contains(cell))
+                            Cell cell = Cell.Create(room.Left + i - 1, room.Back + j - 1);
+                            if (!dungeon.Doors.Contains(cell) && !placedWalls.Contains(cell))
                             {
                                 placedWalls.Add(cell);
-                                GameObject wall = Object.Instantiate(m_dungeonSettings.prefabWall);
+                                GameObject wall = dungeon.Walls.GetOrCreateAtCell(cell, m_dungeonSettings.prefabWall);
                                 wall.name = string.Format("Wall {0}", cell);
                                 Transform transform = wall.transform;
                                 transform.SetParent(roomTransform, false);
@@ -410,52 +248,52 @@ namespace RhythMage
                 regionEntities[room] = roomEntity;
             }
 
-            for (int i = 0; i < allRooms.Count - 1; ++i)
-            {
-                Room current = allRooms[i];
-                Room next = allRooms[i + 1];
-                Direction adjacencyDirection = TryGetAdjacency(current, next);
-                GameObject doorEntity = doorEntities[i];
-                ConnectionListDisplay connectionList = doorEntity.AddComponent<ConnectionListDisplay>();
-                connectionList.SetConnections(new List<(Direction, GameObject)> { (Defs.InverseDirection(adjacencyDirection), regionEntities[current]), (adjacencyDirection, regionEntities[next]) });
-            }
+            //for (int i = 0; i < allRooms.Count - 1; ++i)
+            //{
+            //    Room current = allRooms[i];
+            //    Room next = allRooms[i + 1];
+            //    Direction adjacencyDirection = TryGetAdjacency(current, next);
+            //    GameObject doorEntity = dungeon.Doors.ActiveEntities[doorLocations[i]];
+            //    ConnectionListDisplay connectionList = doorEntity.AddComponent<ConnectionListDisplay>();
+            //    connectionList.SetConnections(new List<(Direction, GameObject)> { (Defs.InverseDirection(adjacencyDirection), regionEntities[current]), (adjacencyDirection, regionEntities[next]) });
+            //}
 
             // Show debug outline of all regions
-            allRegions.Sort((lhs, rhs) => (lhs.origin.x * firstRegion.size.y + lhs.origin.y).CompareTo(rhs.origin.x * firstRegion.size.y + rhs.origin.y));
-            foreach (Region region in allRegions.Where(item => !(item is Room)))
-            {
-                GameObject regionOutline = new GameObject(string.Format("Region {0}", region));
-                m_entities.Add(regionOutline);
-                LineRenderer renderer = regionOutline.AddComponent<LineRenderer>();
-                renderer.material = m_settings.regionDebugOutlineMaterial;
-                float posX = region.origin.x + (region.size.x - 1) * 0.5f - worldOffsetX;
-                float posZ = region.origin.y + (region.size.y - 1) * 0.5f - worldOffsetZ;
-                float left = posX - region.size.x * 0.5f;
-                float back = posZ - region.size.y * 0.5f;
-                float right = left + region.size.x;
-                float front = back + region.size.y;
-                float posY = region.Enabled ? 0.0f : -1.0f;
-                Vector3[] positions = new Vector3[4] { new Vector3(left, posY, back), new Vector3(right, posY, back), new Vector3(right, posY, front), new Vector3(left, posY, front) };
-                renderer.positionCount = 4;
-                renderer.loop = true;
-                renderer.startWidth = renderer.endWidth = 0.25f;
-                renderer.SetPositions(positions);
-                renderer.startColor = renderer.endColor = region.Enabled ? new Color(1.0f, 0.0f, 1.0f) : new Color(0.25f, 0.25f, 0.5f);
+            //allRegions.Sort((lhs, rhs) => (lhs.origin.x * firstRegion.size.y + lhs.origin.y).CompareTo(rhs.origin.x * firstRegion.size.y + rhs.origin.y));
+            //foreach (Region region in allRegions.Where(item => !(item is Room)))
+            //{
+            //    GameObject regionOutline = new GameObject(string.Format("Region {0}", region));
+            //    m_entities.Add(regionOutline);
+            //    LineRenderer renderer = regionOutline.AddComponent<LineRenderer>();
+            //    renderer.material = m_settings.regionDebugOutlineMaterial;
+            //    float posX = region.origin.x + (region.size.x - 1) * 0.5f - 0.5f;
+            //    float posZ = region.origin.y + (region.size.y - 1) * 0.5f - 0.5f;
+            //    float left = posX - region.size.x * 0.5f;
+            //    float back = posZ - region.size.y * 0.5f;
+            //    float right = left + region.size.x;
+            //    float front = back + region.size.y;
+            //    float posY = region.Enabled ? 0.0f : -1.0f;
+            //    Vector3[] positions = new Vector3[4] { new Vector3(left, posY, back), new Vector3(right, posY, back), new Vector3(right, posY, front), new Vector3(left, posY, front) };
+            //    renderer.positionCount = 4;
+            //    renderer.loop = true;
+            //    renderer.startWidth = renderer.endWidth = 0.25f;
+            //    renderer.SetPositions(positions);
+            //    renderer.startColor = renderer.endColor = region.Enabled ? new Color(1.0f, 0.0f, 1.0f) : new Color(0.25f, 0.25f, 0.5f);
 
-                Transform transform = regionOutline.transform;
-                transform.SetParent(rootTransform, false);
-                transform.localPosition = new Vector3(posX, 0.0f, posZ);
-                transform.localScale = new Vector3(region.size.x, 1.0f, region.size.y);
+            //    Transform transform = regionOutline.transform;
+            //    transform.SetParent(rootTransform, false);
+            //    transform.localPosition = new Vector3(posX, 0.0f, posZ);
+            //    transform.localScale = new Vector3(region.size.x, 1.0f, region.size.y);
 
-                regionEntities[region] = regionOutline;
-            }
+            //    regionEntities[region] = regionOutline;
+            //}
 
-            foreach (Region region in allRegions)
-            {
-                GameObject entity = regionEntities[region];
-                ConnectionListDisplay connectionList = entity.AddComponent<ConnectionListDisplay>();
-                connectionList.SetConnections(region.connections.Select(entry => (entry.Item1, regionEntities[entry.Item2])).ToList());
-            }
+            //foreach (Region region in allRegions)
+            //{
+            //    GameObject entity = regionEntities[region];
+            //    ConnectionListDisplay connectionList = entity.AddComponent<ConnectionListDisplay>();
+            //    connectionList.SetConnections(region.connections.Select(entry => (entry.Item1, regionEntities[entry.Item2])).ToList());
+            //}
         }
 
         private void DisableSmallRegions(Region region, Direction direction)
@@ -464,18 +302,11 @@ namespace RhythMage
             FindRegionsInDirection(region, direction, testRegions);
             FindRegionsInDirection(region, Defs.RotateDirection(direction, RotationDirection.CounterClockwise), testRegions);
             FindRegionsInDirection(region, Defs.RotateDirection(direction, RotationDirection.Clockwise), testRegions);
-            bool hasEnoughWidth = testRegions.Width >= m_settings.minRoomSize;
-            bool hasEnoughDepth = testRegions.Depth >= m_settings.minRoomSize;
-            region.Enabled = hasEnoughWidth && hasEnoughDepth;
+            bool hasEnoughSpace = testRegions.Width >= m_settings.minRoomSize && testRegions.Depth >= m_settings.minRoomSize;
+            region.Enabled = hasEnoughSpace;
 
-            if (hasEnoughWidth == false || hasEnoughDepth == false)
+            if (hasEnoughSpace == false)
             {
-                // Disable other regions in tested group
-                //foreach (var testRegion in testRegions.regions)
-                //{
-                //    bool isVertical = testRegion.origin.y > region.origin.y || testRegion.origin.y < region.origin.y;
-                //    testRegion.Enabled = (isVertical && hasEnoughDepth) || (!isVertical && hasEnoughWidth);
-                //}
                 // Find and disable any connections which have no enabled connections
                 foreach (var (connectedDirection, connectedRegion) in region.connections)
                 {
@@ -492,24 +323,28 @@ namespace RhythMage
             }
         }
 
-        private Room TryAddRoomToRegion(Room previousRoom, Direction fromDirection, Region currentRegion, List<Region> allRegions)
+        private Room TryAddRoomToRegion(Room previousRoom, Direction fromDirection, Region currentRegion, List<Room> allRooms, List<Region> allRegions)
         {
-            int maxWidth = System.Math.Min(currentRegion.size.x, m_settings.maxRoomSize);
-            int maxDepth = System.Math.Min(currentRegion.size.y, m_settings.maxRoomSize);
+            // Aggregate regions in chosen direction, plus orthogonal regions cw and ccw from it
+            AggregateRegion targetRegions = new AggregateRegion(currentRegion);
+            FindOrthogonalRegions(currentRegion, fromDirection, targetRegions);
+
+            int maxWidth = System.Math.Min(targetRegions.size.x, m_settings.maxRoomSize);
+            int maxDepth = System.Math.Min(targetRegions.size.y, m_settings.maxRoomSize);
             if (maxWidth < m_settings.minRoomSize || maxDepth < m_settings.minRoomSize)
             {
                 return null;
             }
 
-            int roomWidth = m_rng.Next(m_settings.minRoomSize, System.Math.Min(currentRegion.size.x, m_settings.maxRoomSize) + 1);
-            int roomDepth = m_rng.Next(m_settings.minRoomSize, System.Math.Min(currentRegion.size.y, m_settings.maxRoomSize) + 1);
+            int roomWidth = m_rng.Next(m_settings.minRoomSize, System.Math.Min(targetRegions.size.x, m_settings.maxRoomSize) + 1);
+            int roomDepth = m_rng.Next(m_settings.minRoomSize, System.Math.Min(targetRegions.size.y, m_settings.maxRoomSize) + 1);
             int originX = 0;
             int originY = 0;
             if (previousRoom == null)
             {
                 // Place first room in the centre of level
-                originX = (currentRegion.size.x - roomWidth) / 2;
-                originY = (currentRegion.size.y - roomDepth) / 2;
+                originX = (targetRegions.size.x - roomWidth) / 2;
+                originY = (targetRegions.size.y - roomDepth) / 2;
             }
             else
             {
@@ -517,8 +352,8 @@ namespace RhythMage
                 bool isVertical = fromDirection == Direction.Forward || fromDirection == Direction.Backward;
                 if (isVertical)
                 {
-                    int xMin = System.Math.Max(previousRoom.Left - roomWidth + 2, currentRegion.Left);
-                    int xMax = System.Math.Min(previousRoom.Right - 1, currentRegion.Right - roomWidth + 1);
+                    int xMin = System.Math.Max(previousRoom.Left - roomWidth + 2, targetRegions.Left);
+                    int xMax = System.Math.Min(previousRoom.Right - 1, targetRegions.Right - roomWidth + 1);
                     if (xMin > xMax)
                     {
                         return null;
@@ -527,8 +362,8 @@ namespace RhythMage
                 }
                 else
                 {
-                    int zMin = System.Math.Max(previousRoom.Back - roomDepth + 2, currentRegion.Back);
-                    int zMax = System.Math.Min(previousRoom.Front - 1, currentRegion.Front - roomDepth + 1);
+                    int zMin = System.Math.Max(previousRoom.Back - roomDepth + 2, targetRegions.Back);
+                    int zMax = System.Math.Min(previousRoom.Front - 1, targetRegions.Front - roomDepth + 1);
                     if (zMin > zMax)
                     {
                         return null;
@@ -553,14 +388,13 @@ namespace RhythMage
                     originX = previousRoom.Right + 1;
                 }
             }
-            Room room = new Room(originX, originY, roomWidth, roomDepth, 0);
+            Room room = new Room(originX, originY, roomWidth, roomDepth, allRooms.Count);
+            AddRoom(room, targetRegions, allRooms, allRegions);
             return room;
         }
 
         private void FindOrthogonalRegions(Region sourceRegion, Direction direction, AggregateRegion foundRegions)
         {
-            foundRegions.Reset();
-            foundRegions.Add(sourceRegion);
             Direction cwDirection = Defs.RotateDirection(direction, RotationDirection.Clockwise);
             FindRegionsInDirection(sourceRegion, cwDirection, foundRegions);
             Direction ccwDirection = Defs.RotateDirection(direction, RotationDirection.CounterClockwise);
