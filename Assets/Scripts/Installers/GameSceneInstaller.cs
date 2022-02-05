@@ -35,6 +35,9 @@ namespace RhythMage
             Container.Bind<LevelBuilder>()
                 .AsSingle();
 
+            Container.Bind<PathBuilder>()
+                .AsSingle();
+
             Container.BindInterfacesAndSelfTo<SoundManager>()
                 .AsSingle();
         }

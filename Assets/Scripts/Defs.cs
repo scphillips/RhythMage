@@ -133,7 +133,7 @@ namespace RhythMage
             base(x, y, w, d)
         {
             index = i;
-            Doorways = new List<System.ValueTuple<Cell, Region>>();
+            Doorways = new List<System.ValueTuple<Cell, Room>>();
         }
 
         public override bool Equals(object obj)
@@ -280,7 +280,7 @@ namespace RhythMage
             return value;
         }
 
-        public static IEnumerable<Direction> ForEachDirection(Direction startDirection)
+        public static IEnumerable<Direction> ForEachDirection(Direction startDirection = Direction.Forward)
         {
             int startValue = (int)startDirection;
             for (int i = 0; i < facings.Count; ++i)

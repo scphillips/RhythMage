@@ -46,6 +46,9 @@ namespace RhythMage
         readonly DungeonBuilder.Settings m_dungeonSettings;
 
         [Zenject.Inject]
+        readonly PathBuilder m_pathBuilder;
+
+        [Zenject.Inject]
         RandomNumberProvider m_rng;
 
         private List<GameObject> m_entities;
@@ -194,6 +197,8 @@ namespace RhythMage
                 next.Doorways.Add((doorLocation, current));
             }
 
+            m_pathBuilder.BuildPath(dungeon, allRooms);
+
             HashSet<Cell> placedWalls = new HashSet<Cell>();
             foreach (Room room in allRooms)
             {
@@ -234,7 +239,6 @@ namespace RhythMage
                                 Transform transform = wall.transform;
                                 transform.SetParent(roomTransform, false);
                                 transform.localPosition = new Vector3(cell.x - room.origin.x, 0.0f, cell.y - room.origin.y);
-                                transform.localScale = new Vector3(1.0f, 0.1f, 1.0f);
                                 if (m_dungeonSettings.wallMaterials.Count > 0)
                                 {
                                     var renderer = wall.GetComponentInChildren<MeshRenderer>();

@@ -25,6 +25,8 @@ namespace RhythMage
             return offset;
         }
 
+        public int Magnitude => System.Math.Abs(x) + System.Math.Abs(y);
+
         public void ApplyTo(ref Cell index)
         {
             index.x += x;
@@ -79,6 +81,26 @@ namespace RhythMage
         public static CoordinateOffset operator *(in CoordinateOffset offset, int magnitude)
         {
             return Create(offset.x * magnitude, offset.y * magnitude);
+        }
+
+        public static bool operator <(in CoordinateOffset lhs, in CoordinateOffset rhs)
+        {
+            return lhs.Magnitude < rhs.Magnitude;
+        }
+
+        public static bool operator >(in CoordinateOffset lhs, in CoordinateOffset rhs)
+        {
+            return lhs.Magnitude > rhs.Magnitude;
+        }
+
+        public static bool operator <=(in CoordinateOffset lhs, in CoordinateOffset rhs)
+        {
+            return lhs.Magnitude <= rhs.Magnitude;
+        }
+
+        public static bool operator >=(in CoordinateOffset lhs, in CoordinateOffset rhs)
+        {
+            return lhs.Magnitude >= rhs.Magnitude;
         }
 
         public static Cell operator +(in Cell lhs, in CoordinateOffset rhs)
