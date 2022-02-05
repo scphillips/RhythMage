@@ -28,14 +28,14 @@ namespace RhythMage
         }
 
         [Zenject.Inject] readonly Settings m_settings;
-        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
-        [Zenject.Inject] readonly DungeonBuilder m_dungeonBuilder;
-        [Zenject.Inject] readonly DungeonModel m_dungeon;
+        [Zenject.Inject] readonly AudioSource audioSource;
         [Zenject.Inject] readonly AvatarModel m_avatar;
+        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
         [Zenject.Inject] readonly GestureHandler m_gestureHandler;
+        [Zenject.Inject] readonly DungeonModel m_dungeon;
+        [Zenject.Inject] readonly LevelBuilder m_levelBuilder;
         [Zenject.Inject] readonly RandomNumberProvider m_rng;
         [Zenject.Inject] readonly SoundManager m_sound;
-        [Zenject.Inject] readonly AudioSource audioSource;
 
         int m_lastCheckedIndex;
 
@@ -72,7 +72,7 @@ namespace RhythMage
             if (cellIndex >= m_dungeon.GetCellCount())
             {
                 cellIndex = 0;
-                m_dungeonBuilder.BuildDungeon();
+                m_levelBuilder.BuildLevel(m_dungeon, transform);
                 Cell currentCell = m_dungeon.GetCellAtIndex(cellIndex);
                 transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
                 transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);

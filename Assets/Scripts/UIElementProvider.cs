@@ -30,7 +30,6 @@ public class UIElementProvider : MonoBehaviour
     void UpdateCoordinates()
     {
         bool isPortrait = Screen.width < Screen.height;
-        Debug.Log(string.Format("Width = {0}, Height = {1}, Is Portrait = {2}", Screen.width, Screen.height, isPortrait));
         var rectTransform = GetComponent<RectTransform>();
         rectTransform.anchoredPosition = isPortrait ? m_positionPortrait : m_positionLandscape;
         rectTransform.eulerAngles = isPortrait ? m_rotationPortrait : m_rotationLandscape;

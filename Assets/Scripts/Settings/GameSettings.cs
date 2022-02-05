@@ -15,6 +15,7 @@ namespace RhythMage
         public DungeonBuilder.Settings DungeonBuilderSettings;
         public GameDifficulty.Settings GameDifficultySettings;
         public GameStateManager.Settings GameStateManagerSettings;
+        public LevelBuilder.Settings LevelBuilderSettings;
         public HUDController.Settings HUDControllerSettings;
         public SoundManager.Settings SoundManagerSettings;
 
@@ -25,6 +26,7 @@ namespace RhythMage
             Container.BindInstance(DungeonBuilderSettings);
             Container.BindInstance(GameDifficultySettings);
             Container.BindInstance(GameStateManagerSettings);
+            Container.BindInstance(LevelBuilderSettings);
             Container.BindInstance(HUDControllerSettings);
             Container.BindInstance(SoundManagerSettings);
         }

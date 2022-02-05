@@ -78,6 +78,17 @@ MonoBehaviour:
       m_sceneAsset: {fileID: 102900000, guid: 30c390194167ae844bd2dd8f17e54705, type: 3}
       m_scenePath: Assets/Scenes/PassLevelScene.unity
     delayTransitionToGameOverDuration: 0.25
+  LevelBuilderSettings:
+    maxRoomDensity: 0.25
+    minRoomSize: 5
+    maxRoomSize: 15
+    minRoomCount: 12
+    maxRoomCount: 12
+    fixedRoomCount: 100
+    maxLevelSize: 200
+    levelSeed: 0
+    regionDebugOutlineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000,
+      type: 0}
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}

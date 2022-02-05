@@ -111,16 +111,33 @@ namespace RhythMage
         public static Direction RotateDirection(Direction direction, RotationDirection rotation)
         {
             int directionCount = facings.Count;
-            var rotatedDirectionInt = (int)direction + (rotation == RotationDirection.Clockwise ? -1 : 1);
+            var rotatedDirectionInt = (int)direction + (rotation == RotationDirection.Clockwise ? 1 : -1);
             rotatedDirectionInt = (rotatedDirectionInt + directionCount) % directionCount;
             return (Direction)rotatedDirectionInt;
         }
 
+        public static bool IsOrthogonal(Direction from, Direction to)
+        {
+            return RotateDirection(from, RotationDirection.Clockwise) == to
+                || RotateDirection(from, RotationDirection.CounterClockwise) == to;
+        }
+
         public static T Clamp<T>(T value, T min, T max) where T : System.IComparable<T>
         {
-            if (value.CompareTo(max) > 0) return max;
-            if (value.CompareTo(min) < 0) return min;
+            int comparison = value.CompareTo(max);
+            if (comparison > 0) return max;
+            if (comparison < 0) return min;
             return value;
+        }
+
+        public static IEnumerable<Direction> ForEachDirection(Direction startDirection)
+        {
+            int startValue = (int)startDirection;
+            for (int i = 0; i < facings.Count; ++i)
+            {
+                int value = (startValue + i) % facings.Count;
+                yield return (Direction)value;
+            }
         }
     }
 }

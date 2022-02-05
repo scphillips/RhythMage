@@ -9,7 +9,7 @@ namespace RhythMage
 {
     public class RandomNumberProvider
     {
-        readonly System.Random m_random;
+        private System.Random m_random;
 
         public RandomNumberProvider()
         {
@@ -17,6 +17,11 @@ namespace RhythMage
         }
 
         public RandomNumberProvider(int seed)
+        {
+            m_random = new System.Random(seed);
+        }
+
+        public void SetSeed(int seed)
         {
             m_random = new System.Random(seed);
         }
@@ -61,11 +66,11 @@ namespace RhythMage
             return m_random.NextDouble();
         }
 
-        public T Pick<T>(ICollection<T> collection)
+        public T Pick<T>(IEnumerable<T> collection)
         {
             if (collection != null && collection.Any())
             {
-                int index = Next(collection.Count);
+                int index = Next(collection.Count());
                 return collection.ElementAt(index);
             }
             return default;

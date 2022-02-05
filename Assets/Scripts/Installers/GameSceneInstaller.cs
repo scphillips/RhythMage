@@ -32,6 +32,9 @@ namespace RhythMage
             Container.BindInterfacesAndSelfTo<GestureHandler>()
                 .AsSingle();
 
+            Container.Bind<LevelBuilder>()
+                .AsSingle();
+
             Container.BindInterfacesAndSelfTo<SoundManager>()
                 .AsSingle();
         }
