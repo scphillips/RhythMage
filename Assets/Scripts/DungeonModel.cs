@@ -19,6 +19,7 @@ namespace RhythMage
         public DungeonEntityTracker Walls { get; } = new DungeonEntityTracker();
 
         public event System.Action OnDungeonReset;
+        public event System.Action OnPathChanged;
         public event System.Action<int> OnEnemyCountChange;
 
         IEnumerable<DungeonEntityTracker> AllTrackers
@@ -46,9 +47,10 @@ namespace RhythMage
             OnDungeonReset?.Invoke();
         }
 
-        public void AddToPath(Cell cell)
+        public void SetPath(IList<Cell> path)
         {
-            Path.Add(cell);
+            Path.AddRange(path);
+            OnPathChanged?.Invoke();
         }
 
         public int GetEnemyCount()

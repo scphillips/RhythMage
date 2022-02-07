@@ -13,9 +13,6 @@ namespace RhythMage
         [System.Serializable]
         public class Settings
         {
-            [Range(0.0f, 1.0f)]
-            public float maxRoomDensity;
-
             [Range(2, 15)]
             public int minRoomSize;
 
@@ -44,6 +41,9 @@ namespace RhythMage
 
         [Zenject.Inject]
         readonly DungeonBuilder.Settings m_dungeonSettings;
+
+        [Zenject.Inject]
+        Enemy.Factory m_enemyFactory;
 
         [Zenject.Inject]
         readonly PathBuilder m_pathBuilder;
@@ -197,7 +197,30 @@ namespace RhythMage
                 next.Doorways.Add((doorLocation, current));
             }
 
-            m_pathBuilder.BuildPath(dungeon, allRooms);
+            // Build path for player avatar to traverse level
+            List<Cell> waypoints = new List<Cell>();
+            m_pathBuilder.BuildPath(dungeon, allRooms, waypoints);
+
+            // Add enemies at waypoints
+            foreach (Cell waypoint in waypoints)
+            {
+                var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
+                Enemy enemy = null;
+                var gameObject = dungeon.Enemies.TryGetNext();
+                if (gameObject != null)
+                {
+                    enemy = gameObject.GetComponent<Enemy>();
+                    enemy.EnemyType = type;
+                    enemy.Reset(waypoint);
+                }
+                else
+                {
+                    enemy = m_enemyFactory.Create(waypoint, type);
+                }
+                enemy.transform.SetParent(rootTransform, false);
+                dungeon.AddEnemyAtCell(waypoint, enemy);
+                dungeon.Enemies.AddToCell(waypoint, enemy.gameObject);
+            }
 
             HashSet<Cell> placedWalls = new HashSet<Cell>();
             foreach (Room room in allRooms)

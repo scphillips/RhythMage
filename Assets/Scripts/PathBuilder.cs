@@ -33,33 +33,37 @@ namespace RhythMage
 
         private GameObject m_pathOutline;
 
-        public void BuildPath(DungeonModel dungeon, List<Room> allRooms)
+        public void BuildPath(DungeonModel dungeon, List<Room> allRooms, List<Cell> waypoints)
         {
             Debug.AssertFormat(allRooms.Any(), "Attempting to build path with no rooms");
             List<Cell> fullPath = new List<Cell>();
             Object.Destroy(m_pathOutline);
             m_pathOutline = new GameObject(string.Format("Path"));
             // Pick random entry node for first room
-            var (entryNode, entryDirection) = PickRandomEntryNode(allRooms.First());
+            var (firstNode, firstDirection) = PickRandomEntryNode(allRooms.First());
+            fullPath.Add(firstNode);
             HashSet<Cell> visitedCells = new HashSet<Cell>();
+            List<Cell> currentWaypoints = new List<Cell>();
+            Cell entryNode = firstNode;
+            Direction entryDirection = firstDirection;
             for (int i = 0; i < allRooms.Count; ++i)
             {
                 Room currentRoom = allRooms[i];
                 visitedCells.Clear();
-
-                int maxNodesForCurrentRoom = (int)(currentRoom.Cells.Count() * m_settings.maxRoomDensity);
-                int nodeCountForCurrentRoom = m_rng.Next(maxNodesForCurrentRoom);
-
+                
                 Cell lastCell = entryNode;
                 Direction lastDirection = entryDirection;
-                // Pick random node for testing targets
-                for (int j = 0; j < nodeCountForCurrentRoom; ++j)
+                currentWaypoints.Clear();
+                GenerateWaypointNodesForRoom(currentRoom, currentWaypoints);
+
+                // Arrange waypoints according to most optimal route
+                SortForShortestRoute(currentWaypoints, entryNode);
+                waypoints.AddRange(currentWaypoints);
+
+                // Perform pathfinding through list of waypoints
+                for (int j = 0; j < currentWaypoints.Count; ++j)
                 {
-                    Cell chosenCell = m_rng.Pick(currentRoom.Cells.Where(entry => !visitedCells.Contains(entry)));
-                    visitedCells.Add(chosenCell);
-                    SpriteRenderer node = Object.Instantiate(m_dungeonAmbientSettings.tilePulsePrefab, m_pathOutline.transform);
-                    node.name = string.Format("Node {0}", i);
-                    node.transform.localPosition = new Vector3(chosenCell.x, 0.5f, chosenCell.y);
+                    Cell chosenCell = currentWaypoints[j];
                     (lastCell, lastDirection) = BuildPathBetweenNodes(lastCell, chosenCell, lastDirection, currentRoom, fullPath);
                 }
 
@@ -75,50 +79,132 @@ namespace RhythMage
                     entryDirection = exitDirection;
                 }
             }
+            dungeon.SetPath(fullPath);
 
-            Debug.Log(string.Format("Generated {0} steps in path", fullPath.Count));
-            LineRenderer renderer = m_pathOutline.AddComponent<LineRenderer>();
-            renderer.material = m_levelBuilderSettings.regionDebugOutlineMaterial;
-            Vector3[] pathLines = fullPath.Select(entry => new Vector3(entry.x, 0.25f, entry.y)).ToArray();
-            renderer.positionCount = fullPath.Count;
-            renderer.startWidth = renderer.endWidth = 0.25f;
-            renderer.SetPositions(pathLines);
-            renderer.startColor = renderer.endColor = new Color(1.0f, 1.0f, 0.0f);
-            m_pathOutline.transform.SetParent(m_dungeonRoot, false);
-            dungeon.Path.AddRange(fullPath);
+            //Debug.Log(string.Format("Generated {0} steps in path", fullPath.Count));
+            //LineRenderer renderer = m_pathOutline.AddComponent<LineRenderer>();
+            //renderer.material = m_levelBuilderSettings.regionDebugOutlineMaterial;
+            //int index = 0;
+            //Direction previousDirection = firstDirection;
+            //Vector3[] pathLines = fullPath.Select(entry => GetLineRendererCoordinate(entry, fullPath, ref index, ref previousDirection)).ToArray();
+            //renderer.positionCount = fullPath.Count;
+            //renderer.startWidth = renderer.endWidth = 0.125f;
+            //renderer.SetPositions(pathLines);
+            //renderer.startColor = renderer.endColor = new Color(1.0f, 1.0f, 0.0f);
+            //m_pathOutline.transform.SetParent(m_dungeonRoot, false);
+            //
+            //foreach (Cell waypoint in waypoints)
+            //{
+            //    SpriteRenderer node = Object.Instantiate(m_dungeonAmbientSettings.tilePulsePrefab, m_pathOutline.transform);
+            //    node.name = string.Format("Node {0}", waypoint);
+            //    node.transform.localPosition = new Vector3(waypoint.x, 0.5f, waypoint.y);
+            //}
+        }
+
+        private Vector3 GetLineRendererCoordinate(in Cell currentCell, IList<Cell> allCells, ref int index, ref Direction previousDirection)
+        {
+            ++index;
+            Direction offsetDirection = Defs.RotateDirection(previousDirection, RotationDirection.CounterClockwise);
+            CoordinateOffset rendererOffset = Defs.GetFacing(offsetDirection);
+            if (index < allCells.Count)
+            {
+                Cell testCell = allCells[index];
+                CoordinateOffset realOffset = CoordinateOffset.Distance(currentCell, testCell);
+                Direction realDirection = Defs.GetOffsetDirection(realOffset);
+                if (previousDirection != realDirection)
+                {
+                    Direction addedOffsetDirection = Defs.RotateDirection(realDirection, RotationDirection.CounterClockwise);
+                    CoordinateOffset addedRendererOffset = Defs.GetFacing(addedOffsetDirection);
+                    rendererOffset += addedRendererOffset;
+                    previousDirection = realDirection;
+                }
+            }
+            return new Vector3(currentCell.x + rendererOffset.x * 0.125f, 0.25f, currentCell.y + rendererOffset.y * 0.125f);
+        }
+
+        private void SortForShortestRoute(List<Cell> route, in Cell entry)//, in Cell exit)
+        {
+            List<Cell> remainingCells = route.ToList();
+            route.Clear();
+            Cell lastCell = entry;
+            while (remainingCells.Any())
+            {
+                int closestCellIndex = -1;
+                int shortestPath = int.MaxValue;
+                for (int i = 0; i < remainingCells.Count; ++i)
+                {
+                    CoordinateOffset distance = CoordinateOffset.Distance(lastCell, remainingCells[i]);
+                    if (distance.Magnitude < shortestPath)
+                    {
+                        // Best candidate found so far
+                        closestCellIndex = i;
+                        shortestPath = distance.Magnitude;
+                    }
+                }
+
+                Cell closestCell = remainingCells[closestCellIndex];
+                route.Add(closestCell);
+                remainingCells.RemoveAt(closestCellIndex);
+                lastCell = closestCell;
+            }
         }
 
         private (Cell, Direction) PickRandomEntryNode(Room firstRoom)
         {
-            Direction startDirection = m_rng.Pick(Defs.ForEachDirection());
+            // Pick a direction other than where the exit is
+            Direction exitDirection = Direction.None;
+            foreach (var (dir, otherRoom) in firstRoom.Doorways)
+            {
+                if (otherRoom.index == firstRoom.index + 1)
+                {
+                    exitDirection = GetDirectionOfExitNode(firstRoom, dir);
+                    break;
+                }
+            }
+            Direction startDirection = m_rng.Pick(Defs.ForEachDirection().Where(dir => dir != exitDirection));
             bool isVertical = startDirection == Direction.Forward || startDirection == Direction.Backward;
             int coordX = 0;
             int coordZ = 0;
             if (isVertical)
             {
-                coordX = m_rng.Next(firstRoom.Left + 1, firstRoom.Right);
+                coordX = m_rng.Next(firstRoom.Left, firstRoom.Right);
             }
             else
             {
-                coordZ = m_rng.Next(firstRoom.Back + 1, firstRoom.Front);
+                coordZ = m_rng.Next(firstRoom.Back, firstRoom.Front);
             }
 
             switch (startDirection)
             {
                 case Direction.Forward:
-                    coordZ = firstRoom.Front - 1;
+                    coordZ = firstRoom.Back;
                     break;
                 case Direction.Right:
-                    coordX = firstRoom.Right - 1;
+                    coordX = firstRoom.Left;
                     break;
                 case Direction.Backward:
-                    coordZ = firstRoom.Back + 1;
+                    coordZ = firstRoom.Front - 1;
                     break;
                 case Direction.Left:
-                    coordX = firstRoom.Left + 1;
+                    coordX = firstRoom.Right - 1;
                     break;
             }
-            return (Cell.Create(coordX, coordZ), Defs.InverseDirection(startDirection));
+            return (Cell.Create(coordX, coordZ), startDirection);
+        }
+
+        private void GenerateWaypointNodesForRoom(Room room, IList<Cell> waypoints)
+        {
+            float mag = m_rng.NextSingle();
+            mag = 1.0f - (mag * mag);
+            int nodeCountForCurrentRoom = (int)System.Math.Ceiling(room.Cells.Count() * m_settings.maxRoomDensity * mag);
+            List<Cell> availableCells = room.Cells.ToList();
+            for (int i = 0; i < nodeCountForCurrentRoom; ++i)
+            {
+                int chosenCellIndex = m_rng.Next(availableCells.Count);
+                Cell chosenCell = availableCells[chosenCellIndex];
+                availableCells.RemoveAt(chosenCellIndex);
+                waypoints.Add(chosenCell);
+            }
         }
 
         private Direction GetDirectionOfExitNode(Room currentRoom, in Cell exitNode)
@@ -185,7 +271,7 @@ namespace RhythMage
                 currentPosition = positionAfterMove;
                 currentOffset = CoordinateOffset.Distance(currentPosition, to);
             }
-            Debug.AssertFormat(currentOffset.Magnitude == 0, "Failed to reach target {0}", to);
+            Debug.AssertFormat(currentOffset.Magnitude == 0, "Failed to reach target from {0} to {1}", from, to);
             return (currentPosition, currentDirection);
         }
 

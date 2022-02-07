@@ -45,8 +45,10 @@ namespace RhythMage
         {
             m_lastCheckedIndex = 0;
 
+            m_dungeon.OnPathChanged += OnPathChanged;
             m_sound.OnBeat += OnBeat;
             m_gestureHandler.OnSwipe += OnSwipe;
+            OnPathChanged();
         }
 
         void Update()
@@ -65,6 +67,13 @@ namespace RhythMage
 
                 m_lastCheckedIndex = m_avatar.CurrentCellIndex;
             }
+        }
+
+        void OnPathChanged()
+        {
+            Cell currentCell = m_dungeon.GetPathAtIndex(0);
+            transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
+            transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
         }
 
         void OnBeat()

@@ -13,7 +13,7 @@ namespace RhythMage
 
         void Update()
         {
-            transform.forward = cameraProvider.transform.forward;
+            transform.forward = cameraProvider.Camera.transform.forward;
         }
     }
 }

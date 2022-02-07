@@ -69,7 +69,7 @@ namespace RhythMage
 
             HashSet<Cell> wallCells = new HashSet<Cell>();
             AddCorridorFloorAtCell(in currentPosition, wallCells);
-            m_dungeon.AddToPath(currentPosition);
+            //m_dungeon.AddToPath(currentPosition);
 
             // Build path to traverse dungeon up to tileCount
             while (m_dungeon.GetCellCount() < tileCount)
@@ -82,7 +82,7 @@ namespace RhythMage
                 {
                     offset.ApplyTo(ref currentPosition);
                     AddCorridorFloorAtCell(in currentPosition, wallCells);
-                    m_dungeon.AddToPath(currentPosition);
+                    //m_dungeon.AddToPath(currentPosition);
                 }
                 
                 int directionChange = m_rng.Next(2) * 2 - 1;

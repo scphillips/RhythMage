@@ -15,19 +15,19 @@ MonoBehaviour:
   AvatarControllerSettings:
     SwipeLeftSettings:
       HitClips:
+      - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
+      - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
+      SwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
+    SwipeRightSettings:
+      HitClips:
       - {fileID: 8300000, guid: 8650644619390f849a5f0f7f424a2d28, type: 3}
       - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
       SwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
-    SwipeRightSettings:
-      HitClips:
-      - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
-      - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
-      SwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
     SwipeUpSettings:
       HitClips:
-      - {fileID: 8300000, guid: 831dfc883c835324795d3c7512651bd6, type: 3}
-      - {fileID: 8300000, guid: 104dbbbf51d93e146a3d84d2bffe3843, type: 3}
-      SwipeClip: {fileID: 8300000, guid: cdb04d53cbddb9f49a8669fbf0d62c0d, type: 3}
+      - {fileID: 8300000, guid: 8650644619390f849a5f0f7f424a2d28, type: 3}
+      - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
+      SwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
   DungeonAmbientControllerSettings:
     tilePulseColor: {r: 1, g: 1, b: 1, a: 0.627451}
@@ -93,18 +93,17 @@ MonoBehaviour:
       type: 3}
     notchScaleEaseType: 2
   LevelBuilderSettings:
-    maxRoomDensity: 0.25
     minRoomSize: 5
     maxRoomSize: 10
     minRoomCount: 12
     maxRoomCount: 12
     fixedRoomCount: 20
     maxLevelSize: 100
-    levelSeed: -1
+    levelSeed: 0
     regionDebugOutlineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000,
       type: 0}
   PathBuilderSettings:
-    maxRoomDensity: 0.25
+    maxRoomDensity: 0.125
   SoundManagerSettings:
     menuTiming:
       clip: {fileID: 8300000, guid: 1b24aec8c6c75e24188952c93ba11ec6, type: 3}

@@ -16,15 +16,22 @@ namespace RhythMage
         readonly GameStateManager.Settings m_settings;
 
         [Zenject.Inject]
-        AvatarModel m_avatar;
+        readonly AvatarModel m_avatar;
+
+        [Zenject.Inject]
+        readonly LevelBuilder m_levelBuilder;
 
         [Zenject.Inject]
         readonly Zenject.ZenjectSceneLoader m_sceneLoader;
+
+        [Zenject.Inject] readonly DungeonModel m_dungeon;
+        [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
 
         float m_timeSinceAvatarDied;
 
         void Start()
         {
+            m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
             m_gameStateManager.IsGameRunning = true;
         }
         
