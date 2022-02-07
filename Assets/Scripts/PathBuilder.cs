@@ -69,7 +69,7 @@ namespace RhythMage
                     (lastCell, lastDirection) = BuildPathBetweenNodes(lastCell, exitNode, lastDirection, currentRoom, fullPath);
 
                     // Extend path to cross boundary into next room
-                    Cell positionAfterMove = lastCell + Defs.facings[exitDirection];
+                    Cell positionAfterMove = lastCell + Defs.GetFacing(exitDirection);
                     fullPath.Add(positionAfterMove);
                     entryNode = positionAfterMove;
                     entryDirection = exitDirection;
@@ -142,7 +142,7 @@ namespace RhythMage
             var (exitNode, _) = currentRoom.Doorways.First(entry => entry.Item2.index == currentRoom.index + 1);
             Direction exitDir = GetDirectionOfExitNode(currentRoom, exitNode);
             // Step back from doorway one space to find end cell of room
-            CoordinateOffset offset = Defs.facings[Defs.InverseDirection(exitDir)];
+            CoordinateOffset offset = Defs.GetFacing(Defs.InverseDirection(exitDir));
             return (exitNode + offset, exitDir);
         }
 
@@ -157,15 +157,15 @@ namespace RhythMage
             {
                 //Debug.Log(string.Format("Generating {0}-facing path from {1} to {2} ({3})", sourceDirection, from, to, currentOffset));
                 // Favour maintaining source direction
-                Cell positionAfterMove = currentPosition + Defs.facings[currentDirection];
+                Cell positionAfterMove = currentPosition + Defs.GetFacing(currentDirection);
                 CoordinateOffset newOffset = CoordinateOffset.Distance(positionAfterMove, to);
                 if (newOffset > currentOffset || !IsValidCellForRoom(positionAfterMove, room))
                 {
                     // Moving past target, find direction to rotate towards target
                     Direction cw = Defs.RotateDirection(currentDirection, RotationDirection.Clockwise);
-                    Cell positionAfterCWMove = currentPosition + Defs.facings[cw];
+                    Cell positionAfterCWMove = currentPosition + Defs.GetFacing(cw);
                     Direction ccw = Defs.RotateDirection(currentDirection, RotationDirection.CounterClockwise);
-                    Cell positionAfterCCWMove = currentPosition + Defs.facings[ccw];
+                    Cell positionAfterCCWMove = currentPosition + Defs.GetFacing(ccw);
                     if (CoordinateOffset.Distance(positionAfterCWMove, to) < currentOffset || !IsValidCellForRoom(positionAfterCCWMove, room))
                     {
                         currentDirection = cw;
@@ -179,7 +179,7 @@ namespace RhythMage
                         // We are facing directly away from the target, pick one
                         currentDirection = m_rng.NextBool() ? cw : ccw;
                     }
-                    positionAfterMove = currentPosition + Defs.facings[currentDirection];
+                    positionAfterMove = currentPosition + Defs.GetFacing(currentDirection);
                 }
                 fullPath.Add(positionAfterMove);
                 currentPosition = positionAfterMove;

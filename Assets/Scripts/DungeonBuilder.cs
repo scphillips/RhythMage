@@ -74,7 +74,7 @@ namespace RhythMage
             // Build path to traverse dungeon up to tileCount
             while (m_dungeon.GetCellCount() < tileCount)
             {
-                Defs.facings.TryGetValue(currentDirection, out CoordinateOffset offset);
+                CoordinateOffset offset = Defs.GetFacing(currentDirection);
 
                 int length = m_rng.Next(m_settings.minSegmentLength, m_settings.maxSegmentLength);
                 length = System.Math.Min(length, tileCount - m_dungeon.GetCellCount());
@@ -212,7 +212,7 @@ namespace RhythMage
         bool WillIntersectPortal(int tileCount, Cell currentCell, Direction direction)
         {
             int tilesRemaining = tileCount - m_dungeon.GetCellCount();
-            Defs.facings.TryGetValue(direction, out CoordinateOffset offset);
+            CoordinateOffset offset = Defs.GetFacing(direction);
             for (int i = 0; i < tilesRemaining; ++i)
             {
                 offset.ApplyTo(ref currentCell);
@@ -340,7 +340,7 @@ namespace RhythMage
                 List<Cell> adjacentWallCells = new List<Cell>();
                 foreach (var entry in Defs.facings)
                 {
-                    Cell test = cell + entry.Value;
+                    Cell test = cell + entry;
                     if (m_dungeon.Walls.Contains(test))
                     {
                         adjacentWallCells.Add(test);

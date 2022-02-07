@@ -87,15 +87,7 @@ namespace RhythMage
                 {
                     Cell nextCell = m_dungeon.GetPathAtIndex(cellIndex + 1);
                     CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                    Direction direction = Direction.None;
-                    foreach (var entry in Defs.facings)
-                    {
-                        if (entry.Value == offset)
-                        {
-                            direction = entry.Key;
-                            break;
-                        }
-                    }
+                    Direction direction = Defs.GetOffsetDirection(offset);
 
                     if (direction != Direction.None)
                     {

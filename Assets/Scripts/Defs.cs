@@ -230,24 +230,31 @@ namespace RhythMage
     {
         public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;
 
-        public static IReadOnlyDictionary<Direction, CoordinateOffset> facings = new Dictionary<Direction, CoordinateOffset>()
+        public static IReadOnlyList<CoordinateOffset> facings = new List<CoordinateOffset>()
         {
-            { Direction.Forward, CoordinateOffset.Create(0, 1) },
-            { Direction.Right, CoordinateOffset.Create(1, 0) },
-            { Direction.Backward, CoordinateOffset.Create(0, -1) },
-            { Direction.Left, CoordinateOffset.Create(-1, 0) }
+            CoordinateOffset.Create(0, 1),
+            CoordinateOffset.Create(1, 0),
+            CoordinateOffset.Create(0, -1),
+            CoordinateOffset.Create(-1, 0)
         };
 
         public static Direction GetOffsetDirection(in CoordinateOffset offset)
         {
+            int directionInt = 0;
             foreach (var entry in facings)
             {
-                if (entry.Value == offset)
+                if (entry == offset)
                 {
-                    return entry.Key;
+                    return (Direction)directionInt;
                 }
+                ++directionInt;
             }
             return Direction.None;
+        }
+
+        public static CoordinateOffset GetFacing(Direction direction)
+        {
+            return facings[(int)direction];
         }
 
         public static Direction InverseDirection(Direction direction)

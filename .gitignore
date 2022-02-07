@@ -10,6 +10,7 @@ UserSettings/
 
 # Project file excludes
 *.csproj
+*.csproj.meta
 *.csproj.user
 *.DotSettings
 *.DotSettings.user
