@@ -93,13 +93,13 @@ MonoBehaviour:
       type: 3}
     notchScaleEaseType: 2
   LevelBuilderSettings:
-    minRoomSize: 5
-    maxRoomSize: 10
+    minRoomSize: 3
+    maxRoomSize: 7
     minRoomCount: 12
-    maxRoomCount: 12
-    fixedRoomCount: 20
+    maxRoomCount: 16
+    fixedRoomCount: 12
     maxLevelSize: 100
-    levelSeed: 0
+    levelSeed: -1
     regionDebugOutlineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000,
       type: 0}
   PathBuilderSettings:

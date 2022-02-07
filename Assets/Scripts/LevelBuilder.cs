@@ -201,8 +201,8 @@ namespace RhythMage
             List<Cell> waypoints = new List<Cell>();
             m_pathBuilder.BuildPath(dungeon, allRooms, waypoints);
 
-            // Add enemies at waypoints
-            foreach (Cell waypoint in waypoints)
+            // Add enemies at waypoints, ignoring any within grace period at start of level
+            foreach (Cell waypoint in waypoints.Where(entry => dungeon.Path.IndexOf(entry) > 3))
             {
                 var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
                 Enemy enemy = null;

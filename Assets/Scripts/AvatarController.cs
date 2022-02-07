@@ -72,8 +72,17 @@ namespace RhythMage
         void OnPathChanged()
         {
             Cell currentCell = m_dungeon.GetPathAtIndex(0);
+            Cell nextCell = m_dungeon.GetPathAtIndex(1);
+            CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+            Direction direction = Defs.GetOffsetDirection(offset);
+
+            float targetAngle = transform.localEulerAngles.y;
+            if (direction != Direction.None)
+            {
+                targetAngle = 90.0f * (int)direction;
+            }
             transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
-            transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+            transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.up);
         }
 
         void OnBeat()
@@ -146,8 +155,7 @@ namespace RhythMage
                     ++m_avatar.killCount;
                     enemy.Die();
                     m_dungeon.RemoveEnemyAtCell(targetCell);
-
-                    Debug.Log("Swipe " + args.Direction.ToString());
+                    
                     if (args.Direction == Direction.Left)
                     {
                         int index = m_rng.Next(m_settings.SwipeLeftSettings.HitClips.Count);
