@@ -11,7 +11,14 @@ namespace RhythMage
     {
         [Zenject.Inject]
         readonly GameStateManager.Settings m_settings;
-        
+
+        [Zenject.Inject] readonly SoundManager m_soundManager;
+
+        void Start()
+        {
+            m_soundManager.PlayNextTrack();
+        }
+
         public void LoadNextScene()
         {
             SceneManager.LoadScene(m_settings.gameScene);

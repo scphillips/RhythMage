@@ -26,12 +26,14 @@ namespace RhythMage
 
         [Zenject.Inject] readonly DungeonModel m_dungeon;
         [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
+        [Zenject.Inject] readonly SoundManager m_soundManager;
 
         float m_timeSinceAvatarDied;
 
         void Start()
         {
             m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
+            m_soundManager.PlayNextTrack();
             m_gameStateManager.IsGameRunning = true;
         }
         

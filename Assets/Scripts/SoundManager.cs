@@ -8,7 +8,7 @@ using Zenject;
 
 namespace RhythMage
 {
-    public class SoundManager : IInitializable, ITickable
+    public class SoundManager : ITickable
     {
         [System.Serializable]
         public struct AudioTiming
@@ -44,11 +44,6 @@ namespace RhythMage
         int m_beatsInTrack;
 
         double m_lastSeenTime;
-        
-        public void Initialize()
-        {
-            PlayNextTrack();
-        }
 
         public float GetTrackLength()
         {
@@ -114,7 +109,7 @@ namespace RhythMage
             m_lastSeenTime = m_audioSource.time;
         }
 
-        void PlayNextTrack()
+        public void PlayNextTrack()
         {
             var timingData = GetNextTrack();
             m_audioSource.clip = timingData.clip;
