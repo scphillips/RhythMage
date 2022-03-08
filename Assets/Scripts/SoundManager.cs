@@ -4,11 +4,10 @@
 
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 namespace RhythMage
 {
-    public class SoundManager : ITickable
+    public class SoundManager
     {
         [System.Serializable]
         public struct AudioTiming
@@ -29,14 +28,11 @@ namespace RhythMage
         public event System.Action OnBeat;
         public event System.Action OnHalfBeat;
 
-        [Inject]
-        UnityEngine.AudioSource m_audioSource;
+        [Zenject.Inject] UnityEngine.AudioSource m_audioSource;
+        [Zenject.Inject] RandomNumberProvider m_rng;
+        [Zenject.Inject] readonly Settings m_settings;
 
-        [Inject]
-        RandomNumberProvider m_rng;
-
-        [Inject]
-        readonly Settings m_settings;
+        private readonly UpdateManager m_updateManager;
 
         double m_bpm;
         double m_beatLength;
@@ -44,6 +40,12 @@ namespace RhythMage
         int m_beatsInTrack;
 
         double m_lastSeenTime;
+
+        public SoundManager(UpdateManager updateManager)
+        {
+            m_updateManager = updateManager;
+            m_updateManager.OnUpdate += Update;
+        }
 
         public float GetTrackLength()
         {
@@ -58,6 +60,11 @@ namespace RhythMage
         public double GetMaxTimeOffBeat()
         {
             return m_beatLength * 0.25;
+        }
+
+        public double GetTotalTime()
+        {
+            return m_audioSource.time;
         }
 
         public int GetTotalBeatsInTrack()
@@ -90,7 +97,7 @@ namespace RhythMage
             return currentBeatIndex != previousBeatIndex;
         }
 
-        public void Tick()
+        private void Update()
         {
             if (m_audioSource.time >= m_audioSource.clip.length || m_audioSource.isPlaying == false)
             {
@@ -122,7 +129,7 @@ namespace RhythMage
             OnTrackChanged?.Invoke();
         }
 
-        AudioTiming GetNextTrack()
+        private AudioTiming GetNextTrack()
         {
             Scene scene = SceneManager.GetActiveScene();
             if (scene.name == "MenuScene")

@@ -25,6 +25,7 @@ namespace RhythMage
             public AttackAudioSettings SwipeUpSettings;
 
             public AudioClip HeartLostClip;
+            public AudioClip DeathClip;
         }
 
         [Zenject.Inject] readonly Settings m_settings;
@@ -62,7 +63,8 @@ namespace RhythMage
                 {
                     // Take damage
                     m_avatar.TakeDamage();
-                    audioSource.PlayOneShot(m_settings.HeartLostClip);
+                    AudioClip damageClip = m_avatar.CurrentHealth == 0 ? m_settings.DeathClip : m_settings.HeartLostClip;
+                    audioSource.PlayOneShot(damageClip);
                 }
 
                 m_lastCheckedIndex = m_avatar.CurrentCellIndex;
@@ -87,35 +89,38 @@ namespace RhythMage
 
         void OnBeat()
         {
-            int cellIndex = m_avatar.CurrentCellIndex + 1;
+            if (m_avatar.IsAlive)
+            {
+                int cellIndex = m_avatar.CurrentCellIndex + 1;
 
-            if (cellIndex >= m_dungeon.GetCellCount())
-            {
-                cellIndex = 0;
-                m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
-                Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
-                transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
-                transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
-            }
-            else
-            {
-                Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
-                float targetAngle = transform.localEulerAngles.y;
-                if (cellIndex < m_dungeon.GetCellCount() - 1)
+                if (cellIndex >= m_dungeon.GetCellCount())
                 {
-                    Cell nextCell = m_dungeon.GetPathAtIndex(cellIndex + 1);
-                    CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                    Direction direction = Defs.GetOffsetDirection(offset);
-
-                    if (direction != Direction.None)
-                    {
-                        targetAngle = 90.0f * (int)direction;
-                    }
+                    cellIndex = 0;
+                    m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
+                    Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
+                    transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
+                    transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
                 }
-                StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
+                else
+                {
+                    Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
+                    float targetAngle = transform.localEulerAngles.y;
+                    if (cellIndex < m_dungeon.GetCellCount() - 1)
+                    {
+                        Cell nextCell = m_dungeon.GetPathAtIndex(cellIndex + 1);
+                        CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+                        Direction direction = Defs.GetOffsetDirection(offset);
+
+                        if (direction != Direction.None)
+                        {
+                            targetAngle = 90.0f * (int)direction;
+                        }
+                    }
+                    StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
+                }
+
+                m_avatar.CurrentCellIndex = cellIndex;
             }
-            
-            m_avatar.CurrentCellIndex = cellIndex;
         }
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)

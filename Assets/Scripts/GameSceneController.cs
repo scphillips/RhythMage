@@ -28,22 +28,22 @@ namespace RhythMage
         [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
         [Zenject.Inject] readonly SoundManager m_soundManager;
 
-        float m_timeSinceAvatarDied;
+        public float TimeSinceAvatarDied { get; private set; }
 
-        void Start()
+        private void Start()
         {
             m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
             m_soundManager.PlayNextTrack();
             m_gameStateManager.IsGameRunning = true;
         }
         
-        void Update()
+        private void Update()
         {
-            if (m_gameStateManager.IsGameRunning == true && m_avatar.IsAlive() == false)
+            if (m_gameStateManager.IsGameRunning == true && m_avatar.IsAlive == false)
             {
-                m_timeSinceAvatarDied += Time.deltaTime;
+                TimeSinceAvatarDied += Time.deltaTime;
 
-                if (m_timeSinceAvatarDied >= m_settings.delayTransitionToGameOverDuration)
+                if (TimeSinceAvatarDied >= m_settings.delayTransitionToGameOverDuration)
                 {
                     m_gameStateManager.IsGameRunning = false;
 

@@ -580,8 +580,9 @@ GameObject:
   - component: {fileID: 401091605}
   - component: {fileID: 401091604}
   - component: {fileID: 401091607}
-  - component: {fileID: 401091609}
   - component: {fileID: 401091608}
+  - component: {fileID: 401091610}
+  - component: {fileID: 401091609}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -688,10 +689,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _components:
   - {fileID: 401091608}
+  - {fileID: 401091610}
   _identifier: 
   _useSceneContext: 0
   _context: {fileID: 401091605}
   _bindType: 0
+--- !u!114 &401091610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 401091603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 639b93d60eebf5d429e30927c20f4ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &422690198
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,8 +920,9 @@ GameObject:
   - component: {fileID: 801545963}
   - component: {fileID: 801545962}
   - component: {fileID: 801545961}
-  - component: {fileID: 801545964}
   - component: {fileID: 801545960}
+  - component: {fileID: 801545965}
+  - component: {fileID: 801545966}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1001,7 +1016,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &801545964
+--- !u!114 &801545965
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1010,22 +1025,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 801545959}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1437980bca7c724dbfad1e70512e37b, type: 3}
+  m_Script: {fileID: 11500000, guid: e805d526363f6244a95023b9ddfc547e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthImages:
+  m_healthImages:
   - {fileID: 935473184}
   - {fileID: 255688238}
   - {fileID: 1752192694}
   - {fileID: 1019681201}
   - {fileID: 422690200}
-  enemyCounter: {fileID: 2119025168}
-  leftHand: {fileID: 1378771077}
-  rightHand: {fileID: 1878469753}
-  damageOverlayImage: {fileID: 223113934}
-  portalOverlayImage: {fileID: 1144269417}
-  incomingEnemyDisplay: {fileID: 365208544}
-  incomingEnemyTilesAhead: 2
+  m_enemyCounter: {fileID: 2119025168}
+  m_leftHand: {fileID: 1378771077}
+  m_rightHand: {fileID: 1878469753}
+  m_damageOverlayImage: {fileID: 223113934}
+  m_portalOverlayImage: {fileID: 1144269417}
+  m_incomingEnemyDisplay: {fileID: 365208544}
+--- !u!114 &801545966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801545959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0166d8ff8d905b048b2448179e1f5d11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _components:
+  - {fileID: 801545965}
+  _identifier: 
+  _useSceneContext: 0
+  _context: {fileID: 401091605}
+  _bindType: 0
 --- !u!1 &935473182
 GameObject:
   m_ObjectHideFlags: 0
@@ -1204,8 +1236,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1144269416}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &1144269418
 MonoBehaviour:

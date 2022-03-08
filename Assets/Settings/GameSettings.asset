@@ -29,6 +29,7 @@ MonoBehaviour:
       - {fileID: 8300000, guid: d56a4020d34a09643a668e976d4e46bc, type: 3}
       SwipeClip: {fileID: 8300000, guid: fe5e6a5a7c26d32468b5965624ad5489, type: 3}
     HeartLostClip: {fileID: 8300000, guid: 9a20e5575b6298740be299e2014d3a80, type: 3}
+    DeathClip: {fileID: 8300000, guid: a241f01c2b5798a48aa5dd1ac906a367, type: 3}
   DungeonAmbientControllerSettings:
     tilePulseColor: {r: 1, g: 1, b: 1, a: 0.627451}
     tilePulsePrefab: {fileID: 3574761479905969316, guid: 9e9cbf0199a5ba84f9716d50ed95bf16,
@@ -77,7 +78,7 @@ MonoBehaviour:
     passLevelScene:
       m_sceneAsset: {fileID: 102900000, guid: 30c390194167ae844bd2dd8f17e54705, type: 3}
       m_scenePath: Assets/Scenes/PassLevelScene.unity
-    delayTransitionToGameOverDuration: 0.25
+    delayTransitionToGameOverDuration: 0.6
   HUDControllerSettings:
     heartFull: {fileID: 21300000, guid: f3f561575a200bd448f9825da1c0a6f0, type: 3}
     heartBroken: {fileID: 21300000, guid: 4d48925e7d00ffb4cac9262b15ee5370, type: 3}
@@ -92,6 +93,7 @@ MonoBehaviour:
     prefabMeleeEnemyNotch: {fileID: 4326222218899050934, guid: a0787fb0a6d1d8d43b3c1e58ce8d7fc9,
       type: 3}
     notchScaleEaseType: 2
+    incomingEnemyTilesAhead: 2
   LevelBuilderSettings:
     minRoomSize: 3
     maxRoomSize: 7
@@ -103,7 +105,7 @@ MonoBehaviour:
     regionDebugOutlineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000,
       type: 0}
   PathBuilderSettings:
-    maxRoomDensity: 0.125
+    maxRoomDensity: 0.25
   SoundManagerSettings:
     menuTiming:
       clip: {fileID: 8300000, guid: 1b24aec8c6c75e24188952c93ba11ec6, type: 3}

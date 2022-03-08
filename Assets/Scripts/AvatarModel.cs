@@ -26,6 +26,7 @@ namespace RhythMage
 
         public int MaxHealth { get; }
         public int CurrentHealth { get; private set; }
+        public bool IsAlive => CurrentHealth > 0;
 
         public int killCount;
         
@@ -45,11 +46,6 @@ namespace RhythMage
             {
                 HealthMod = -amount
             });
-        }
-
-        public bool IsAlive()
-        {
-            return CurrentHealth > 0;
         }
     }
 }

@@ -283,6 +283,7 @@ namespace RhythMage
         {
             int comparison = value.CompareTo(max);
             if (comparison > 0) return max;
+            comparison = value.CompareTo(min);
             if (comparison < 0) return min;
             return value;
         }

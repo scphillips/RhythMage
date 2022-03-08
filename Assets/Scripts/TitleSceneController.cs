@@ -14,7 +14,7 @@ namespace RhythMage
         [Zenject.Inject]
         readonly GameStateManager.Settings m_settings;
 
-        public List<GameObject> fadeEntities;
+        public List<Image> fadeEntities;
         public AudioSource audioSource;
 
         readonly float m_fadeSpeed = 2.0f;

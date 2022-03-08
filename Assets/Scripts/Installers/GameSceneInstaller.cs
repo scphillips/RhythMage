@@ -25,7 +25,11 @@ namespace RhythMage
             Container.BindFactory<Cell, EnemyType, Enemy, Enemy.Factory>()
                 .FromComponentInNewPrefab(prefabEnemy);
 
-            Container.BindInterfacesAndSelfTo<GameStateManager>()
+            Container.BindInterfacesAndSelfTo<HUDController>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<GameStateManager>()
                 .AsSingle()
                 .NonLazy();
 

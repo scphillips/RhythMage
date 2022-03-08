@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace RhythMage
 {
-    public class GestureHandler : Zenject.ITickable
+    public class GestureHandler
     {
+        [Zenject.Inject] UpdateManager m_updateManager;
+
         public float MinThreshold = 20.0f;
 
         public class GestureSwipeEventArgs : System.EventArgs
@@ -20,12 +22,16 @@ namespace RhythMage
         Vector2 m_startTouchPos;
         bool m_canSwipe;
 
-        void Start()
+        public GestureHandler(UpdateManager updateManager)
         {
+            m_updateManager = updateManager;
+
             m_canSwipe = false;
+
+            m_updateManager.OnUpdate += Update;
         }
 
-        public void Tick()
+        private void Update()
         {
             if (Input.touchCount > 0)
             {
@@ -80,7 +86,7 @@ namespace RhythMage
             }
         }
 
-        void CheckForSwipe(Vector2 position)
+        private void CheckForSwipe(Vector2 position)
         {
             Vector2 offset = position - m_startTouchPos;
 

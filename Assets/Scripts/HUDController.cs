@@ -4,13 +4,12 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace RhythMage
 {
-    public class HUDController : MonoBehaviour
+    public class HUDController
     {
         struct EnemyData
         {
@@ -35,60 +34,48 @@ namespace RhythMage
             public Image prefabMeleeEnemyNotch;
 
             public EasingFunction.Ease notchScaleEaseType;
+
+            public int incomingEnemyTilesAhead;
         }
 
-        [Zenject.Inject]
-        readonly GameDifficulty.Settings m_difficultySettings;
+        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
+        [Zenject.Inject] readonly Settings m_settings;
+        [Zenject.Inject] GameUIElementProvider m_uiElementProvider;
 
-        [Zenject.Inject]
-        readonly Settings m_settings;
-
-        [Zenject.Inject]
-        AvatarModel m_avatar;
-
-        [Zenject.Inject]
-        DungeonModel m_dungeon;
-
-        [Zenject.Inject]
-        GestureHandler m_gestureHandler;
-
-        [Zenject.Inject]
-        SoundManager m_sound;
-
-        public List<Image> healthImages;
-        public TextMeshProUGUI enemyCounter;
-        public Image leftHand;
-        public Image rightHand;
-
-        public Image damageOverlayImage;
-        public CanvasGroup portalOverlayImage;
-        public Image incomingEnemyDisplay;
-        public int incomingEnemyTilesAhead = 2;
+        private readonly AvatarModel m_avatar;
+        private readonly DungeonModel m_dungeon;
+        private readonly GestureHandler m_gestureHandler;
+        private readonly SoundManager m_sound;
+        private readonly UpdateManager m_updateManager;
 
         List<EnemyData> m_enemyData;
         float m_timeToResetAttackGraphics;
 
-        void Start()
+        public HUDController(AvatarModel avatar, DungeonModel dungeon, GestureHandler gestureHandler, SoundManager sound, UpdateManager updateManager)
         {
+            m_avatar = avatar;
+            m_dungeon = dungeon;
+            m_gestureHandler = gestureHandler;
+            m_sound = sound;
+            m_updateManager = updateManager;
+
             m_timeToResetAttackGraphics = 0.0f;
             m_enemyData = new List<EnemyData>();
-
-            UpdateHealthUI();
-            UpdateEnemyCountUI();
 
             m_avatar.OnHealthChange += OnHealthChanged;
             m_dungeon.OnDungeonReset += OnDungeonReset;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_gestureHandler.OnSwipe += OnSwipe;
-            m_sound.OnBeat += OnBeat;
+            m_avatar.OnMove += OnBeat;
+            m_updateManager.OnUpdate += Update;
         }
 
-        void OnBeat()
+        void OnBeat(AvatarModel avatar)
         {
-            PopulateEnemyList(incomingEnemyTilesAhead);
-            if (m_avatar.CurrentCellIndex == m_dungeon.GetCellCount() - 1)
+            PopulateEnemyList(m_settings.incomingEnemyTilesAhead);
+            if (avatar.CurrentCellIndex == m_dungeon.GetCellCount() - 1)
             {
-                StartCoroutine(ShowPortalOverlay(portalOverlayImage, 0.25f, 0.15f));
+                m_uiElementProvider.StartCoroutine(ShowPortalOverlay(m_uiElementProvider.PortalOverlayImage, 0.25f, 0.15f));
             }
         }
 
@@ -96,9 +83,12 @@ namespace RhythMage
         {
             foreach (var entry in m_enemyData)
             {
-                Destroy(entry.notch.gameObject);
+                Object.Destroy(entry.notch.gameObject);
             }
             m_enemyData.Clear();
+
+            UpdateHealthUI();
+            UpdateEnemyCountUI();
         }
 
         void OnEnemyCountChanged(int count)
@@ -110,28 +100,24 @@ namespace RhythMage
         {
             if (args.HealthMod < 0)
             {
-                StartCoroutine(ShowDamageOverlay(damageOverlayImage, 0.4f, 0.25f));
+                float opacityFrom = 0.4f;
+                float opacityTo = avatar.IsAlive ? 0.0f : 0.8f;
+                m_uiElementProvider.StartCoroutine(ShowDamageOverlay(m_uiElementProvider.DamageOverlayImage, opacityFrom, opacityTo, 0.25f));
             }
             UpdateHealthUI();
         }
 
         void UpdateEnemyCountUI()
         {
-            enemyCounter.text = "Kills: " + m_avatar.killCount;
+            m_uiElementProvider.EnemyCounter.text = "Kills: " + m_avatar.killCount;
         }
 
         void UpdateHealthUI()
         {
-            for (int i = 0; i < healthImages.Count; ++i)
+            for (int i = 0; i < m_uiElementProvider.HealthImages.Count; ++i)
             {
-                if (i < m_avatar.CurrentHealth)
-                {
-                    healthImages[i].sprite = m_settings.heartFull;
-                }
-                else
-                {
-                    healthImages[i].sprite = m_settings.heartBroken;
-                }
+                Sprite heartSprite = i < m_avatar.CurrentHealth ? m_settings.heartFull : m_settings.heartBroken;
+                m_uiElementProvider.HealthImages[i].sprite = heartSprite;
             }
         }
 
@@ -139,33 +125,44 @@ namespace RhythMage
         {
             if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
             {
-                leftHand.sprite = m_settings.leftHandNormal;
-                rightHand.sprite = m_settings.rightHandAttack;
+                m_uiElementProvider.LeftHand.sprite = m_settings.leftHandNormal;
+                m_uiElementProvider.RightHand.sprite = m_settings.rightHandAttack;
             }
             else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
             {
-                leftHand.sprite = m_settings.leftHandAttack;
-                rightHand.sprite = m_settings.rightHandNormal;
+                m_uiElementProvider.LeftHand.sprite = m_settings.leftHandAttack;
+                m_uiElementProvider.RightHand.sprite = m_settings.rightHandNormal;
             }
             m_timeToResetAttackGraphics = System.Convert.ToSingle(m_sound.GetBeatLength());
         }
 
-        void Update()
+        private void Update()
         {
             m_timeToResetAttackGraphics -= Time.deltaTime;
             if (m_timeToResetAttackGraphics <= 0.0f)
             {
-                leftHand.sprite = m_settings.leftHandNormal;
-                rightHand.sprite = m_settings.rightHandNormal;
+                m_uiElementProvider.LeftHand.sprite = m_settings.leftHandNormal;
+                m_uiElementProvider.RightHand.sprite = m_settings.rightHandNormal;
             }
-            
-            foreach (var entry in m_enemyData)
+
+            if (m_avatar.IsAlive)
             {
-                UpdateEnemyNotch(entry);
+                foreach (var entry in m_enemyData)
+                {
+                    UpdateEnemyNotch(entry);
+                }
+            }
+            else if (m_enemyData.Count > 0)
+            {
+                for (int i = 0; i < m_enemyData.Count; ++i)
+                {
+                    m_uiElementProvider.StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, Vector2.zero, 0.3f));
+                }
+                m_enemyData.Clear();
             }
         }
 
-        IEnumerator ShowDamageOverlay(Image target, float opacity, float duration)
+        IEnumerator ShowDamageOverlay(Image target, float opacityFrom, float opacityTo, float duration)
         {
             var color = target.color;
 
@@ -174,11 +171,11 @@ namespace RhythMage
             {
                 elapsedTime += Time.deltaTime;
                 float mag = System.Math.Min(1.0f, elapsedTime / duration);
-                color.a = (1.0f - mag) * opacity; // Linear fade out
+                color.a = opacityFrom + mag * (opacityTo - opacityFrom); // Linear fade out
                 target.color = color;
                 yield return null;
             }
-            color.a = 0.0f;
+            color.a = opacityTo;
             target.color = color;
         }
 
@@ -218,17 +215,17 @@ namespace RhythMage
                     Image notch = null;
                     if (enemy.EnemyType == EnemyType.Flying)
                     {
-                        notch = Instantiate(m_settings.prefabFlyingEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabFlyingEnemyNotch);
                     }
                     else if (enemy.EnemyType == EnemyType.Magic)
                     {
-                        notch = Instantiate(m_settings.prefabMagicEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabMagicEnemyNotch);
                     }
                     else if (enemy.EnemyType == EnemyType.Melee)
                     {
-                        notch = Instantiate(m_settings.prefabMeleeEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabMeleeEnemyNotch);
                     }
-                    notch.transform.SetParent(incomingEnemyDisplay.transform, false);
+                    notch.transform.SetParent(m_uiElementProvider.IncomingEnemyDisplay.transform, false);
 
                     data.enemy = enemy;
                     data.notch = notch;
@@ -243,7 +240,11 @@ namespace RhythMage
         {
             int currentCellIndex = m_avatar.CurrentCellIndex;
             int indexOffset = enemyData.cellIndex - currentCellIndex;
-            double delay = System.Math.Min(1.0f, m_sound.TimeSinceLastBeat() / m_sound.GetBeatLength());
+            if (indexOffset == m_settings.incomingEnemyTilesAhead)
+            {
+                Debug.Log(string.Format("Setting notch scale for enemy {0} from {1} tile{2} away", enemyData.cellIndex, indexOffset, indexOffset == 1 ? "" : "s"));
+            }
+            double delay = m_sound.GetTotalTime() / m_sound.GetBeatLength() % 1;
             float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
 
@@ -252,15 +253,19 @@ namespace RhythMage
             float mag = System.Math.Max(0.0f, (timeWindow - System.Math.Abs(timeOffset)) / timeWindow);
             float scale = 1.0f + mag;
 
-            if (timeOffset > incomingEnemyTilesAhead - 1)
+            if (timeOffset >= m_settings.incomingEnemyTilesAhead - 1)
             {
-                scale = incomingEnemyTilesAhead - timeOffset;
+                scale = m_settings.incomingEnemyTilesAhead - timeOffset;
             }
             else if (timeOffset < 0.0f)
             {
                 scale = System.Math.Max(0.0f, 1.0f + timeOffset);
             }
 
+            if (scale > 0)
+            {
+                Debug.Log(string.Format("Assigning enemy {0} to scale {1} at time offset {2}", enemyData.cellIndex, scale, timeOffset));
+            }
             float xCoordinate = timeOffset * 100.0f;
             enemyData.notch.transform.localPosition = new Vector2(xCoordinate, 0.0f);
             enemyData.notch.transform.localScale = new Vector2(scale, scale);
@@ -272,7 +277,7 @@ namespace RhythMage
             {
                 if (m_enemyData[i].enemy == enemy)
                 {
-                    StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, Vector2.zero, 0.3f));
+                    m_uiElementProvider.StartCoroutine(DeathAnimation(m_enemyData[i].notch.transform, Vector2.zero, 0.3f));
                     m_enemyData.RemoveAt(i);
                 }
                 else
@@ -296,7 +301,7 @@ namespace RhythMage
                 yield return null;
             }
 
-            Destroy(transform.gameObject);
+            Object.Destroy(transform.gameObject);
         }
     }
 }
