@@ -24,7 +24,7 @@ namespace RhythMage
 
         void Start()
         {
-            m_settings = Utils.FindGameSettings().DungeonAmbientControllerSettings;
+            m_settings = Utils.GetOrCreateGameSettings().DungeonAmbientControllerSettings;
             m_dungeon = Utils.FindDungeonModel();
             m_sound = Utils.FindSoundManager();
             Utils.FindAvatarModel().OnMove += OnAvatarMove;

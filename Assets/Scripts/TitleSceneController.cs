@@ -23,7 +23,7 @@ namespace RhythMage
 
         void Start()
         {
-            m_settings = Utils.FindGameSettings();
+            m_settings = Utils.GetOrCreateGameSettings();
 
             m_opacity = 0.0f;
             m_isEnding = false;

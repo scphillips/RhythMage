@@ -42,7 +42,7 @@ namespace RhythMage
 
         void Start()
         {
-            m_settings = Utils.FindGameSettings();
+            m_settings = Utils.GetOrCreateGameSettings();
 
             SceneManager.sceneLoaded += FindAudioSource;
             FindAudioSource(SceneManager.GetActiveScene(), default);

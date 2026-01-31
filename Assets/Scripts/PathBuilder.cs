@@ -28,9 +28,9 @@ namespace RhythMage
         public PathBuilder()
         {
             m_rng = Utils.GetRng();
-            m_settings = Utils.FindGameSettings().PathBuilderSettings;
-            m_levelBuilderSettings = Utils.FindGameSettings().LevelBuilderSettings;
-            m_dungeonAmbientSettings = Utils.FindGameSettings().DungeonAmbientControllerSettings;
+            m_settings = Utils.GetOrCreateGameSettings().PathBuilderSettings;
+            m_levelBuilderSettings = Utils.GetOrCreateGameSettings().LevelBuilderSettings;
+            m_dungeonAmbientSettings = Utils.GetOrCreateGameSettings().DungeonAmbientControllerSettings;
         }
 
         public void BuildPath(DungeonModel dungeon, List<Room> allRooms, List<Cell> waypoints)

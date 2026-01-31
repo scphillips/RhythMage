@@ -52,8 +52,8 @@ namespace RhythMage
 
         public void Start()
         {
-            m_settings = Utils.FindGameSettings().HUDControllerSettings;
-            m_difficultySettings = Utils.FindGameSettings().GameDifficultySettings;
+            m_settings = Utils.GetOrCreateGameSettings().HUDControllerSettings;
+            m_difficultySettings = Utils.GetOrCreateGameSettings().GameDifficultySettings;
             m_avatar = Utils.FindAvatarModel();
             m_dungeon = Utils.FindDungeonModel();
             m_sound = Utils.FindSoundManager();

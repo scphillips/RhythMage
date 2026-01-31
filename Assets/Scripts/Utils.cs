@@ -56,7 +56,7 @@ namespace RhythMage
         {
             if (rng == null)
             {
-                GameSettings settings = FindGameSettings();
+                GameSettings settings = GetOrCreateGameSettings();
                 if (settings?.LevelBuilderSettings.levelSeed != -1)
                 {
                     rng = new RandomNumberProvider(settings.LevelBuilderSettings.levelSeed);
@@ -73,6 +73,11 @@ namespace RhythMage
         public static GameStateManager GetOrCreateGameStateManager()
         {
             return GetOrCreatePersistentComponents().GetComponent<GameStateManager>();
+        }
+
+        public static GameSettings GetOrCreateGameSettings()
+        {
+            return GetOrCreateGameStateManager()?.settings;
         }
 
         public static GestureHandler GetOrCreateGestureHandler()

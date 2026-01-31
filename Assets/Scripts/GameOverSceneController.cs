@@ -17,8 +17,8 @@ namespace RhythMage
 
         public void LoadNextScene()
         {
-            Utils.FindGameStateManager()?.ResetAvatar();
-            SceneManager.LoadScene(Utils.FindGameSettings().GameStateManagerSettings.menuScene);
+            Utils.GetOrCreateGameStateManager().ResetAvatar();
+            SceneManager.LoadScene(Utils.GetOrCreateGameSettings().GameStateManagerSettings.menuScene);
         }
     }
 }

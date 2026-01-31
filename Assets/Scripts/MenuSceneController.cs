@@ -13,7 +13,7 @@ namespace RhythMage
 
         void Start()
         {
-            m_settings = Utils.FindGameSettings();
+            m_settings = Utils.GetOrCreateGameSettings();
         }
 
         public void LoadNextScene()

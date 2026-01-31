@@ -41,7 +41,7 @@ namespace RhythMage
         {
             m_lastCheckedIndex = 0;
 
-            m_settings = Utils.FindGameSettings();
+            m_settings = Utils.GetOrCreateGameSettings();
             m_avatar = Utils.FindAvatarModel();
             m_dungeon = Utils.FindDungeonModel();
             m_dungeon.OnPathChanged += OnPathChanged;
@@ -230,7 +230,7 @@ namespace RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float phase = elapsedTime / duration;
+                float phase = Defs.Clamp(elapsedTime / duration, 0.0f, 1.0f);
                 float rotPhaseDelay = 0.5f;
                 float magRot = Defs.Clamp(phase * (1.0f + rotPhaseDelay) - rotPhaseDelay, 0.0f, 1.0f);
                 transform.localPosition = startPosition + offset * phase;
