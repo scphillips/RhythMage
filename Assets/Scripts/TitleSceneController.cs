@@ -11,11 +11,11 @@ namespace RhythMage
 {
     public class TitleSceneController : MonoBehaviour
     {
-        [Zenject.Inject]
-        readonly GameStateManager.Settings m_settings;
 
         public List<Image> fadeEntities;
         public AudioSource audioSource;
+
+        GameSettings m_settings;
 
         readonly float m_fadeSpeed = 2.0f;
         float m_opacity;
@@ -23,13 +23,15 @@ namespace RhythMage
 
         void Start()
         {
+            m_settings = Utils.FindGameSettings();
+
             m_opacity = 0.0f;
             m_isEnding = false;
         }
 
         void Update()
         {
-            if (m_isEnding == false && m_opacity == 1.0f)
+            if (m_isEnding == false)
             {
                 m_isEnding = (Input.anyKeyDown || audioSource.isPlaying == false);
             }
@@ -47,7 +49,7 @@ namespace RhythMage
 
             if (m_isEnding && m_opacity == 0.0f)
             {
-                SceneManager.LoadScene(m_settings.menuScene.ScenePath);
+                SceneManager.LoadScene(m_settings.GameStateManagerSettings.menuScene);
             }
         }
     }

@@ -18,21 +18,21 @@ namespace RhythMage
             public EasingFunction.Ease tilePulseEaseType;
         }
 
-        [Zenject.Inject]
-        readonly Settings m_settings;
-
-        [Zenject.Inject]
-        readonly DungeonModel m_dungeon;
-
-        [Zenject.Inject]
-        readonly AvatarModel m_avatar;
-
-        [Zenject.Inject]
-        readonly SoundManager m_sound;
+        Settings m_settings;
+        DungeonModel m_dungeon;
+        SoundManager m_sound;
 
         void Start()
         {
-            m_avatar.OnMove += OnAvatarMove;
+            m_settings = Utils.FindGameSettings().DungeonAmbientControllerSettings;
+            m_dungeon = Utils.FindDungeonModel();
+            m_sound = Utils.FindSoundManager();
+            Utils.FindAvatarModel().OnMove += OnAvatarMove;
+        }
+
+        void OnDestroy()
+        {
+            Utils.FindAvatarModel().OnMove -= OnAvatarMove;
         }
         
         void OnAvatarMove(AvatarModel avatar)

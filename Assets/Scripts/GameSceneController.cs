@@ -9,31 +9,24 @@ namespace RhythMage
 {
     public class GameSceneController : MonoBehaviour
     {
-        [Zenject.Inject]
-        readonly GameStateManager m_gameStateManager;
+        GameStateManager m_gameStateManager;
+        AvatarModel m_avatar;
+        public DungeonModel dungeon = new DungeonModel();
 
-        [Zenject.Inject]
-        readonly GameStateManager.Settings m_settings;
-
-        [Zenject.Inject]
-        readonly AvatarModel m_avatar;
-
-        [Zenject.Inject]
-        readonly LevelBuilder m_levelBuilder;
-
-        [Zenject.Inject]
-        readonly Zenject.ZenjectSceneLoader m_sceneLoader;
-
-        [Zenject.Inject] readonly DungeonModel m_dungeon;
-        [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
-        [Zenject.Inject] readonly SoundManager m_soundManager;
+        LevelBuilder m_levelBuilder;
+        PathBuilder m_pathBuilder;
+        GameSettings m_settings;
 
         public float TimeSinceAvatarDied { get; private set; }
 
         private void Start()
         {
-            m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
-            m_soundManager.PlayNextTrack();
+            m_gameStateManager = Utils.FindGameStateManager();
+            m_settings = Utils.FindGameSettings();
+            m_avatar = Utils.FindAvatarModel();
+            m_pathBuilder = new PathBuilder();
+            m_levelBuilder = new LevelBuilder(m_settings, m_pathBuilder);
+            m_levelBuilder.BuildLevel(dungeon, Utils.FindLevelRoot());
             m_gameStateManager.IsGameRunning = true;
         }
         
@@ -43,16 +36,18 @@ namespace RhythMage
             {
                 TimeSinceAvatarDied += Time.deltaTime;
 
-                if (TimeSinceAvatarDied >= m_settings.delayTransitionToGameOverDuration)
+                if (TimeSinceAvatarDied >= m_settings.GameStateManagerSettings.delayTransitionToGameOverDuration)
                 {
                     m_gameStateManager.IsGameRunning = false;
 
-                    m_sceneLoader.LoadScene(m_settings.gameOverScene, LoadSceneMode.Single, (container) =>
-                    {
-                        container.BindInstance(m_avatar.killCount).WhenInjectedInto<GameOverSceneInstaller>();
-                    });
+                    SceneManager.LoadScene(m_settings.GameStateManagerSettings.gameOverScene);
                 }
             }
+        }
+
+        public void BuildLevel()
+        {
+            m_levelBuilder.BuildLevel(dungeon, Utils.FindLevelRoot());
         }
     }
 }

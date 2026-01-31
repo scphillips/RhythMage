@@ -9,19 +9,18 @@ namespace RhythMage
 {
     public class GameOverUIController : MonoBehaviour
     {
-        [Zenject.Inject]
-        readonly GameOverController m_gameOverController;
+        public GameOverSceneController gameOverController;
 
         public TextMeshProUGUI FinalScoreLabel;
 
         void Start()
         {
-            FinalScoreLabel.text = "Total Kills: " + m_gameOverController.GetFinalScore();
+            FinalScoreLabel.text = "Total Kills: " + gameOverController.GetFinalScore();
         }
 
         public void OnReplayButtonPressed()
         {
-            m_gameOverController.LoadNextScene();
+            gameOverController.LoadNextScene();
         }
     }
 }

@@ -3,12 +3,11 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using UnityEngine;
-using Zenject;
 
 namespace RhythMage
 {
-    [CreateAssetMenu(fileName = "GameSettings", menuName = "Installers/GameSettings")]
-    public class GameSettings : ScriptableObjectInstaller<GameSettings>
+    [CreateAssetMenu(fileName = "GameSettings", menuName = "Settings/GameSettings")]
+    public class GameSettings : ScriptableObject
     {
         public AvatarController.Settings AvatarControllerSettings;
         public DungeonAmbientController.Settings DungeonAmbientControllerSettings;
@@ -19,18 +18,5 @@ namespace RhythMage
         public LevelBuilder.Settings LevelBuilderSettings;
         public PathBuilder.Settings PathBuilderSettings;
         public SoundManager.Settings SoundManagerSettings;
-
-        public override void InstallBindings()
-        {
-            Container.BindInstance(AvatarControllerSettings);
-            Container.BindInstance(DungeonAmbientControllerSettings);
-            Container.BindInstance(DungeonBuilderSettings);
-            Container.BindInstance(GameDifficultySettings);
-            Container.BindInstance(GameStateManagerSettings);
-            Container.BindInstance(HUDControllerSettings);
-            Container.BindInstance(LevelBuilderSettings);
-            Container.BindInstance(PathBuilderSettings);
-            Container.BindInstance(SoundManagerSettings);
-        }
     }
 }

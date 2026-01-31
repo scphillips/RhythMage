@@ -15,7 +15,6 @@ namespace RhythMage
             public float maxInputTimeOffBeat;
         }
 
-        [Zenject.Inject]
         readonly Settings m_settings;
     }
 }

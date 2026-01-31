@@ -29,4 +29,7 @@ public class GameUIElementProvider : MonoBehaviour
 
     [SerializeField] private Image m_incomingEnemyDisplay;
     public Image IncomingEnemyDisplay => m_incomingEnemyDisplay;
+
+    [SerializeField] private Image m_currentTimeNotch;
+    public Image CurrentTimeNotch => m_currentTimeNotch;
 }

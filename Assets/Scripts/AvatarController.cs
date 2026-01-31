@@ -10,6 +10,7 @@ namespace RhythMage
 {
     public class AvatarController : MonoBehaviour
     {
+
         [System.Serializable]
         public class AttackAudioSettings
         {
@@ -23,22 +24,16 @@ namespace RhythMage
             public AttackAudioSettings SwipeLeftSettings;
             public AttackAudioSettings SwipeRightSettings;
             public AttackAudioSettings SwipeUpSettings;
+            public AttackAudioSettings SwipeDownSettings;
 
             public AudioClip HeartLostClip;
             public AudioClip DeathClip;
         }
 
-        [Zenject.Inject] readonly Settings m_settings;
-        [Zenject.Inject] readonly AudioSource audioSource;
-        [Zenject.Inject] readonly AvatarModel m_avatar;
-        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
-        [Zenject.Inject] readonly GestureHandler m_gestureHandler;
-        [Zenject.Inject] readonly DungeonModel m_dungeon;
-        [Zenject.Inject] readonly LevelBuilder m_levelBuilder;
-        [Zenject.Inject] readonly RandomNumberProvider m_rng;
-        [Zenject.Inject] readonly SoundManager m_sound;
-
-        [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
+        AvatarModel m_avatar;
+        DungeonModel m_dungeon;
+        SoundManager m_sound;
+        GameSettings m_settings;
 
         int m_lastCheckedIndex;
 
@@ -46,10 +41,21 @@ namespace RhythMage
         {
             m_lastCheckedIndex = 0;
 
+            m_settings = Utils.FindGameSettings();
+            m_avatar = Utils.FindAvatarModel();
+            m_dungeon = Utils.FindDungeonModel();
             m_dungeon.OnPathChanged += OnPathChanged;
+            m_sound = Utils.FindSoundManager();
             m_sound.OnBeat += OnBeat;
-            m_gestureHandler.OnSwipe += OnSwipe;
+            Utils.FindGameStateManager().gestureHandler.OnSwipe += OnSwipe;
+
             OnPathChanged();
+        }
+
+        void OnDestroy()
+        {
+            m_sound.OnBeat -= OnBeat;
+            Utils.FindGameStateManager().gestureHandler.OnSwipe -= OnSwipe;
         }
 
         void Update()
@@ -63,8 +69,8 @@ namespace RhythMage
                 {
                     // Take damage
                     m_avatar.TakeDamage();
-                    AudioClip damageClip = m_avatar.CurrentHealth == 0 ? m_settings.DeathClip : m_settings.HeartLostClip;
-                    audioSource.PlayOneShot(damageClip);
+                    AudioClip damageClip = m_avatar.CurrentHealth <= 0 ? m_settings.AvatarControllerSettings.DeathClip : m_settings.AvatarControllerSettings.HeartLostClip;
+                    m_sound.PlayOneShot(damageClip);
                 }
 
                 m_lastCheckedIndex = m_avatar.CurrentCellIndex;
@@ -75,7 +81,7 @@ namespace RhythMage
         {
             Cell currentCell = m_dungeon.GetPathAtIndex(0);
             Cell nextCell = m_dungeon.GetPathAtIndex(1);
-            CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+            CoordinateOffset offset = CoordinateOffset.Distance(currentCell, nextCell);
             Direction direction = Defs.GetOffsetDirection(offset);
 
             float targetAngle = transform.localEulerAngles.y;
@@ -93,30 +99,31 @@ namespace RhythMage
             {
                 int cellIndex = m_avatar.CurrentCellIndex + 1;
 
-                if (cellIndex >= m_dungeon.GetCellCount())
+                bool nextLevel = cellIndex >= m_dungeon.GetCellCount();
+                if (nextLevel)
                 {
                     cellIndex = 0;
-                    m_levelBuilder.BuildLevel(m_dungeon, m_dungeonRoot);
-                    Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
+                    Utils.FindGameSceneController().BuildLevel();
+                }
+                
+                Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
+                float targetAngle = transform.localEulerAngles.y;
+                if (cellIndex < m_dungeon.GetCellCount() - 1)
+                {
+                    Cell nextCell = m_dungeon.GetPathAtIndex(cellIndex + 1);
+                    CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
+                    Direction direction = Defs.GetOffsetDirection(offset);
+                    targetAngle = Defs.DirectionToAngle(direction);
+                }
+
+                if (nextLevel)
+                {
                     transform.localPosition = new Vector3(currentCell.x, 0.0f, currentCell.y);
-                    transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+                    transform.localRotation = Quaternion.AngleAxis(targetAngle, Vector3.up);
                 }
                 else
                 {
-                    Cell currentCell = m_dungeon.GetPathAtIndex(cellIndex);
-                    float targetAngle = transform.localEulerAngles.y;
-                    if (cellIndex < m_dungeon.GetCellCount() - 1)
-                    {
-                        Cell nextCell = m_dungeon.GetPathAtIndex(cellIndex + 1);
-                        CoordinateOffset offset = CoordinateOffset.Create(nextCell.x - currentCell.x, nextCell.y - currentCell.y);
-                        Direction direction = Defs.GetOffsetDirection(offset);
-
-                        if (direction != Direction.None)
-                        {
-                            targetAngle = 90.0f * (int)direction;
-                        }
-                    }
-                    StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.125f));
+                    StartCoroutine(MoveTo(transform, new Vector3(currentCell.x, 0.0f, currentCell.y), targetAngle, 0.1875f));
                 }
 
                 m_avatar.CurrentCellIndex = cellIndex;
@@ -125,17 +132,26 @@ namespace RhythMage
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
+            if (!m_avatar.IsAlive)
+            {
+                return;
+            }
+
             if (args.Direction == Direction.Left)
             {
-                audioSource.PlayOneShot(m_settings.SwipeLeftSettings.SwipeClip);
+                m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeLeftSettings.SwipeClip);
             }
             else if (args.Direction == Direction.Right)
             {
-                audioSource.PlayOneShot(m_settings.SwipeRightSettings.SwipeClip);
+                m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeRightSettings.SwipeClip);
             }
-            else if (args.Direction == Direction.Forward)
+            else if (args.Direction == Direction.Up)
             {
-                audioSource.PlayOneShot(m_settings.SwipeUpSettings.SwipeClip);
+                m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeUpSettings.SwipeClip);
+            }
+            else if (args.Direction == Direction.Down)
+            {
+                m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeDownSettings.SwipeClip);
             }
 
             if (m_sound.TimeOffBeat() <= m_sound.GetMaxTimeOffBeat())
@@ -152,31 +168,49 @@ namespace RhythMage
                 }
 
                 if (m_dungeon.GetEnemyAtCell(targetCell, out Enemy enemy)
-                    && ((enemy.EnemyType == EnemyType.Flying && args.Direction == Direction.Forward)
-                        || (enemy.EnemyType == EnemyType.Magic && args.Direction == Direction.Right)
-                        || (enemy.EnemyType == EnemyType.Melee && args.Direction == Direction.Left)))
+                    && ((enemy.EnemyType == EnemyType.Bat && args.Direction == Direction.Up)
+                        || (enemy.EnemyType == EnemyType.Goblin && args.Direction == Direction.Left)
+                        || (enemy.EnemyType == EnemyType.Rat && args.Direction == Direction.Down)
+                        || (enemy.EnemyType == EnemyType.Slime && args.Direction == Direction.Right)))
                 {
                     // Valid combination, destroy the enemy
                     ++m_avatar.killCount;
                     enemy.Die();
                     m_dungeon.RemoveEnemyAtCell(targetCell);
-                    
+                    RandomNumberProvider rng = Utils.GetRng();
                     if (args.Direction == Direction.Left)
                     {
-                        int index = m_rng.Next(m_settings.SwipeLeftSettings.HitClips.Count);
-                        audioSource.PlayOneShot(m_settings.SwipeLeftSettings.HitClips[index]);
+                        int index = rng.Next(m_settings.AvatarControllerSettings.SwipeLeftSettings.HitClips.Count);
+                        m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeLeftSettings.HitClips[index]);
                     }
                     else if (args.Direction == Direction.Right)
                     {
-                        int index = m_rng.Next(m_settings.SwipeRightSettings.HitClips.Count);
-                        audioSource.PlayOneShot(m_settings.SwipeRightSettings.HitClips[index]);
+                        int index = rng.Next(m_settings.AvatarControllerSettings.SwipeRightSettings.HitClips.Count);
+                        m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeRightSettings.HitClips[index]);
                     }
-                    else if (args.Direction == Direction.Forward)
+                    else if (args.Direction == Direction.Up)
                     {
-                        int index = m_rng.Next(m_settings.SwipeUpSettings.HitClips.Count);
-                        audioSource.PlayOneShot(m_settings.SwipeUpSettings.HitClips[index]);
+                        int index = rng.Next(m_settings.AvatarControllerSettings.SwipeUpSettings.HitClips.Count);
+                        m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeUpSettings.HitClips[index]);
+                    }
+                    else if (args.Direction == Direction.Down)
+                    {
+                        int index = rng.Next(m_settings.AvatarControllerSettings.SwipeDownSettings.HitClips.Count);
+                        m_sound.PlayOneShot(m_settings.AvatarControllerSettings.SwipeDownSettings.HitClips[index]);
                     }
                 }
+                else if (enemy != null)
+                {
+                    Debug.Log(string.Format("Wrong attack type {0} versus {1}", args.Direction, enemy.EnemyType));
+                }
+                else
+                {
+                    Debug.Log(string.Format("No enemy found at {0}", targetCell));
+                }
+            }
+            else
+            {
+                Debug.Log(string.Format("Missed beat by {0}/{1}", m_sound.TimeOffBeat(), m_sound.GetMaxTimeOffBeat()));
             }
         }
 
@@ -192,9 +226,11 @@ namespace RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float mag = System.Math.Min(1.0f, elapsedTime / duration);
-                transform.localPosition = startPosition + offset * mag;
-                transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, mag);
+                float phase = elapsedTime / duration;
+                float rotPhaseDelay = 0.5f;
+                float magRot = Defs.Clamp(phase * (1.0f + rotPhaseDelay) - rotPhaseDelay, 0.0f, 1.0f);
+                transform.localPosition = startPosition + offset * phase;
+                transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, magRot);
                 yield return null;
             }
 

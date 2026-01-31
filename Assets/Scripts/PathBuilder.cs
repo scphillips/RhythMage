@@ -17,28 +17,26 @@ namespace RhythMage
             public float maxRoomDensity;
         }
 
-        [Zenject.Inject]
         readonly Settings m_settings;
-
-        [Zenject.Inject]
         readonly LevelBuilder.Settings m_levelBuilderSettings;
-
-        [Zenject.Inject]
         readonly DungeonAmbientController.Settings m_dungeonAmbientSettings;
-
-        [Zenject.Inject]
         readonly RandomNumberProvider m_rng;
-
-        [Zenject.Inject(Id = "dungeon_root")] readonly Transform m_dungeonRoot;
+        readonly Transform m_dungeonRoot;
 
         private GameObject m_pathOutline;
+
+        public PathBuilder()
+        {
+            m_rng = Utils.GetRng();
+            m_settings = Utils.FindGameSettings().PathBuilderSettings;
+            m_levelBuilderSettings = Utils.FindGameSettings().LevelBuilderSettings;
+            m_dungeonAmbientSettings = Utils.FindGameSettings().DungeonAmbientControllerSettings;
+        }
 
         public void BuildPath(DungeonModel dungeon, List<Room> allRooms, List<Cell> waypoints)
         {
             Debug.AssertFormat(allRooms.Any(), "Attempting to build path with no rooms");
             List<Cell> fullPath = new List<Cell>();
-            Object.Destroy(m_pathOutline);
-            m_pathOutline = new GameObject(string.Format("Path"));
             // Pick random entry node for first room
             var (firstNode, firstDirection) = PickRandomEntryNode(allRooms.First());
             fullPath.Add(firstNode);
@@ -81,24 +79,30 @@ namespace RhythMage
             }
             dungeon.SetPath(fullPath);
 
-            //Debug.Log(string.Format("Generated {0} steps in path", fullPath.Count));
-            //LineRenderer renderer = m_pathOutline.AddComponent<LineRenderer>();
-            //renderer.material = m_levelBuilderSettings.regionDebugOutlineMaterial;
-            //int index = 0;
-            //Direction previousDirection = firstDirection;
-            //Vector3[] pathLines = fullPath.Select(entry => GetLineRendererCoordinate(entry, fullPath, ref index, ref previousDirection)).ToArray();
-            //renderer.positionCount = fullPath.Count;
-            //renderer.startWidth = renderer.endWidth = 0.125f;
-            //renderer.SetPositions(pathLines);
-            //renderer.startColor = renderer.endColor = new Color(1.0f, 1.0f, 0.0f);
-            //m_pathOutline.transform.SetParent(m_dungeonRoot, false);
-            //
-            //foreach (Cell waypoint in waypoints)
-            //{
-            //    SpriteRenderer node = Object.Instantiate(m_dungeonAmbientSettings.tilePulsePrefab, m_pathOutline.transform);
-            //    node.name = string.Format("Node {0}", waypoint);
-            //    node.transform.localPosition = new Vector3(waypoint.x, 0.5f, waypoint.y);
-            //}
+            if (m_levelBuilderSettings.RenderDebug)
+            {
+                Object.Destroy(m_pathOutline);
+                m_pathOutline = new GameObject(string.Format("Path"));
+                
+                Debug.Log(string.Format("Generated {0} steps in path", fullPath.Count));
+                LineRenderer renderer = m_pathOutline.AddComponent<LineRenderer>();
+                renderer.material = m_levelBuilderSettings.regionDebugOutlineMaterial;
+                int index = 0;
+                Direction previousDirection = firstDirection;
+                Vector3[] pathLines = fullPath.Select(entry => GetLineRendererCoordinate(entry, fullPath, ref index, ref previousDirection)).ToArray();
+                renderer.positionCount = fullPath.Count;
+                renderer.startWidth = renderer.endWidth = 0.125f;
+                renderer.SetPositions(pathLines);
+                renderer.startColor = renderer.endColor = new Color(1.0f, 1.0f, 0.0f);
+                m_pathOutline.transform.SetParent(m_dungeonRoot, false);
+
+                foreach (Cell waypoint in waypoints)
+                {
+                    SpriteRenderer node = Object.Instantiate(m_dungeonAmbientSettings.tilePulsePrefab, m_pathOutline.transform);
+                    node.name = string.Format("Node {0}", waypoint);
+                    node.transform.localPosition = new Vector3(waypoint.x, 0.5f, waypoint.y);
+                }
+            }
         }
 
         private Vector3 GetLineRendererCoordinate(in Cell currentCell, IList<Cell> allCells, ref int index, ref Direction previousDirection)

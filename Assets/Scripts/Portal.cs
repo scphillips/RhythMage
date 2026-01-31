@@ -8,21 +8,16 @@ namespace RhythMage
 {
     public class Portal : MonoBehaviour
     {
-        [Zenject.Inject]
         readonly AvatarModel m_avatar;
-
-        [Zenject.Inject]
         readonly DungeonModel m_dungeon;
-
-        [Zenject.Inject]
-        readonly SoundManager soundManager;
 
         public GameObject active;
         public GameObject inactive;
         
         void Start()
         {
-            soundManager.OnBeat += OnBeat;
+            SoundManager sound = Utils.FindSoundManager();
+            sound.OnBeat += OnBeat;
         }
 
         void OnBeat()

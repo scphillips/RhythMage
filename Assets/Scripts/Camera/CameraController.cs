@@ -3,22 +3,14 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using UnityEngine;
-using Zenject;
 
 namespace RhythMage
 {
     [ExecuteInEditMode]
-    public class CameraController : ILateTickable
+    public class CameraController : MonoBehaviour
     {
-        [Inject]
         public ICameraBehavior Behavior { get; set; }
         public GameObject Camera { get; set; }
-
-        [Inject]
-        CameraController(GameObject camera)
-        {
-            Camera = camera;
-        }
 
         public void LateTick()
         {

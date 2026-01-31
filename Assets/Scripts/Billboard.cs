@@ -8,12 +8,16 @@ namespace RhythMage
 {
     public class Billboard : MonoBehaviour
     {
-        [Zenject.Inject]
-        readonly CameraProvider cameraProvider;
+        CameraProvider m_cameraProvider;
+
+        void Start()
+        {
+            m_cameraProvider = Utils.FindCameraProvider();
+        }
 
         void Update()
         {
-            transform.forward = cameraProvider.Camera.transform.forward;
+            transform.forward = m_cameraProvider.Camera.transform.forward;
         }
     }
 }

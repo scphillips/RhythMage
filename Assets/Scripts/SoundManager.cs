@@ -3,11 +3,12 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace RhythMage
 {
-    public class SoundManager
+    public class SoundManager : MonoBehaviour
     {
         [System.Serializable]
         public struct AudioTiming
@@ -28,11 +29,9 @@ namespace RhythMage
         public event System.Action OnBeat;
         public event System.Action OnHalfBeat;
 
-        [Zenject.Inject] UnityEngine.AudioSource m_audioSource;
-        [Zenject.Inject] RandomNumberProvider m_rng;
-        [Zenject.Inject] readonly Settings m_settings;
+        private UnityEngine.AudioSource m_audioSource;
+        GameSettings m_settings;
 
-        private readonly UpdateManager m_updateManager;
 
         double m_bpm;
         double m_beatLength;
@@ -41,15 +40,36 @@ namespace RhythMage
 
         double m_lastSeenTime;
 
-        public SoundManager(UpdateManager updateManager)
+        void Start()
         {
-            m_updateManager = updateManager;
-            m_updateManager.OnUpdate += Update;
+            m_settings = Utils.FindGameSettings();
+
+            SceneManager.sceneLoaded += FindAudioSource;
+            FindAudioSource(SceneManager.GetActiveScene(), default);
+        }
+
+        void FindAudioSource(Scene scene, LoadSceneMode mode)
+        {
+            m_audioSource = null;
+
+            GameObject[] gameObjects;
+            gameObjects = GameObject.FindGameObjectsWithTag("PrimaryAudioSource");
+            if (gameObjects.Length > 0)
+            {
+                m_audioSource = gameObjects[0].GetComponent<AudioSource>();
+            }
+
+            PlayNextTrack();
+        }
+
+        public void PlayOneShot(AudioClip clip)
+        {
+            m_audioSource.PlayOneShot(clip);
         }
 
         public float GetTrackLength()
         {
-            return m_audioSource.clip.length;
+            return m_audioSource.clip?.length ?? 0.0f;
         }
 
         public double GetBeatLength()
@@ -59,7 +79,7 @@ namespace RhythMage
 
         public double GetMaxTimeOffBeat()
         {
-            return m_beatLength * 0.25;
+            return m_settings.GameDifficultySettings.maxInputTimeOffBeat;
         }
 
         public double GetTotalTime()
@@ -99,10 +119,9 @@ namespace RhythMage
 
         private void Update()
         {
-            if (m_audioSource.time >= m_audioSource.clip.length || m_audioSource.isPlaying == false)
+            if (m_audioSource.isPlaying == false || m_audioSource.clip == null || m_audioSource.time >= m_audioSource.clip.length)
             {
                 PlayNextTrack();
-                OnBeat?.Invoke();
             }
             else if (WillBeatThisFrame())
             {
@@ -119,14 +138,18 @@ namespace RhythMage
         public void PlayNextTrack()
         {
             var timingData = GetNextTrack();
-            m_audioSource.clip = timingData.clip;
-            m_audioSource.Play();
-            m_bpm = timingData.bpm;
-            m_beatLength = m_bpm != 0.0 ? 60.0 / m_bpm : 0.0;
-            m_halfBeatLength = m_beatLength * 0.5;
-            m_beatsInTrack = System.Convert.ToInt32(GetTrackLength() / GetBeatLength());
+            if (timingData.clip)
+            {
+                Debug.Log(string.Format("Playing {0} at {1} bpm", timingData.clip, timingData.bpm));
+                m_audioSource.clip = timingData.clip;
+                m_audioSource.Play();
+                m_bpm = timingData.bpm;
+                m_beatLength = m_bpm != 0.0 ? 60.0 / m_bpm : 0.0;
+                m_halfBeatLength = m_beatLength * 0.5;
+                m_beatsInTrack = System.Convert.ToInt32(GetTrackLength() / GetBeatLength());
 
-            OnTrackChanged?.Invoke();
+                OnTrackChanged?.Invoke();
+            }
         }
 
         private AudioTiming GetNextTrack()
@@ -134,17 +157,19 @@ namespace RhythMage
             Scene scene = SceneManager.GetActiveScene();
             if (scene.name == "MenuScene")
             {
-                return m_settings.menuTiming;
+                return m_settings.SoundManagerSettings.menuTiming;
             }
             else if (scene.name == "PassLevelScene")
             {
-                return m_settings.passLevelTiming;
+                return m_settings.SoundManagerSettings.passLevelTiming;
             }
-            else
+            else if (scene.name == "GameScene")
             {
-                int trackIndex = m_rng.Next(m_settings.timings.Count);
-                return m_settings.timings[trackIndex];
+                GameStateManager gameStateManager = GetComponent<GameStateManager>();
+                int trackIndex = Utils.GetRng().Next(m_settings.SoundManagerSettings.timings.Count);
+                return m_settings.SoundManagerSettings.timings[trackIndex];
             }
+            return default;
         }
     }
 }

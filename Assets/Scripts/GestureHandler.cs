@@ -8,9 +8,7 @@ namespace RhythMage
 {
     public class GestureHandler
     {
-        [Zenject.Inject] UpdateManager m_updateManager;
-
-        public float MinThreshold = 20.0f;
+        public float MinThreshold = 30.0f;
 
         public class GestureSwipeEventArgs : System.EventArgs
         {
@@ -22,16 +20,12 @@ namespace RhythMage
         Vector2 m_startTouchPos;
         bool m_canSwipe;
 
-        public GestureHandler(UpdateManager updateManager)
+        public GestureHandler()
         {
-            m_updateManager = updateManager;
-
             m_canSwipe = false;
-
-            m_updateManager.OnUpdate += Update;
         }
 
-        private void Update()
+        public void Update()
         {
             if (Input.touchCount > 0)
             {
@@ -60,28 +54,28 @@ namespace RhythMage
             {
                 OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Right
+                    Direction = Direction.Left
                 });
             }
             else if (Input.GetKeyDown("right"))
             {
                 OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Left
+                    Direction = Direction.Right
                 });
             }
             else if (Input.GetKeyDown("up"))
             {
                 OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Forward
+                    Direction = Direction.Up
                 });
             }
             else if (Input.GetKeyDown("down"))
             {
                 OnSwipe?.Invoke(new GestureSwipeEventArgs
                 {
-                    Direction = Direction.Backward
+                    Direction = Direction.Down
                 });
             }
         }
@@ -100,7 +94,7 @@ namespace RhythMage
                 }
                 else
                 {
-                    direction = (offset.y < 0) ? Direction.Backward : Direction.Forward;
+                    direction = (offset.y < 0) ? Direction.Down : Direction.Up;
                 }
 
                 var args = new GestureSwipeEventArgs

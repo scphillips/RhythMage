@@ -2,6 +2,8 @@
 // Unauthorized copying of this file via any medium is strictly prohibited.
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
+using UnityEngine;
+
 namespace RhythMage
 {
     public class AvatarModel
@@ -24,18 +26,19 @@ namespace RhythMage
             }
         }
 
-        public int MaxHealth { get; }
+        public AvatarSettings m_settings;
         public int CurrentHealth { get; private set; }
         public bool IsAlive => CurrentHealth > 0;
 
+        [System.NonSerialized]
         public int killCount;
         
         int m_currentCellIndex;
 
-        public AvatarModel()
+        public void Init(AvatarSettings settings)
         {
-            MaxHealth = 5;
-            CurrentHealth = MaxHealth;
+            m_settings = settings;
+            CurrentHealth = m_settings.MaxHealth;
             killCount = 0;
         }
 

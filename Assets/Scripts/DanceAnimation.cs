@@ -3,6 +3,7 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace RhythMage
@@ -17,9 +18,6 @@ namespace RhythMage
             public Sprite[] animationFrames;
         }
 
-        [Zenject.Inject]
-        readonly SoundManager soundManager;
-
         public List<AnimationEntry> animationEntries;
 
         [field: SerializeField]
@@ -32,6 +30,7 @@ namespace RhythMage
         {
             if (animationEntries.Count > 0)
             {
+                SoundManager soundManager = Utils.FindSoundManager();
                 m_frameCount = animationEntries[0].animationFrames.Length;
                 soundManager.OnBeat += OnBeat;
                 soundManager.OnHalfBeat += OnHalfBeat;

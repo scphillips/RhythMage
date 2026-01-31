@@ -3,16 +3,19 @@
 // Written by Stephen Phillips <stephen.phillips.me@gmail.com>, May 2020
 
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace RhythMage
 {
     public enum Direction
     {
-        Forward,
-        Right,
-        Backward,
+        None,
         Left,
-        None
+        Right,
+        Up,
+        Down,
+        Forward,
+        Backward
     }
 
     public enum RotationDirection
@@ -23,9 +26,10 @@ namespace RhythMage
 
     public enum EnemyType
     {
-        Flying,
-        Magic,
-        Melee
+        Bat,
+        Goblin,
+        Rat,
+        Slime
     }
 
     public struct SegmentModelDef
@@ -230,12 +234,24 @@ namespace RhythMage
     {
         public static readonly int enemyTypeCount = System.Enum.GetValues(typeof(EnemyType)).Length;
 
-        public static IReadOnlyList<CoordinateOffset> facings = new List<CoordinateOffset>()
+        public static T Clamp<T>(T value, T min, T max) where T : System.IComparable<T>
         {
-            CoordinateOffset.Create(0, 1),
+            int comparison = value.CompareTo(max);
+            if (comparison > 0) return max;
+            comparison = value.CompareTo(min);
+            if (comparison < 0) return min;
+            return value;
+        }
+
+        private static IReadOnlyList<CoordinateOffset> facings = new List<CoordinateOffset>()
+        {
+            CoordinateOffset.Create(0, 0),
+            CoordinateOffset.Create(-1, 0),
             CoordinateOffset.Create(1, 0),
-            CoordinateOffset.Create(0, -1),
-            CoordinateOffset.Create(-1, 0)
+            CoordinateOffset.Create(0, 0),
+            CoordinateOffset.Create(0, 0),
+            CoordinateOffset.Create(0, 1),
+            CoordinateOffset.Create(0, -1)
         };
 
         public static Direction GetOffsetDirection(in CoordinateOffset offset)
@@ -257,45 +273,77 @@ namespace RhythMage
             return facings[(int)direction];
         }
 
+        private static IReadOnlyList<Direction> inverseDirections = new List<Direction>()
+        {
+            Direction.None,
+            Direction.Right,
+            Direction.Left,
+            Direction.Down,
+            Direction.Up,
+            Direction.Backward,
+            Direction.Forward
+        };
+
         public static Direction InverseDirection(Direction direction)
         {
-            var directionCount = facings.Count;
-            var directionInt = (int)direction;
-            var inverseDirectionInt = (directionInt + directionCount / 2) % directionCount;
-            return (Direction)inverseDirectionInt;
+            return inverseDirections[(int)direction];
         }
+
+        private static IReadOnlyList<Direction> cwDirections = new List<Direction>()
+        {
+            Direction.None,
+            Direction.Forward,
+            Direction.Backward,
+            Direction.None,
+            Direction.None,
+            Direction.Right,
+            Direction.Left
+        };
+
+        private static IReadOnlyList<Direction> ccwDirections = new List<Direction>()
+        {
+            Direction.None,
+            Direction.Backward,
+            Direction.Forward,
+            Direction.None,
+            Direction.None,
+            Direction.Left,
+            Direction.Right
+        };
 
         public static Direction RotateDirection(Direction direction, RotationDirection rotation)
         {
-            int directionCount = facings.Count;
-            var rotatedDirectionInt = (int)direction + (rotation == RotationDirection.Clockwise ? 1 : -1);
-            rotatedDirectionInt = (rotatedDirectionInt + directionCount) % directionCount;
-            return (Direction)rotatedDirectionInt;
+            IReadOnlyList<Direction> directions = rotation == RotationDirection.Clockwise ? cwDirections : ccwDirections;
+            return directions[(int)direction];
+        }
+
+        private static IReadOnlyList<float> directionsToAngles = new List<float>()
+        {
+            0.0f,
+            270.0f,
+            90.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            180.0f
+        };
+
+        public static float DirectionToAngle(Direction direction)
+        {
+            return directionsToAngles[(int)direction];
         }
 
         public static bool IsOrthogonal(Direction from, Direction to)
         {
-            return RotateDirection(from, RotationDirection.Clockwise) == to
-                || RotateDirection(from, RotationDirection.CounterClockwise) == to;
+            return ccwDirections[(int)from] == to || cwDirections[(int)from] == to;
         }
 
-        public static T Clamp<T>(T value, T min, T max) where T : System.IComparable<T>
+        public static IEnumerable<Direction> ForEachDirection()
         {
-            int comparison = value.CompareTo(max);
-            if (comparison > 0) return max;
-            comparison = value.CompareTo(min);
-            if (comparison < 0) return min;
-            return value;
-        }
-
-        public static IEnumerable<Direction> ForEachDirection(Direction startDirection = Direction.Forward)
-        {
-            int startValue = (int)startDirection;
-            for (int i = 0; i < facings.Count; ++i)
-            {
-                int value = (startValue + i) % facings.Count;
-                yield return (Direction)value;
-            }
+            yield return Direction.Forward;
+            yield return Direction.Right;
+            yield return Direction.Backward;
+            yield return Direction.Left;
         }
     }
 }

@@ -77,7 +77,10 @@ namespace RhythMage
         public bool RemoveEnemyAtCell(Cell cell)
         {
             bool success = m_enemies.Remove(cell);
-            OnEnemyCountChange?.Invoke(m_enemies.Count);
+            if (success)
+            {
+                OnEnemyCountChange?.Invoke(m_enemies.Count);
+            }
             return success;
         }
 

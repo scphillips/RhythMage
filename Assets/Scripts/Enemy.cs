@@ -9,16 +9,27 @@ namespace RhythMage
 {
     public class Enemy : MonoBehaviour
     {
-        public class Factory : Zenject.PlaceholderFactory<Cell, EnemyType, Enemy>
+        public class Factory
         {
-        }
-        
-        [Zenject.Inject]
-        readonly CameraProvider cameraProvider;
+            Enemy m_prefab;
 
-        public GameObject flying;
-        public GameObject magic;
-        public GameObject melee;
+            public Factory(Enemy prefab)
+            {
+                m_prefab = prefab;
+            }
+            
+            public Enemy Create(Cell cell, EnemyType type)
+            {
+                Enemy newEnemy = Instantiate(m_prefab);
+                newEnemy.Reset(cell, type);
+                return newEnemy;
+            }
+        }
+
+        public GameObject bat;
+        public GameObject goblin;
+        public GameObject rat;
+        public GameObject slime;
 
         public event System.Action<Enemy> OnDeathTriggered;
         
@@ -33,9 +44,12 @@ namespace RhythMage
             set
             {
                 m_type = value;
-                flying.SetActive(m_type == EnemyType.Flying);
-                magic.SetActive(m_type == EnemyType.Magic);
-                melee.SetActive(m_type == EnemyType.Melee);
+
+                GameObject activeSprite = ActiveSprite;
+                bat.SetActive(activeSprite == bat);
+                goblin.SetActive(activeSprite == goblin);
+                rat.SetActive(activeSprite == rat);
+                slime.SetActive(activeSprite == slime);
             }
         }
 
@@ -45,26 +59,21 @@ namespace RhythMage
             {
                 switch (EnemyType)
                 {
-                    case EnemyType.Flying: return flying;
-                    case EnemyType.Magic: return magic;
-                    case EnemyType.Melee: return melee;
+                    case EnemyType.Bat: return bat;
+                    case EnemyType.Goblin: return goblin;
+                    case EnemyType.Rat: return rat;
+                    case EnemyType.Slime: return slime;
                     default: return null;
                 }
             }
         }
 
-        [Zenject.Inject]
-        public void Construct(Cell cell, EnemyType type)
-        {
-            Reset(cell);
-            EnemyType = type;
-        }
-
-        public void Reset(Cell cell)
+        public void Reset(Cell cell, EnemyType type)
         {
             transform.localPosition = new Vector3(cell.x, 0.0f, cell.y);
             ActiveSprite.transform.localRotation = Quaternion.Euler(0, 0, 0);
             ActiveSprite.transform.localScale = Vector3.one;
+            EnemyType = type;
         }
 
         public void SetPosition(Cell cell)
@@ -75,8 +84,12 @@ namespace RhythMage
         public void Die()
         {
             OnDeathTriggered?.Invoke(this);
-            transform.SetParent(cameraProvider.transform, true);
-            int direction = (m_type == EnemyType.Magic) ? -1 : 1;
+            CameraProvider cameraProvider = Utils.FindCameraProvider();
+            if (cameraProvider != null)
+            {
+                transform.SetParent(cameraProvider.transform, true);
+            }
+            int direction = (m_type == EnemyType.Rat || m_type == EnemyType.Slime) ? -1 : 1;
             StartCoroutine(DeathAnimation(ActiveSprite.transform, 360.0f * direction, 0.3f));
         }
 
@@ -89,13 +102,15 @@ namespace RhythMage
             while (elapsedTime < duration)
             {
                 elapsedTime = System.Math.Min(elapsedTime + Time.deltaTime, duration);
-                float mag = elapsedTime / duration;
-                float currentRotation = angle * mag;
+                float phase = elapsedTime / duration;
+                float currentRotation = angle * phase;
                 transform.localRotation = Quaternion.Euler(0, 0, currentRotation);
-                float currentScale = startScale + (endScale - startScale) * mag;
+                float currentScale = startScale + (endScale - startScale) * phase;
                 transform.localScale = new Vector3(currentScale, currentScale, currentScale);
                 yield return null;
             }
+
+            transform.localScale = new Vector3(endScale, endScale, endScale);
         }
     }
 }

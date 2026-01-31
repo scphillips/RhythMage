@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace RhythMage
 {
-    public class HUDController
+    public class HUDController : MonoBehaviour
     {
         struct EnemyData
         {
@@ -28,49 +28,56 @@ namespace RhythMage
             public Sprite leftHandAttack;
             public Sprite rightHandNormal;
             public Sprite rightHandAttack;
-
-            public Image prefabFlyingEnemyNotch;
-            public Image prefabMagicEnemyNotch;
-            public Image prefabMeleeEnemyNotch;
+            
+            public Image prefabEnemyBatNotch;
+            public Image prefabEnemyGoblinNotch;
+            public Image prefabEnemyRatNotch;
+            public Image prefabEnemySlimeNotch;
 
             public EasingFunction.Ease notchScaleEaseType;
 
             public int incomingEnemyTilesAhead;
         }
 
-        [Zenject.Inject] readonly GameDifficulty.Settings m_difficultySettings;
-        [Zenject.Inject] readonly Settings m_settings;
-        [Zenject.Inject] GameUIElementProvider m_uiElementProvider;
+        public GameUIElementProvider m_uiElementProvider;
 
-        private readonly AvatarModel m_avatar;
-        private readonly DungeonModel m_dungeon;
-        private readonly GestureHandler m_gestureHandler;
-        private readonly SoundManager m_sound;
-        private readonly UpdateManager m_updateManager;
+        GameDifficulty.Settings m_difficultySettings;
+        Settings m_settings;
+        AvatarModel m_avatar;
+        DungeonModel m_dungeon;
+        SoundManager m_sound;
 
         List<EnemyData> m_enemyData;
         float m_timeToResetAttackGraphics;
 
-        public HUDController(AvatarModel avatar, DungeonModel dungeon, GestureHandler gestureHandler, SoundManager sound, UpdateManager updateManager)
+        public void Start()
         {
-            m_avatar = avatar;
-            m_dungeon = dungeon;
-            m_gestureHandler = gestureHandler;
-            m_sound = sound;
-            m_updateManager = updateManager;
+            m_settings = Utils.FindGameSettings().HUDControllerSettings;
+            m_difficultySettings = Utils.FindGameSettings().GameDifficultySettings;
+            m_avatar = Utils.FindAvatarModel();
+            m_dungeon = Utils.FindDungeonModel();
+            m_sound = Utils.FindSoundManager();
 
             m_timeToResetAttackGraphics = 0.0f;
             m_enemyData = new List<EnemyData>();
+            m_uiElementProvider = GetComponent<GameUIElementProvider>();
 
             m_avatar.OnHealthChange += OnHealthChanged;
             m_dungeon.OnDungeonReset += OnDungeonReset;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
-            m_gestureHandler.OnSwipe += OnSwipe;
-            m_avatar.OnMove += OnBeat;
-            m_updateManager.OnUpdate += Update;
+            m_avatar.OnMove += OnAvatarMove;
+            Utils.FindGameStateManager().gestureHandler.OnSwipe += OnSwipe;
+            Utils.FindUpdateManager().OnUpdate += Update;
         }
 
-        void OnBeat(AvatarModel avatar)
+        void OnDestroy()
+        {
+            m_avatar.OnHealthChange -= OnHealthChanged;
+            m_avatar.OnMove -= OnAvatarMove;
+            Utils.FindGameStateManager().gestureHandler.OnSwipe -= OnSwipe;
+        }
+
+        void OnAvatarMove(AvatarModel avatar)
         {
             PopulateEnemyList(m_settings.incomingEnemyTilesAhead);
             if (avatar.CurrentCellIndex == m_dungeon.GetCellCount() - 1)
@@ -123,12 +130,17 @@ namespace RhythMage
 
         void OnSwipe(GestureHandler.GestureSwipeEventArgs args)
         {
-            if (args.Direction == Direction.Left || args.Direction == Direction.Backward)
+            if (!m_avatar.IsAlive)
+            {
+                return;
+            }
+
+            if (args.Direction == Direction.Left || args.Direction == Direction.Down)
             {
                 m_uiElementProvider.LeftHand.sprite = m_settings.leftHandNormal;
                 m_uiElementProvider.RightHand.sprite = m_settings.rightHandAttack;
             }
-            else if (args.Direction == Direction.Right || args.Direction == Direction.Forward)
+            else if (args.Direction == Direction.Right || args.Direction == Direction.Up)
             {
                 m_uiElementProvider.LeftHand.sprite = m_settings.leftHandAttack;
                 m_uiElementProvider.RightHand.sprite = m_settings.rightHandNormal;
@@ -213,17 +225,21 @@ namespace RhythMage
                     EnemyData data;
                     data.cellIndex = cellIndex;
                     Image notch = null;
-                    if (enemy.EnemyType == EnemyType.Flying)
+                    if (enemy.EnemyType == EnemyType.Bat)
                     {
-                        notch = Object.Instantiate(m_settings.prefabFlyingEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabEnemyBatNotch);
                     }
-                    else if (enemy.EnemyType == EnemyType.Magic)
+                    else if (enemy.EnemyType == EnemyType.Goblin)
                     {
-                        notch = Object.Instantiate(m_settings.prefabMagicEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabEnemyGoblinNotch);
                     }
-                    else if (enemy.EnemyType == EnemyType.Melee)
+                    else if (enemy.EnemyType == EnemyType.Rat)
                     {
-                        notch = Object.Instantiate(m_settings.prefabMeleeEnemyNotch);
+                        notch = Object.Instantiate(m_settings.prefabEnemyRatNotch);
+                    }
+                    else if (enemy.EnemyType == EnemyType.Slime)
+                    {
+                        notch = Object.Instantiate(m_settings.prefabEnemySlimeNotch);
                     }
                     notch.transform.SetParent(m_uiElementProvider.IncomingEnemyDisplay.transform, false);
 
@@ -240,11 +256,8 @@ namespace RhythMage
         {
             int currentCellIndex = m_avatar.CurrentCellIndex;
             int indexOffset = enemyData.cellIndex - currentCellIndex;
-            if (indexOffset == m_settings.incomingEnemyTilesAhead)
-            {
-                Debug.Log(string.Format("Setting notch scale for enemy {0} from {1} tile{2} away", enemyData.cellIndex, indexOffset, indexOffset == 1 ? "" : "s"));
-            }
-            double delay = m_sound.GetTotalTime() / m_sound.GetBeatLength() % 1;
+            double current = m_sound.GetTotalTime() / m_sound.GetBeatLength();
+            double delay = current - System.Math.Truncate(current);
             float timeOffset = indexOffset - System.Convert.ToSingle(delay);
             float timeWindow = m_difficultySettings.maxInputTimeOffBeat * 2.0f;
 
@@ -262,10 +275,6 @@ namespace RhythMage
                 scale = System.Math.Max(0.0f, 1.0f + timeOffset);
             }
 
-            if (scale > 0)
-            {
-                Debug.Log(string.Format("Assigning enemy {0} to scale {1} at time offset {2}", enemyData.cellIndex, scale, timeOffset));
-            }
             float xCoordinate = timeOffset * 100.0f;
             enemyData.notch.transform.localPosition = new Vector2(xCoordinate, 0.0f);
             enemyData.notch.transform.localScale = new Vector2(scale, scale);

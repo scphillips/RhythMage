@@ -31,41 +31,40 @@ namespace RhythMage
             [Range(50, 500)]
             public int maxLevelSize;
 
+            [Range(0, 15)]
+            public int startSafeZone;
+
             public int levelSeed;
 
             public Material regionDebugOutlineMaterial;
+
+            public Enemy enemyPrefab;
+            
+            public bool RenderDebug;
         }
 
-        [Zenject.Inject]
         readonly Settings m_settings;
 
-        [Zenject.Inject]
         readonly DungeonBuilder.Settings m_dungeonSettings;
-
-        [Zenject.Inject]
         Enemy.Factory m_enemyFactory;
-
-        [Zenject.Inject]
         readonly PathBuilder m_pathBuilder;
+        readonly RandomNumberProvider m_rng;
 
-        [Zenject.Inject]
-        RandomNumberProvider m_rng;
+        private List<GameObject> m_entities = new List<GameObject>();
 
-        private List<GameObject> m_entities;
-
-        public LevelBuilder()
+        public LevelBuilder(GameSettings gameSettings, PathBuilder pathBuilder)
         {
-            m_entities = new List<GameObject>();
+            m_rng = Utils.GetRng();
+            m_settings = gameSettings.LevelBuilderSettings;
+            m_dungeonSettings = gameSettings.DungeonBuilderSettings;
+            m_pathBuilder = pathBuilder;
+            m_enemyFactory = new Enemy.Factory(m_settings.enemyPrefab);
         }
 
         public void BuildLevel(DungeonModel dungeon, Transform rootTransform)
         {
             // Cleanup existing dungeon (if any)
             dungeon.Reset();
-            if (m_settings.levelSeed != -1)
-            {
-                m_rng.SetSeed(m_settings.levelSeed);
-            }
 
             foreach (GameObject entity in m_entities)
             {
@@ -84,7 +83,7 @@ namespace RhythMage
             int roomCount = m_settings.fixedRoomCount;
             if (roomCount < 1)
             {
-                m_rng.Next(m_settings.minRoomCount, m_settings.maxRoomCount + 1);
+                roomCount = m_rng.Next(m_settings.minRoomCount, m_settings.maxRoomCount + 1);
             }
 
             // Set up first room
@@ -92,6 +91,7 @@ namespace RhythMage
             Room previousRoom = firstRoom;
             bool hasReversedRooms = false;
             // Place remaining rooms - start at index 1
+
             for (int i = 1; i < roomCount; ++i)
             {
                 // Pick direction from previous room based on available connected regions
@@ -202,7 +202,7 @@ namespace RhythMage
             m_pathBuilder.BuildPath(dungeon, allRooms, waypoints);
 
             // Add enemies at waypoints, ignoring any within grace period at start of level
-            foreach (Cell waypoint in waypoints.Where(entry => dungeon.Path.IndexOf(entry) > 3))
+            foreach (Cell waypoint in waypoints.Where(entry => dungeon.Path.IndexOf(entry) > m_settings.startSafeZone))
             {
                 var type = (EnemyType)m_rng.Next(Defs.enemyTypeCount);
                 Enemy enemy = null;
@@ -210,8 +210,7 @@ namespace RhythMage
                 if (gameObject != null)
                 {
                     enemy = gameObject.GetComponent<Enemy>();
-                    enemy.EnemyType = type;
-                    enemy.Reset(waypoint);
+                    enemy.Reset(waypoint, type);
                 }
                 else
                 {
@@ -286,41 +285,44 @@ namespace RhythMage
             //}
 
             // Show debug outline of all regions
-            //allRegions.Sort((lhs, rhs) => (lhs.origin.x * firstRegion.size.y + lhs.origin.y).CompareTo(rhs.origin.x * firstRegion.size.y + rhs.origin.y));
-            //foreach (Region region in allRegions.Where(item => !(item is Room)))
-            //{
-            //    GameObject regionOutline = new GameObject(string.Format("Region {0}", region));
-            //    m_entities.Add(regionOutline);
-            //    LineRenderer renderer = regionOutline.AddComponent<LineRenderer>();
-            //    renderer.material = m_settings.regionDebugOutlineMaterial;
-            //    float posX = region.origin.x + (region.size.x - 1) * 0.5f - 0.5f;
-            //    float posZ = region.origin.y + (region.size.y - 1) * 0.5f - 0.5f;
-            //    float left = posX - region.size.x * 0.5f;
-            //    float back = posZ - region.size.y * 0.5f;
-            //    float right = left + region.size.x;
-            //    float front = back + region.size.y;
-            //    float posY = region.Enabled ? 0.0f : -1.0f;
-            //    Vector3[] positions = new Vector3[4] { new Vector3(left, posY, back), new Vector3(right, posY, back), new Vector3(right, posY, front), new Vector3(left, posY, front) };
-            //    renderer.positionCount = 4;
-            //    renderer.loop = true;
-            //    renderer.startWidth = renderer.endWidth = 0.25f;
-            //    renderer.SetPositions(positions);
-            //    renderer.startColor = renderer.endColor = region.Enabled ? new Color(1.0f, 0.0f, 1.0f) : new Color(0.25f, 0.25f, 0.5f);
+            if (m_settings.RenderDebug)
+            {
+                allRegions.Sort((lhs, rhs) => (lhs.origin.x * firstRegion.size.y + lhs.origin.y).CompareTo(rhs.origin.x * firstRegion.size.y + rhs.origin.y));
+                foreach (Region region in allRegions.Where(item => !(item is Room)))
+                {
+                    GameObject regionOutline = new GameObject(string.Format("Region {0}", region));
+                    m_entities.Add(regionOutline);
+                    LineRenderer renderer = regionOutline.AddComponent<LineRenderer>();
+                    renderer.material = m_settings.regionDebugOutlineMaterial;
+                    float posX = region.origin.x + (region.size.x - 1) * 0.5f - 0.5f;
+                    float posZ = region.origin.y + (region.size.y - 1) * 0.5f - 0.5f;
+                    float left = posX - region.size.x * 0.5f;
+                    float back = posZ - region.size.y * 0.5f;
+                    float right = left + region.size.x;
+                    float front = back + region.size.y;
+                    float posY = region.Enabled ? 0.0f : -1.0f;
+                    Vector3[] positions = new Vector3[4] { new Vector3(left, posY, back), new Vector3(right, posY, back), new Vector3(right, posY, front), new Vector3(left, posY, front) };
+                    renderer.positionCount = 4;
+                    renderer.loop = true;
+                    renderer.startWidth = renderer.endWidth = 0.125f;
+                    renderer.SetPositions(positions);
+                    renderer.startColor = renderer.endColor = region.Enabled ? new Color(1.0f, 0.0f, 1.0f) : new Color(0.25f, 0.25f, 0.5f);
 
-            //    Transform transform = regionOutline.transform;
-            //    transform.SetParent(rootTransform, false);
-            //    transform.localPosition = new Vector3(posX, 0.0f, posZ);
-            //    transform.localScale = new Vector3(region.size.x, 1.0f, region.size.y);
+                    Transform transform = regionOutline.transform;
+                    transform.SetParent(rootTransform, false);
+                    transform.localPosition = new Vector3(posX, 0.0f, posZ);
+                    transform.localScale = new Vector3(region.size.x, 1.0f, region.size.y);
 
-            //    regionEntities[region] = regionOutline;
-            //}
+                    regionEntities[region] = regionOutline;
+                }
 
-            //foreach (Region region in allRegions)
-            //{
-            //    GameObject entity = regionEntities[region];
-            //    ConnectionListDisplay connectionList = entity.AddComponent<ConnectionListDisplay>();
-            //    connectionList.SetConnections(region.connections.Select(entry => (entry.Item1, regionEntities[entry.Item2])).ToList());
-            //}
+                foreach (Region region in allRegions)
+                {
+                    GameObject entity = regionEntities[region];
+                    ConnectionListDisplay connectionList = entity.AddComponent<ConnectionListDisplay>();
+                    connectionList.SetConnections(region.connections.Select(entry => (entry.Item1, regionEntities[entry.Item2])).ToList());
+                }
+            }
         }
 
         private void DisableSmallRegions(Region region, Direction direction)

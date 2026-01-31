@@ -9,19 +9,16 @@ namespace RhythMage
 {
     public class MenuSceneController : MonoBehaviour
     {
-        [Zenject.Inject]
-        readonly GameStateManager.Settings m_settings;
-
-        [Zenject.Inject] readonly SoundManager m_soundManager;
+        GameSettings m_settings;
 
         void Start()
         {
-            m_soundManager.PlayNextTrack();
+            m_settings = Utils.FindGameSettings();
         }
 
         public void LoadNextScene()
         {
-            SceneManager.LoadScene(m_settings.gameScene);
+            SceneManager.LoadScene(m_settings.GameStateManagerSettings.gameScene);
         }
     }
 }

@@ -32,37 +32,17 @@ namespace RhythMage
             public List<Material> wallMaterials;
         }
 
-        [Zenject.Inject]
         readonly Settings m_settings;
-
-        [Zenject.Inject]
         readonly GameDifficulty.Settings m_difficultySettings;
-
-        [Zenject.Inject]
         RandomNumberProvider m_rng;
-
-        [Zenject.Inject]
         DungeonModel m_dungeon;
-
-        [Zenject.Inject]
         Enemy.Factory m_enemyFactory;
 
-        [Zenject.Inject]
-        SoundManager m_sound;
-
-
-        void Start()
-        {
-            BuildDungeon();
-        }
-
-        public void BuildDungeon()
+        public void BuildDungeon(int tileCount)
         {
             // Cleanup existing dungeon (if any)
             m_dungeon.Reset();
             
-            int tileCount = m_sound.GetTotalBeatsInTrack();
-
             // First generate path for the floor and block out all surrounding walls
             Direction currentDirection = Direction.Forward;
             Cell currentPosition = Cell.Zero;
@@ -230,7 +210,7 @@ namespace RhythMage
         Direction ChangeDirection(Direction currentDirection, int change)
         {
             int dirInt = System.Convert.ToInt32(currentDirection);
-            dirInt = (dirInt + Defs.facings.Count + change) % Defs.facings.Count;
+            // dirInt = (dirInt + Defs.facings.Count + change) % Defs.facings.Count;
             return (Direction)dirInt;
         }
 
@@ -318,8 +298,7 @@ namespace RhythMage
             if (gameObject != null)
             {
                 enemy = gameObject.GetComponent<Enemy>();
-                enemy.EnemyType = type;
-                enemy.Reset(cell);
+                enemy.Reset(cell, type);
             }
             else
             {
@@ -338,14 +317,14 @@ namespace RhythMage
             {
                 // Find orthogonally adjacent walls (if any)
                 List<Cell> adjacentWallCells = new List<Cell>();
-                foreach (var entry in Defs.facings)
-                {
-                    Cell test = cell + entry;
-                    if (m_dungeon.Walls.Contains(test))
-                    {
-                        adjacentWallCells.Add(test);
-                    }
-                }
+                // foreach (var entry in Defs.facings)
+                // {
+                //     Cell test = cell + entry;
+                //     if (m_dungeon.Walls.Contains(test))
+                //     {
+                //         adjacentWallCells.Add(test);
+                //     }
+                // }
 
                 // Pick one wall to spawn a brazier
                 if (adjacentWallCells.Count > 0)
