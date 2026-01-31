@@ -47,7 +47,7 @@ namespace RhythMage
             m_dungeon.OnPathChanged += OnPathChanged;
             m_sound = Utils.FindSoundManager();
             m_sound.OnBeat += OnBeat;
-            Utils.FindGameStateManager().gestureHandler.OnSwipe += OnSwipe;
+            Utils.FindGestureHandler().OnSwipe += OnSwipe;
 
             OnPathChanged();
         }
@@ -55,7 +55,11 @@ namespace RhythMage
         void OnDestroy()
         {
             m_sound.OnBeat -= OnBeat;
-            Utils.FindGameStateManager().gestureHandler.OnSwipe -= OnSwipe;
+            GestureHandler gestureHandler = Utils.FindGestureHandler();
+            if (gestureHandler != null)
+            {
+                gestureHandler.OnSwipe -= OnSwipe;
+            }
         }
 
         void Update()

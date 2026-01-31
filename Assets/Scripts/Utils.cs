@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 
 namespace RhythMage
@@ -26,13 +25,24 @@ namespace RhythMage
             return gameObject;
         }
 
+        public static GameObject FindPersistentComponents()
+        {
+            if (persistentComponents == null)
+            {
+                FindGameObjectWithTag("PersistentComponents", out persistentComponents);
+            }
+
+            return persistentComponents;
+        }
+
         public static GameObject GetOrCreatePersistentComponents()
         {
             if (persistentComponents == null)
             {
-                if (!FindGameObjectWithTag("PersistentComponents", out persistentComponents))
+                persistentComponents = FindPersistentComponents();
+                if (persistentComponents == null)
                 {
-                    Object prefab = AssetDatabase.LoadAssetAtPath("Assets/Resources/PersistentComponents.prefab", typeof(GameObject));
+                    Object prefab = Resources.Load("PersistentComponents", typeof(GameObject));
                     GameObject instance = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity) as GameObject;
                     persistentComponents = instance;
                 }
@@ -46,10 +56,10 @@ namespace RhythMage
         {
             if (rng == null)
             {
-                GameStateManager gameStateManager = FindGameStateManager();
-                if (gameStateManager && gameStateManager.settings.LevelBuilderSettings.levelSeed != -1)
+                GameSettings settings = FindGameSettings();
+                if (settings?.LevelBuilderSettings.levelSeed != -1)
                 {
-                    rng = new RandomNumberProvider(gameStateManager.settings.LevelBuilderSettings.levelSeed);
+                    rng = new RandomNumberProvider(settings.LevelBuilderSettings.levelSeed);
                 }
                 else
                 {
@@ -60,24 +70,44 @@ namespace RhythMage
             return rng;
         }
 
-        public static GameStateManager FindGameStateManager()
+        public static GameStateManager GetOrCreateGameStateManager()
         {
             return GetOrCreatePersistentComponents().GetComponent<GameStateManager>();
         }
 
-        public static SoundManager FindSoundManager()
+        public static GestureHandler GetOrCreateGestureHandler()
+        {
+            return GetOrCreateGameStateManager()?.gestureHandler;
+        }
+
+        public static SoundManager GetOrCreateSoundManager()
         {
             return GetOrCreatePersistentComponents().GetComponent<SoundManager>();
         }
 
+        public static GameStateManager FindGameStateManager()
+        {
+            return FindPersistentComponents()?.GetComponent<GameStateManager>();
+        }
+
+        public static GestureHandler FindGestureHandler()
+        {
+            return FindGameStateManager()?.gestureHandler;
+        }
+
+        public static SoundManager FindSoundManager()
+        {
+            return FindPersistentComponents()?.GetComponent<SoundManager>();
+        }
+
         public static GameSettings FindGameSettings()
         {
-            return FindGameStateManager().settings;
+            return FindGameStateManager()?.settings;
         }
 
         public static AvatarModel FindAvatarModel()
         {
-            return FindGameStateManager().Avatar;
+            return FindGameStateManager()?.Avatar;
         }
 
         public static Transform FindLevelRoot()

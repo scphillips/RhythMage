@@ -21,7 +21,7 @@ namespace RhythMage
 
         private void Start()
         {
-            m_gameStateManager = Utils.FindGameStateManager();
+            m_gameStateManager = Utils.GetOrCreateGameStateManager();
             m_settings = Utils.FindGameSettings();
             m_avatar = Utils.FindAvatarModel();
             m_pathBuilder = new PathBuilder();

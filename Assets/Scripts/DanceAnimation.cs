@@ -30,7 +30,7 @@ namespace RhythMage
         {
             if (animationEntries.Count > 0)
             {
-                SoundManager soundManager = Utils.FindSoundManager();
+                SoundManager soundManager = Utils.GetOrCreateSoundManager();
                 m_frameCount = animationEntries[0].animationFrames.Length;
                 soundManager.OnBeat += OnBeat;
                 soundManager.OnHalfBeat += OnHalfBeat;

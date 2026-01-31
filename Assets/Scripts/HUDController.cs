@@ -66,7 +66,7 @@ namespace RhythMage
             m_dungeon.OnDungeonReset += OnDungeonReset;
             m_dungeon.OnEnemyCountChange += OnEnemyCountChanged;
             m_avatar.OnMove += OnAvatarMove;
-            Utils.FindGameStateManager().gestureHandler.OnSwipe += OnSwipe;
+            Utils.GetOrCreateGestureHandler().OnSwipe += OnSwipe;
             Utils.FindUpdateManager().OnUpdate += Update;
         }
 
@@ -74,7 +74,11 @@ namespace RhythMage
         {
             m_avatar.OnHealthChange -= OnHealthChanged;
             m_avatar.OnMove -= OnAvatarMove;
-            Utils.FindGameStateManager().gestureHandler.OnSwipe -= OnSwipe;
+            GestureHandler gestureHandler = Utils.FindGestureHandler();
+            if (gestureHandler != null)
+            {
+                gestureHandler.OnSwipe -= OnSwipe;
+            }
         }
 
         void OnAvatarMove(AvatarModel avatar)
